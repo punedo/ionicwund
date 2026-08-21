@@ -1,0 +1,149 @@
+<div class="data-table-card">
+  @if (title || headerActions.length) {
+    <div class="table-header">
+      @if (title) {
+        <h2 class="table-title">{{ title }}</h2>
+      }
+
+      @if (headerActions.length) {
+        <div class="header-actions">
+          @for (action of headerActions; track action.label) {
+            <button
+              type="button"
+              class="header-action"
+              [class.primary]="action.cssClass === 'primary'"
+              [class.secondary]="action.cssClass === 'secondary'"
+              (click)="handleHeaderAction(action)"
+            >
+              @if (action.icon) {
+                <ion-icon [name]="action.icon"></ion-icon>
+              }
+              <span>{{ action.label }}</span>
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <div class="table-controls">
+    @if (tabs.length) {
+      <div class="tabs">
+        @for (tab of tabs; track tab.id) {
+          <button
+            type="button"
+            class="tab"
+            [class.active]="activeTab === tab.id"
+            (click)="onTab(tab)"
+          >
+            {{ tab.label }}
+          </button>
+        }
+      </div>
+    }
+
+    <div class="right-controls">
+      @if (filters.length) {
+        <div class="filters">
+          @for (filter of filters; track filter.key) {
+            <select class="filter-select" (change)="onFilter(filter, $event)">
+              @for (opt of filter.options; track opt.value) {
+                <option [value]="opt.value" [selected]="opt.value === (filter.value ?? '')">
+                  {{ opt.label }}
+                </option>
+              }
+            </select>
+          }
+        </div>
+      }
+
+      <div class="search-box">
+        <ion-icon name="search-outline" class="search-icon"></ion-icon>
+        <input
+          type="text"
+          [placeholder]="searchPlaceholder"
+          [value]="searchQuery"
+          (input)="onSearch($event)"
+        />
+      </div>
+    </div>
+  </div>
+
+  <div class="table-scroll">
+    <table class="data-table">
+      <thead>
+        <tr>
+          @for (col of columns; track col.key) {
+            <th
+              [style.width]="col.width"
+              [class.sortable]="col.sortable"
+              (click)="onSort(col)"
+            >
+              <span>{{ col.label }}</span>
+              @if (col.sortable) {
+                <span class="sort-indicator">
+                  @if (sortColumn === col.key) {
+                    <ion-icon [name]="sortAsc ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+                  } @else {
+                    <ion-icon name="swap-vertical-outline"></ion-icon>
+                  }
+                </span>
+              }
+            </th>
+          }
+          @if (rowActions.length) {
+            <th class="actions-header">Aktionen</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of displayedData; track $index) {
+          <tr [class.loading-row]="loading">
+            @for (col of columns; track col.key) {
+              <td [class]="getCellClass(col, row)" [attr.data-label]="col.label">
+                @if (col.type === 'badge') {
+                  <span class="status-badge" [class]="getCellClass(col, row)">
+                    {{ getCellValue(col, row) }}
+                  </span>
+                } @else {
+                  @let value = getCellValue(col, row);
+                  @if (isMultiLine(value)) {
+                    @for (line of value; track line) {
+                      <div class="cell-line">{{ line }}</div>
+                    }
+                  } @else {
+                    {{ value }}
+                  }
+                }
+              </td>
+            }
+            @if (rowActions.length) {
+              <td class="actions-cell">
+                @for (action of rowActions; track action.label) {
+                  <button
+                    type="button"
+                    class="row-action"
+                    [class]="action.cssClass"
+                    (click)="onRowAction(action, row)"
+                    title="{{ action.label }}"
+                  >
+                    @if (action.icon) {
+                      <ion-icon [name]="action.icon"></ion-icon>
+                    }
+                    <span>{{ action.label }}</span>
+                  </button>
+                }
+              </td>
+            }
+          </tr>
+        } @empty {
+          <tr>
+            <td [attr.colspan]="columns.length + (rowActions.length ? 1 : 0)" class="empty-cell">
+              {{ emptyMessage }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

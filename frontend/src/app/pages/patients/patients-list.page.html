@@ -1,0 +1,18 @@
+<app-admin-shell pageTitle="Patienten">
+  <app-data-table
+    title="Patienten"
+    [columns]="columns"
+    [data]="filteredPatients"
+    [headerActions]="headerActions"
+    [rowActions]="rowActions"
+    [tabs]="tabs"
+    [activeTab]="activeTab"
+    [filters]="filters"
+    searchPlaceholder="Suche nach Name, ID, Wund..."
+    emptyMessage="Keine Patienten gefunden."
+    [loading]="loading"
+    (tabChange)="onTabChange($event)"
+    (filterChange)="onFilterChange($event)"
+    (searchChange)="onSearch($event)"
+  ></app-data-table>
+</app-admin-shell>

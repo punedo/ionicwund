@@ -1,0 +1,231 @@
+<app-admin-shell pageTitle="Patient anlegen">
+  <form #patientForm="ngForm" (ngSubmit)="onSubmit(patientForm)" class="patient-form" autocomplete="off">
+    <div class="form-card">
+      <h2 class="section-title">Stammdaten</h2>
+
+      <div class="form-grid two-cols">
+        <div class="form-field">
+          <label for="firstName">Vorname <span class="required">*</span></label>
+          <input
+            id="firstName"
+            type="text"
+            name="firstName"
+            [(ngModel)]="patient.firstName"
+            #firstName="ngModel"
+            placeholder="z. B. Maria"
+            required
+          />
+          @if (submitted && firstName.invalid) {
+            <span class="field-error">Vorname ist erforderlich.</span>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="lastName">Nachname <span class="required">*</span></label>
+          <input
+            id="lastName"
+            type="text"
+            name="lastName"
+            [(ngModel)]="patient.lastName"
+            #lastName="ngModel"
+            placeholder="z. B. Fischer"
+            required
+          />
+          @if (submitted && lastName.invalid) {
+            <span class="field-error">Nachname ist erforderlich.</span>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="dateOfBirth">Geburtsdatum <span class="required">*</span></label>
+          <div class="input-with-icon">
+            <input
+              id="dateOfBirth"
+              type="text"
+              name="dateOfBirth"
+              [(ngModel)]="patient.dateOfBirth"
+              #dateOfBirth="ngModel"
+              placeholder="tt.mm.jjjj"
+              required
+            />
+            <ion-icon name="calendar-outline" class="field-icon"></ion-icon>
+          </div>
+          @if (submitted && dateOfBirth.invalid) {
+            <span class="field-error">Geburtsdatum ist erforderlich.</span>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="gender">Geschlecht</label>
+          <select id="gender" name="gender" [(ngModel)]="patient.gender">
+            @for (g of genders; track g) {
+              <option [value]="g">{{ g }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="street">Adresse</label>
+          <input
+            id="street"
+            type="text"
+            name="street"
+            [(ngModel)]="patient.street"
+            placeholder="Straße, Hausnummer"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="zip">PLZ / Ort</label>
+          <input
+            id="zip"
+            type="text"
+            name="zip"
+            [(ngModel)]="patient.zip"
+            placeholder="14501 Falkensee"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="phone">Telefon</label>
+          <input
+            id="phone"
+            type="tel"
+            name="phone"
+            [(ngModel)]="patient.phone"
+            placeholder="+49 ..."
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="insuranceNumber">Versichertennummer</label>
+          <input
+            id="insuranceNumber"
+            type="text"
+            name="insuranceNumber"
+            [(ngModel)]="patient.insuranceNumber"
+            placeholder="A123456789"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h2 class="section-title">Versicherung & Zuständigkeiten</h2>
+
+      <div class="form-field field-insurance-type">
+        <label>Versicherungsart <span class="required">*</span></label>
+        <div class="radio-group">
+          @for (type of insuranceTypes; track type) {
+            <label class="radio-pill" [class.selected]="patient.insuranceType === type">
+              <input
+                type="radio"
+                name="insuranceType"
+                [value]="type"
+                [(ngModel)]="patient.insuranceType"
+              />
+              <span>{{ type === 'GKV' ? 'Gesetzlich (GKV)' : 'Privat (PKV)' }}</span>
+            </label>
+          }
+        </div>
+      </div>
+
+      <div class="form-grid two-cols">
+        <div class="form-field">
+          <label for="insuranceCompany">Krankenkasse</label>
+          <select id="insuranceCompany" name="insuranceCompany" [(ngModel)]="patient.insuranceCompany">
+            <option value="">— bitte wählen —</option>
+            @for (company of insuranceCompanies; track company) {
+              <option [value]="company">{{ company }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="treatingDoctor">Behandelnder Arzt/Ärztin (Hausarzt)</label>
+          <select id="treatingDoctor" name="treatingDoctor" [(ngModel)]="patient.treatingDoctor">
+            <option value="">— bitte wählen —</option>
+            @for (doctor of doctors; track doctor) {
+              <option [value]="doctor">{{ doctor }}</option>
+            }
+          </select>
+          <span class="field-hint">Weitere Ärzt:innen (z. B. Facharzt) können nach dem Anlegen in der Patientenakte ergänzt werden.</span>
+        </div>
+
+        <div class="form-field">
+          <label for="insuranceClass">Kostenstelle (Wartefall)</label>
+          <select id="insuranceClass" name="insuranceClass" [(ngModel)]="patient.insuranceClass">
+            <option value="">— bitte wählen —</option>
+            @for (ic of insuranceClasses; track ic) {
+              <option [value]="ic">{{ ic }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="additionalService">Zusatzangebot</label>
+          <select id="additionalService" name="additionalService" [(ngModel)]="patient.additionalService">
+            <option value="">— bitte wählen —</option>
+            @for (service of additionalServices; track service) {
+              <option [value]="service">{{ service }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="responsibleCareService">Zuständiger Pflegedienst / Homecare</label>
+          <select id="responsibleCareService" name="responsibleCareService" [(ngModel)]="patient.responsibleCareService">
+            <option value="">— bitte wählen —</option>
+            @for (service of careServices; track service) {
+              <option [value]="service">{{ service }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="responsibleWoundExpert">Zuständiger Wundexperte</label>
+          <select id="responsibleWoundExpert" name="responsibleWoundExpert" [(ngModel)]="patient.responsibleWoundExpert">
+            <option value="">— bitte wählen —</option>
+            @for (expert of woundExperts; track expert) {
+              <option [value]="expert">{{ expert }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="facility">Einrichtung (optional)</label>
+          <select id="facility" name="facility" [(ngModel)]="patient.facility">
+            @for (f of facilities; track f) {
+              <option [value]="f">{{ f }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="woundType">Wundtyp</label>
+          <select id="woundType" name="woundType" [(ngModel)]="patient.woundType">
+            <option value="">— bitte wählen —</option>
+            @for (wt of woundTypes; track wt) {
+              <option [value]="wt">{{ wt }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <p class="form-hint">
+        Die Wunddokumente (Diagnose, Lokalisation, Risikofaktoren) werden im Anschluss über „Neue Wunde erfassen" in der Patientenakte ergänzt.
+      </p>
+    </div>
+
+    @if (errorMessage) {
+      <div class="form-error">{{ errorMessage }}</div>
+    }
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="onCancel()">Abbrechen</button>
+      <button type="submit" class="btn btn-primary" [disabled]="saving">
+        Patient anlegen & öffnen
+      </button>
+    </div>
+  </form>
+</app-admin-shell>

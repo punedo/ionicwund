@@ -21,13 +21,13 @@ export const routes: Routes = [
     path: 'patients',
     canActivate: [AuthGuard, PermissionGuard],
     data: { permission: 'patients.view' },
-    loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
+    loadComponent: () => import('./pages/patients/patients-list.page').then((m) => m.PatientsListPage),
   },
   {
     path: 'patients/create',
     canActivate: [AuthGuard, PermissionGuard],
     data: { permission: 'patients.create' },
-    loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
+    loadComponent: () => import('./pages/patients/patient-create.page').then((m) => m.PatientCreatePage),
   },
   {
     path: 'woundcare',

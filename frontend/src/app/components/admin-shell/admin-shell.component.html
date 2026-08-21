@@ -1,0 +1,43 @@
+<ion-content [fullscreen]="true" class="admin-viewport">
+  <div class="layout-wrapper">
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar-container">
+      @for (section of navSections; track section.title) {
+        <div class="nav-section">
+          <span class="nav-section-title">{{ section.title }}</span>
+          @for (item of section.items; track item.route) {
+            <div
+              class="nav-item"
+              [class.active]="isActive(item.route)"
+              (click)="navigate(item.route)"
+            >
+              <ion-icon [name]="item.icon" class="nav-icon"></ion-icon>
+              <span class="nav-label">{{ item.label }}</span>
+            </div>
+          }
+        </div>
+      }
+
+      <div class="nav-section nav-section-footer">
+        <div class="nav-item logout-item" (click)="logout()">
+          <ion-icon name="log-out-outline" class="nav-icon"></ion-icon>
+          <span class="nav-label">Logout</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT MAIN CONTENT -->
+    <main class="main-viewport">
+      <div class="admin-container">
+        <header class="content-header">
+          <h1 class="page-title">{{ pageTitle }}</h1>
+          @if (isAdmin) {
+            <span class="role-badge">Admin</span>
+          }
+        </header>
+
+        <ng-content></ng-content>
+      </div>
+    </main>
+  </div>
+</ion-content>
