@@ -1,101 +1,198 @@
+:host {
+  --background: #f8fafc;
+}
+
+.dashboard-content {
+  --background: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
 .dashboard-container {
-  padding: 20px;
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.welcome-section {
-  margin-bottom: 30px;
+/* Header */
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 
-  h2 {
-    margin: 0 0 8px 0;
-    font-size: 1.8rem;
-    color: #2c3e50;
-  }
-
-  .subtitle {
+  .page-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: #0f172a;
     margin: 0;
-    color: #7f8c8d;
-    font-size: 1rem;
-  }
-}
-
-.stat-card {
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   }
 
-  ion-card-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px;
-
-    ion-icon {
-      font-size: 24px;
-      color: var(--ion-color-primary);
-    }
-
-    ion-card-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin: 0;
-    }
-  }
-
-  ion-card-content {
-    padding: 16px;
-
-    .stat-value {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: #2c3e50;
-      margin-bottom: 4px;
-    }
-
-    .stat-label {
-      font-size: 0.9rem;
-      color: #7f8c8d;
-    }
-  }
-
-  &.users-card ion-icon {
-    color: #3498db;
-  }
-
-  &.roles-card ion-icon {
-    color: #9b59b6;
-  }
-
-  &.permissions-card ion-icon {
-    color: #e67e22;
-  }
-
-  &.menu-card ion-icon {
-    color: #1abc9c;
-  }
-}
-
-.info-card {
-  margin-top: 30px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-
-  ion-card-title {
-    font-size: 1.2rem;
+  .admin-badge {
+    background: #e2e8f0;
+    color: #475569;
+    padding: 4px 16px;
+    border-radius: 20px;
+    font-size: 13px;
     font-weight: 600;
   }
+}
 
-  .roles-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+/* Stat / KPI Cards */
+.stat-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px 24px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 16px;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 
-    ion-chip {
-      margin: 0;
+  .card-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    letter-spacing: 0.5px;
+  }
+
+  .stat-value {
+    font-size: 32px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 6px 0;
+
+    &.highlight-orange {
+      color: #d97706;
     }
+  }
+
+  .stat-subtext {
+    font-size: 12px;
+    color: #64748b;
+  }
+}
+
+.section-grid {
+  margin-top: 8px;
+}
+
+/* Large Bottom Cards */
+.content-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  padding: 24px;
+  margin-bottom: 16px;
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #334155;
+    letter-spacing: 0.5px;
+    margin: 0 0 20px 0;
+    line-height: 1.4;
+  }
+}
+
+/* Tasks & Badges */
+.task-list {
+  flex: 1;
+
+  .task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+
+    &.highlighted {
+      background: #f8fafc;
+      border: 1px solid #f1f5f9;
+    }
+
+    .task-name {
+      font-size: 14px;
+      color: #1e293b;
+      font-weight: 500;
+    }
+  }
+}
+
+/* Status Chips */
+.chip {
+  padding: 5px 12px;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+
+  &.chip-due {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  &.chip-urgent {
+    background: #fee2e2;
+    color: #b91c1c;
+    line-height: 1.2;
+    max-width: 90px;
+  }
+
+  &.chip-success {
+    background: #dcfce7;
+    color: #15803d;
+  }
+}
+
+.card-footer-links {
+  font-size: 13px;
+  color: #64748b;
+  margin-top: 16px;
+
+  a {
+    color: #2563eb;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+}
+
+/* Chart Layout */
+.chart-card {
+  .chart-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 20px 0;
+
+    .trend-chart {
+      width: 100%;
+      height: 140px;
+    }
+  }
+
+  .chart-subtext {
+    font-size: 13px;
+    color: #64748b;
+  }
+}
+
+/* Roles list for non-admin */
+.roles-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  .role-chip {
+    background: #e2e8f0;
+    color: #475569;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
   }
 }

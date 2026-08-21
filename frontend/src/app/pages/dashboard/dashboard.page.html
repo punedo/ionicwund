@@ -7,78 +7,152 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="dashboard-content">
   <div class="dashboard-container">
-    <div class="welcome-section">
-      <h2>Welcome, {{ userName }}!</h2>
-      <p class="subtitle">Here's your overview</p>
-    </div>
 
-    <ion-grid>
+    <!-- Top Header -->
+    <header class="header-row">
+      <h1 class="page-title">Dashboard</h1>
+      @if (isAdmin) {
+        <span class="admin-badge">Admin</span>
+      }
+    </header>
+
+    <!-- Top KPI Row -->
+    <ion-grid class="ion-no-padding">
       <ion-row>
-        <ion-col size="12" size-md="6" size-lg="3">
-          <ion-card class="stat-card users-card">
-            <ion-card-header>
-              <ion-icon name="people"></ion-icon>
-              <ion-card-title>Users</ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              <div class="stat-value">{{ loading ? '...' : stats.users }}</div>
-              <ion-label class="stat-label">Total Users</ion-label>
-            </ion-card-content>
-          </ion-card>
+        <!-- KPI 1 -->
+        <ion-col size="12" size-sm="6" size-lg="3">
+          <div class="stat-card">
+            <span class="card-label">NUTZER IM SYSTEM</span>
+            <div class="stat-value">{{ loading ? '...' : stats.users }}</div>
+            <div class="stat-subtext">Gesamt registrierte Nutzer</div>
+          </div>
         </ion-col>
 
-        <ion-col size="12" size-md="6" size-lg="3">
-          <ion-card class="stat-card roles-card">
-            <ion-card-header>
-              <ion-icon name="shield"></ion-icon>
-              <ion-card-title>Roles</ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              <div class="stat-value">{{ loading ? '...' : stats.roles }}</div>
-              <ion-label class="stat-label">Total Roles</ion-label>
-            </ion-card-content>
-          </ion-card>
+        <!-- KPI 2 -->
+        <ion-col size="12" size-sm="6" size-lg="3">
+          <div class="stat-card">
+            <span class="card-label">ROLLEN</span>
+            <div class="stat-value">{{ loading ? '...' : stats.roles }}</div>
+            <div class="stat-subtext">Verfügbare Rollen im System</div>
+          </div>
         </ion-col>
 
-        <ion-col size="12" size-md="6" size-lg="3">
-          <ion-card class="stat-card permissions-card">
-            <ion-card-header>
-              <ion-icon name="key"></ion-icon>
-              <ion-card-title>Permissions</ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              <div class="stat-value">{{ loading ? '...' : stats.permissions }}</div>
-              <ion-label class="stat-label">Total Permissions</ion-label>
-            </ion-card-content>
-          </ion-card>
+        <!-- KPI 3 -->
+        <ion-col size="12" size-sm="6" size-lg="3">
+          <div class="stat-card">
+            <span class="card-label">BERECHTIGUNGEN</span>
+            <div class="stat-value highlight-orange">{{ loading ? '...' : stats.permissions }}</div>
+            <div class="stat-subtext">Definierte Berechtigungen</div>
+          </div>
         </ion-col>
 
-        <ion-col size="12" size-md="6" size-lg="3">
-          <ion-card class="stat-card menu-card">
-            <ion-card-header>
-              <ion-icon name="list"></ion-icon>
-              <ion-card-title>Menu Items</ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              <div class="stat-value">{{ loading ? '...' : stats.menuItems }}</div>
-              <ion-label class="stat-label">Total Menu Items</ion-label>
-            </ion-card-content>
-          </ion-card>
+        <!-- KPI 4 -->
+        <ion-col size="12" size-sm="6" size-lg="3">
+          <div class="stat-card">
+            <span class="card-label">MENÜPUNKTE</span>
+            <div class="stat-value">{{ loading ? '...' : stats.menuItems }}</div>
+            <div class="stat-subtext">Konfigurierte Navigationseinträge</div>
+          </div>
         </ion-col>
       </ion-row>
     </ion-grid>
 
-    <ion-card class="info-card">
-      <ion-card-header>
-        <ion-card-title>Your Roles</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <div class="roles-list">
-          <ion-chip *ngFor="let role of userRoles" color="primary">{{ role }}</ion-chip>
-        </div>
-      </ion-card-content>
-    </ion-card>
+    @if (isAdmin) {
+      <!-- Bottom Section: Tasks & Trend Chart -->
+      <ion-grid class="ion-no-padding section-grid">
+        <ion-row>
+          <!-- Tasks / Activity Card -->
+          <ion-col size="12" size-lg="6">
+            <div class="content-card task-card">
+              <h2 class="section-title">AUFGABEN / AKTIVITÄT</h2>
+
+              <div class="task-list">
+                <div class="task-item">
+                  <span class="task-name">Débridement – Fischer, M.</span>
+                  <span class="chip chip-due">fällig heute</span>
+                </div>
+
+                <div class="task-item highlighted">
+                  <span class="task-name">Abweichung prüfen – Yilmaz, T.</span>
+                  <span class="chip chip-urgent">hohe Priorität</span>
+                </div>
+
+                <div class="task-item">
+                  <span class="task-name">Wechselintervall bestätigt – Fischer, M.</span>
+                  <span class="chip chip-success">erledigt</span>
+                </div>
+              </div>
+
+              <div class="card-footer-links">
+                Direkt aus <a href="#">Aufgaben</a> · <a href="#">Eskalationen</a>
+              </div>
+            </div>
+          </ion-col>
+
+          <!-- Chart / Trend Card -->
+          <ion-col size="12" size-lg="6">
+            <div class="content-card chart-card">
+              <h2 class="section-title">WUNDFLÄCHENVERLAUF (PORTALWEIT, Ø ALLER AKTIVEN WUNDEN)</h2>
+
+              <div class="chart-area">
+                <svg viewBox="0 0 500 150" preserveAspectRatio="none" class="trend-chart">
+                  <line x1="0" y1="140" x2="500" y2="140" stroke="#E5E7EB" stroke-width="1.5" />
+                  <path
+                    d="M 10 120 Q 90 110, 150 100 T 230 80 T 320 60 T 400 50 T 485 20"
+                    fill="none"
+                    stroke="#1D6FE5"
+                    stroke-width="3.5"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </div>
+
+              <div class="chart-subtext">
+                Trend über die 4 aktuell dokumentierten Patient:innen.
+              </div>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    } @else {
+      <!-- Non-admin: show roles info -->
+      <ion-grid class="ion-no-padding section-grid">
+        <ion-row>
+          <ion-col size="12" size-lg="6">
+            <div class="content-card">
+              <h2 class="section-title">IHRE ROLLEN</h2>
+              <div class="roles-list">
+                @for (role of userRoles; track role) {
+                  <span class="role-chip">{{ role }}</span>
+                }
+              </div>
+            </div>
+          </ion-col>
+          <ion-col size="12" size-lg="6">
+            <div class="content-card">
+              <h2 class="section-title">WUNDFLÄCHENVERLAUF (PORTALWEIT, Ø ALLER AKTIVEN WUNDEN)</h2>
+              <div class="chart-area">
+                <svg viewBox="0 0 500 150" preserveAspectRatio="none" class="trend-chart">
+                  <line x1="0" y1="140" x2="500" y2="140" stroke="#E5E7EB" stroke-width="1.5" />
+                  <path
+                    d="M 10 120 Q 90 110, 150 100 T 230 80 T 320 60 T 400 50 T 485 20"
+                    fill="none"
+                    stroke="#1D6FE5"
+                    stroke-width="3.5"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </div>
+              <div class="chart-subtext">
+                Trend über die aktuell dokumentierten Patient:innen.
+              </div>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    }
+
   </div>
 </ion-content>
