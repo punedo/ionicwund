@@ -1,3 +1,23 @@
 :host {
   display: block;
 }
+
+.tab-description,
+.tab-footer {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #6b7280;
+  background: #f9fafb;
+  border-left: 3px solid #6366f1;
+  border-radius: 4px;
+}
+
+.tab-footer {
+  margin-top: 12px;
+  margin-bottom: 0;
+  border-left-color: #d1d5db;
+  color: #9ca3af;
+  font-size: 12px;
+}

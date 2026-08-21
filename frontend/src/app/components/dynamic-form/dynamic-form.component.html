@@ -1,0 +1,73 @@
+<form #formRef="ngForm" (ngSubmit)="onSubmit(formRef)" class="dynamic-form" autocomplete="off">
+  @for (section of config.sections; track section.title) {
+    <div class="form-card">
+      <h2 class="section-title">{{ section.title }}</h2>
+
+      <div class="form-grid two-cols">
+        @for (field of section.fields; track field.key) {
+          <div class="form-field" [class.full]="getFieldWidth(field) === 'full'">
+            <label [for]="field.key">
+              {{ field.label }}
+              @if (isRequired(field)) {
+                <span class="required">*</span>
+              }
+            </label>
+
+            @switch (field.type) {
+              @case ('select') {
+                <select
+                  [id]="field.key"
+                  [name]="field.key"
+                  [(ngModel)]="model[field.key]"
+                  [required]="!!field.required"
+                >
+                  <option value="">— bitte wählen —</option>
+                  @for (opt of field.options; track opt.value) {
+                    <option [value]="opt.value">{{ opt.label }}</option>
+                  }
+                </select>
+              }
+              @case ('textarea') {
+                <textarea
+                  [id]="field.key"
+                  [name]="field.key"
+                  [(ngModel)]="model[field.key]"
+                  [placeholder]="field.placeholder || ''"
+                  [required]="!!field.required"
+                  rows="3"
+                ></textarea>
+              }
+              @default {
+                <input
+                  [id]="field.key"
+                  [type]="field.type"
+                  [name]="field.key"
+                  [(ngModel)]="model[field.key]"
+                  [placeholder]="field.placeholder || ''"
+                  [required]="!!field.required"
+                />
+              }
+            }
+
+            @if (field.hint) {
+              <span class="field-hint">{{ field.hint }}</span>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (errorMessage) {
+    <div class="form-error">{{ errorMessage }}</div>
+  }
+
+  <div class="form-actions">
+    <button type="button" class="btn btn-secondary" (click)="onCancel()">
+      {{ config.cancelLabel || 'Abbrechen' }}
+    </button>
+    <button type="submit" class="btn btn-primary" [disabled]="saving">
+      {{ config.submitLabel }}
+    </button>
+  </div>
+</form>

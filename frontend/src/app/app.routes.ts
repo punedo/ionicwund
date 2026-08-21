@@ -30,6 +30,18 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/patients/patient-create.page').then((m) => m.PatientCreatePage),
   },
   {
+    path: 'facilities/create',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'patients.create' },
+    loadComponent: () => import('./pages/facilities/facility-create.page').then((m) => m.FacilityCreatePage),
+  },
+  {
+    path: 'doctors/create',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'patients.create' },
+    loadComponent: () => import('./pages/doctors/doctor-create.page').then((m) => m.DoctorCreatePage),
+  },
+  {
     path: 'woundcare',
     canActivate: [AuthGuard, PermissionGuard],
     data: { permission: 'woundcare.view' },

@@ -151,19 +151,11 @@ export class PatientsListPage implements OnInit {
       label: 'Einrichtung anlegen',
       icon: 'add-outline',
       cssClass: 'primary',
-      onClick: () => this.router.navigate(['/facilities/create']),
+      onClick: () => console.log('Einrichtung anlegen'),
     },
   ];
 
-  doctorHeaderActions: TableHeaderAction[] = [
-    { label: 'Exportieren', icon: 'download-outline', cssClass: 'secondary' },
-    {
-      label: 'Arzt anlegen',
-      icon: 'add-outline',
-      cssClass: 'primary',
-      onClick: () => this.router.navigate(['/doctors/create']),
-    },
-  ];
+  doctorHeaderActions: TableHeaderAction[] = [];
 
   patientRowActions: TableRowAction<Patient>[] = [
     {

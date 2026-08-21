@@ -1,138 +1,42 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 import { Patient, PatientCreateRequest } from '../models/patient.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PatientService {
-  private patients: Patient[] = [
-    {
-      id: 1,
-      firstName: 'Maria',
-      lastName: 'Fischer',
-      dateOfBirth: '1954-01-12',
-      gender: 'weiblich',
-      street: 'Hauptstraße',
-      houseNumber: '12',
-      zip: '14501',
-      city: 'Falkensee',
-      phone: '030 123456',
-      insuranceNumber: 'A123456789',
-      insuranceType: 'GKV',
-      insuranceCompany: 'AOK Nordost',
-      insuranceClass: 'AOK Nordost',
-      treatingDoctor: 'Dr. med. S. Roth - Hausarztpraxis Roth',
-      additionalService: 'Zusatzangebotlich (100%, min. 5€ / max. 10€-Vereinbarung)',
-      responsibleCareService: 'R. Meier - Pflegedienst Nord',
-      responsibleWoundExpert: 'Homecare Süd',
-      facility: '— ambulant, keine Einrichtung —',
-      woundType: 'Diabetisches Fußsyndrom',
-      score: 'Wagner 2 / Armstrong A',
-      responsible: ['R. Meier - Pflegedienst Nord', 'Homecare Süd'],
-      lastDocumentedAt: 'vor 1 Tag',
-      status: 'Beobachtung',
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: 2,
-      firstName: 'Turan',
-      lastName: 'Yilmaz',
-      dateOfBirth: '1968-03-08',
-      gender: 'männlich',
-      street: 'Musterweg',
-      houseNumber: '5',
-      zip: '10115',
-      city: 'Berlin',
-      phone: '030 987654',
-      insuranceNumber: 'B987654321',
-      insuranceType: 'GKV',
-      insuranceCompany: 'Techniker Krankenkasse',
-      insuranceClass: 'Techniker Krankenkasse',
-      treatingDoctor: 'Dr. med. A. Schmidt - Praxis Schmidt',
-      additionalService: 'Befreiungsbescheinigung hinterlegt',
-      responsibleCareService: 'J. Kaiser - Homecare Süd',
-      responsibleWoundExpert: 'CLAP Co.',
-      facility: '— ambulant, keine Einrichtung —',
-      woundType: 'Ulcus cruris varicosum',
-      score: 'CEAP C6',
-      responsible: ['J. Kaiser - Homecare Süd', 'CLAP Co.'],
-      lastDocumentedAt: 'vor 3 Tagen',
-      status: 'kritisch',
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: 3,
-      firstName: 'Anna',
-      lastName: 'Berger',
-      dateOfBirth: '1977-07-22',
-      gender: 'weiblich',
-      street: 'Lindenallee',
-      houseNumber: '42',
-      zip: '14059',
-      city: 'Berlin',
-      phone: '030 456789',
-      insuranceNumber: 'C456789123',
-      insuranceType: 'PKV',
-      insuranceCompany: 'AXA Krankenversicherung',
-      insuranceClass: 'AXA Krankenversicherung',
-      treatingDoctor: 'Dr. med. K. Klein - Klinik Berlin',
-      additionalService: 'Zusatzangebotlich (100%, min. 5€ / max. 10€-Vereinbarung)',
-      responsibleCareService: 'R. Meier - Pflegedienst Nord',
-      responsibleWoundExpert: 'Homecare Süd',
-      facility: 'Pflegeheim Nord',
-      woundType: 'Dekubital-Sakral',
-      score: 'EPUAP Kat. 2',
-      responsible: ['R. Meier - Pflegedienst Nord', 'Homecare Süd'],
-      lastDocumentedAt: 'heute',
-      status: 'neu',
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: 4,
-      firstName: 'Jan',
-      lastName: 'Novak',
-      dateOfBirth: '1949-11-05',
-      gender: 'männlich',
-      street: 'Birkenstraße',
-      houseNumber: '7',
-      zip: '14057',
-      city: 'Berlin',
-      phone: '030 111222',
-      insuranceNumber: 'D111222333',
-      insuranceType: 'GKV',
-      insuranceCompany: 'Barmer',
-      insuranceClass: 'Barmer',
-      treatingDoctor: 'Dr. med. J. Kaiser - Homecare Süd',
-      additionalService: 'Befreiungsbescheinigung hinterlegt',
-      responsibleCareService: 'J. Kaiser - Homecare Süd',
-      responsibleWoundExpert: 'Homecare Süd',
-      facility: '— ambulant, keine Einrichtung —',
-      woundType: 'Diabetisches Fußsyndrom',
-      score: 'Wagner 1 / Armstrong A',
-      responsible: ['J. Kaiser - Homecare Süd', 'Homecare Süd'],
-      lastDocumentedAt: 'vor 5 Tagen',
-      status: 'neu',
-      createdAt: new Date().toISOString(),
-    },
-  ];
+  private readonly apiUrl = `${environment.apiUrl}/patients`;
+
+  constructor(private http: HttpClient) {}
 
   getPatients(): Observable<Patient[]> {
-    return of([...this.patients]).pipe(delay(200));
+    return this.http.get<{ patients: Patient[] }>(this.apiUrl).pipe(
+      map((res) => res.patients ?? []),
+      catchError((err) => {
+        console.error('[PatientService] getPatients error:', err);
+        return of([]);
+      })
+    );
+  }
+
+  getPatient(id: number): Observable<Patient> {
+    return this.http.get<Patient>(`${this.apiUrl}/${id}`);
   }
 
   createPatient(request: PatientCreateRequest): Observable<Patient> {
-    const newPatient: Patient = {
-      id: this.nextId(),
-      ...request,
-      responsible: [request.responsibleCareService ?? '', request.responsibleWoundExpert ?? ''].filter(Boolean),
-      lastDocumentedAt: 'heute',
-      status: 'neu',
-      createdAt: new Date().toISOString(),
-    };
-    this.patients = [newPatient, ...this.patients];
-    return of(newPatient).pipe(delay(200));
+    return this.http.post<Patient>(this.apiUrl, request);
+  }
+
+  updatePatient(id: number, request: PatientCreateRequest): Observable<Patient> {
+    return this.http.put<Patient>(`${this.apiUrl}/${id}`, request);
+  }
+
+  deletePatient(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
   getDoctors(): Observable<string[]> {
@@ -194,11 +98,5 @@ export class PatientService {
       'Dekubital-Trochanter',
       'Postoperativ',
     ]);
-  }
-
-  private nextId(): number {
-    return this.patients.length > 0
-      ? Math.max(...this.patients.map((p) => p.id)) + 1
-      : 1;
   }
 }

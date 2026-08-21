@@ -1,0 +1,11 @@
+<app-admin-shell pageTitle="Einrichtung anlegen">
+  <app-dynamic-form
+    [config]="config"
+    [model]="model"
+    [saving]="saving"
+    [errorMessage]="errorMessage"
+    [submitted]="submitted"
+    (formSubmit)="onSubmit($event)"
+    (formCancel)="onCancel()"
+  ></app-dynamic-form>
+</app-admin-shell>
