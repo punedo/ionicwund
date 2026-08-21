@@ -37,14 +37,9 @@
       <ion-button
         type="submit"
         expand="block"
-        [disabled]="loading"
         class="verify-button"
       >
-        @if (loading) {
-          <ion-spinner name="crescent"></ion-spinner>
-        } @else {
-          Verify
-        }
+        Verify
       </ion-button>
     </form>
 
@@ -52,7 +47,7 @@
       @if (resendDisabled) {
         <p class="resend-timer">Resend available in {{ resendCountdown }}s</p>
       } @else {
-        <ion-button fill="clear" (click)="onResend()" [disabled]="loading">
+        <ion-button fill="clear" (click)="onResend()">
           Resend Code
         </ion-button>
       }

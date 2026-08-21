@@ -1,158 +1,161 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <ion-title>Dashboard</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" class="dashboard-viewport">
+  <div class="layout-wrapper">
 
-<ion-content class="dashboard-content">
-  <div class="dashboard-container">
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar-container">
 
-    <!-- Top Header -->
-    <header class="header-row">
-      <h1 class="page-title">Dashboard</h1>
-      @if (isAdmin) {
-        <span class="admin-badge">Admin</span>
+      @for (section of navSections; track section.title) {
+        <div class="nav-section">
+          <span class="nav-section-title">{{ section.title }}</span>
+          @for (item of section.items; track item.route) {
+            <div
+              class="nav-item"
+              [class.active]="currentRoute === item.route"
+              (click)="navigate(item.route)"
+            >
+              <ion-icon [name]="item.icon" class="nav-icon" [class.active-icon]="currentRoute === item.route"></ion-icon>
+              <span class="nav-label">{{ item.label }}</span>
+            </div>
+          }
+        </div>
       }
-    </header>
 
-    <!-- Top KPI Row -->
-    <ion-grid class="ion-no-padding">
-      <ion-row>
-        <!-- KPI 1 -->
-        <ion-col size="12" size-sm="6" size-lg="3">
+      <!-- Logout -->
+      <div class="nav-section nav-section-footer">
+        <div class="nav-item logout-item" (click)="logout()">
+          <ion-icon name="log-out-outline" class="nav-icon"></ion-icon>
+          <span class="nav-label">Logout</span>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- RIGHT MAIN CONTENT -->
+    <main class="main-viewport">
+      <div class="dashboard-container">
+
+        <!-- Top Header -->
+        <header class="content-header">
+          <h1 class="page-title">Dashboard</h1>
+          @if (isAdmin) {
+            <span class="role-badge">Admin</span>
+          }
+        </header>
+
+        <!-- KPI 4-Card Row -->
+        <div class="stats-row">
           <div class="stat-card">
-            <span class="card-label">NUTZER IM SYSTEM</span>
-            <div class="stat-value">{{ loading ? '...' : stats.users }}</div>
-            <div class="stat-subtext">Gesamt registrierte Nutzer</div>
+            <span class="stat-title">NUTZER IM SYSTEM</span>
+            <div class="stat-val">{{ loading ? '...' : stats.users }}</div>
+            <div class="stat-sub">Gesamt registrierte Nutzer</div>
           </div>
-        </ion-col>
 
-        <!-- KPI 2 -->
-        <ion-col size="12" size-sm="6" size-lg="3">
           <div class="stat-card">
-            <span class="card-label">ROLLEN</span>
-            <div class="stat-value">{{ loading ? '...' : stats.roles }}</div>
-            <div class="stat-subtext">Verfügbare Rollen im System</div>
+            <span class="stat-title">ROLLEN</span>
+            <div class="stat-val">{{ loading ? '...' : stats.roles }}</div>
+            <div class="stat-sub">Verfügbare Rollen im System</div>
           </div>
-        </ion-col>
 
-        <!-- KPI 3 -->
-        <ion-col size="12" size-sm="6" size-lg="3">
           <div class="stat-card">
-            <span class="card-label">BERECHTIGUNGEN</span>
-            <div class="stat-value highlight-orange">{{ loading ? '...' : stats.permissions }}</div>
-            <div class="stat-subtext">Definierte Berechtigungen</div>
+            <span class="stat-title">BERECHTIGUNGEN</span>
+            <div class="stat-val orange-text">{{ loading ? '...' : stats.permissions }}</div>
+            <div class="stat-sub">Definierte Berechtigungen</div>
           </div>
-        </ion-col>
 
-        <!-- KPI 4 -->
-        <ion-col size="12" size-sm="6" size-lg="3">
           <div class="stat-card">
-            <span class="card-label">MENÜPUNKTE</span>
-            <div class="stat-value">{{ loading ? '...' : stats.menuItems }}</div>
-            <div class="stat-subtext">Konfigurierte Navigationseinträge</div>
+            <span class="stat-title">MENÜPUNKTE</span>
+            <div class="stat-val">{{ loading ? '...' : stats.menuItems }}</div>
+            <div class="stat-sub">Konfigurierte Navigationseinträge</div>
           </div>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+        </div>
 
-    @if (isAdmin) {
-      <!-- Bottom Section: Tasks & Trend Chart -->
-      <ion-grid class="ion-no-padding section-grid">
-        <ion-row>
-          <!-- Tasks / Activity Card -->
-          <ion-col size="12" size-lg="6">
-            <div class="content-card task-card">
-              <h2 class="section-title">AUFGABEN / AKTIVITÄT</h2>
+        @if (isAdmin) {
+          <!-- Lower 2 Panels -->
+          <div class="panels-row">
 
-              <div class="task-list">
-                <div class="task-item">
-                  <span class="task-name">Débridement – Fischer, M.</span>
-                  <span class="chip chip-due">fällig heute</span>
+            <!-- Activity Box -->
+            <div class="panel-box">
+              <h2 class="panel-heading">AUFGABEN / AKTIVITÄT</h2>
+
+              <div class="activity-items">
+                <div class="activity-item">
+                  <span class="activity-name">Débridement – Fischer, M.</span>
+                  <span class="badge badge-due">fällig heute</span>
                 </div>
 
-                <div class="task-item highlighted">
-                  <span class="task-name">Abweichung prüfen – Yilmaz, T.</span>
-                  <span class="chip chip-urgent">hohe Priorität</span>
+                <div class="activity-item item-highlight">
+                  <span class="activity-name">Abweichung prüfen – Yilmaz, T.</span>
+                  <span class="badge badge-priority">hohe Priorität</span>
                 </div>
 
-                <div class="task-item">
-                  <span class="task-name">Wechselintervall bestätigt – Fischer, M.</span>
-                  <span class="chip chip-success">erledigt</span>
+                <div class="activity-item">
+                  <span class="activity-name">Wechselintervall bestätigt – Fischer, M.</span>
+                  <span class="badge badge-done">erledigt</span>
                 </div>
               </div>
 
-              <div class="card-footer-links">
-                Direkt aus <a href="#">Aufgaben</a> · <a href="#">Eskalationen</a>
+              <div class="panel-link-footer">
+                Direkt aus <a href="javascript:void(0)">Aufgaben</a> · <a href="javascript:void(0)">Eskalationen</a>
               </div>
             </div>
-          </ion-col>
 
-          <!-- Chart / Trend Card -->
-          <ion-col size="12" size-lg="6">
-            <div class="content-card chart-card">
-              <h2 class="section-title">WUNDFLÄCHENVERLAUF (PORTALWEIT, Ø ALLER AKTIVEN WUNDEN)</h2>
+            <!-- Trend Chart Box -->
+            <div class="panel-box">
+              <h2 class="panel-heading">WUNDFLÄCHENVERLAUF (PORTALWEIT, Ø ALLER AKTIVEN WUNDEN)</h2>
 
-              <div class="chart-area">
-                <svg viewBox="0 0 500 150" preserveAspectRatio="none" class="trend-chart">
-                  <line x1="0" y1="140" x2="500" y2="140" stroke="#E5E7EB" stroke-width="1.5" />
+              <div class="chart-wrapper">
+                <svg viewBox="0 0 500 160" preserveAspectRatio="none" class="trend-chart-svg">
+                  <line x1="0" y1="140" x2="500" y2="140" stroke="#e2e8f0" stroke-width="1.5" />
                   <path
-                    d="M 10 120 Q 90 110, 150 100 T 230 80 T 320 60 T 400 50 T 485 20"
+                    d="M 10 120 C 100 115, 140 100, 200 90 C 260 80, 310 60, 380 50 C 420 45, 460 25, 490 15"
                     fill="none"
-                    stroke="#1D6FE5"
-                    stroke-width="3.5"
+                    stroke="#2563eb"
+                    stroke-width="3"
                     stroke-linecap="round"
                   />
                 </svg>
               </div>
 
-              <div class="chart-subtext">
+              <div class="chart-meta">
                 Trend über die 4 aktuell dokumentierten Patient:innen.
               </div>
             </div>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    } @else {
-      <!-- Non-admin: show roles info -->
-      <ion-grid class="ion-no-padding section-grid">
-        <ion-row>
-          <ion-col size="12" size-lg="6">
-            <div class="content-card">
-              <h2 class="section-title">IHRE ROLLEN</h2>
+
+          </div>
+        } @else {
+          <!-- Non-admin: roles info + chart -->
+          <div class="panels-row">
+            <div class="panel-box">
+              <h2 class="panel-heading">IHRE ROLLEN</h2>
               <div class="roles-list">
                 @for (role of userRoles; track role) {
                   <span class="role-chip">{{ role }}</span>
                 }
               </div>
             </div>
-          </ion-col>
-          <ion-col size="12" size-lg="6">
-            <div class="content-card">
-              <h2 class="section-title">WUNDFLÄCHENVERLAUF (PORTALWEIT, Ø ALLER AKTIVEN WUNDEN)</h2>
-              <div class="chart-area">
-                <svg viewBox="0 0 500 150" preserveAspectRatio="none" class="trend-chart">
-                  <line x1="0" y1="140" x2="500" y2="140" stroke="#E5E7EB" stroke-width="1.5" />
+            <div class="panel-box">
+              <h2 class="panel-heading">WUNDFLÄCHENVERLAUF (PORTALWEIT, Ø ALLER AKTIVEN WUNDEN)</h2>
+              <div class="chart-wrapper">
+                <svg viewBox="0 0 500 160" preserveAspectRatio="none" class="trend-chart-svg">
+                  <line x1="0" y1="140" x2="500" y2="140" stroke="#e2e8f0" stroke-width="1.5" />
                   <path
-                    d="M 10 120 Q 90 110, 150 100 T 230 80 T 320 60 T 400 50 T 485 20"
+                    d="M 10 120 C 100 115, 140 100, 200 90 C 260 80, 310 60, 380 50 C 420 45, 460 25, 490 15"
                     fill="none"
-                    stroke="#1D6FE5"
-                    stroke-width="3.5"
+                    stroke="#2563eb"
+                    stroke-width="3"
                     stroke-linecap="round"
                   />
                 </svg>
               </div>
-              <div class="chart-subtext">
+              <div class="chart-meta">
                 Trend über die aktuell dokumentierten Patient:innen.
               </div>
             </div>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    }
+          </div>
+        }
+
+      </div>
+    </main>
 
   </div>
 </ion-content>
