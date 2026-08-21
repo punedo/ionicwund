@@ -2,13 +2,13 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { IonContent, IonHeader, IonToolbar, IonTitle, IonButton, IonInput, IonItem, IonLabel, IonNote, IonSpinner } from '@ionic/angular';
+import { IonContent, IonHeader, IonToolbar, IonTitle, IonButton, IonInput, IonItem, IonNote, IonSpinner, IonIcon } from '@ionic/angular';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-two-factor',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonContent, IonHeader, IonToolbar, IonTitle, IonButton, IonInput, IonItem, IonLabel, IonNote, IonSpinner],
+  imports: [CommonModule, FormsModule, IonContent, IonHeader, IonToolbar, IonTitle, IonButton, IonInput, IonItem, IonNote, IonSpinner, IonIcon],
   templateUrl: './two-factor.page.html',
   styleUrls: ['./two-factor.page.scss'],
 })

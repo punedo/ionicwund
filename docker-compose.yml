@@ -32,6 +32,14 @@ services:
     environment:
       APP_ENV: dev
       DATABASE_URL: mysql://ionicwund_user:ionicwund_pass@mysql:3306/ionicwund?serverVersion=8.0
+      JWT_SECRET_KEY: /var/www/backend/config/jwt/private.pem
+      JWT_PUBLIC_KEY: /var/www/backend/config/jwt/public.pem
+      JWT_PASSPHRASE: ionicwund_jwt_passphrase_change_in_production
+      JWT_TTL: 3600
+      JWT_REFRESH_TTL: 2592000
+      APP_FROM_EMAIL: noreply@ionicwund.local
+      APP_FROM_NAME: IonicWund
+      MAILER_DSN: null://null
     networks:
       - ionicwund_network
     depends_on:

@@ -6,29 +6,49 @@
   </ion-header>
 
   <ion-content>
-    <div class="menu-user" *ngIf="userEmail">
-      <div class="menu-user-name">{{ userName }}</div>
-      <div class="menu-user-email">{{ userEmail }}</div>
-    </div>
+    @if (userEmail) {
+      <div class="menu-user">
+        <ion-avatar class="menu-avatar">
+          <div class="avatar-placeholder">{{ userName.charAt(0).toUpperCase() }}</div>
+        </ion-avatar>
+        <div class="menu-user-info">
+          <div class="menu-user-name">{{ userName }}</div>
+          <ion-note>{{ userEmail }}</ion-note>
+        </div>
+      </div>
+    }
 
     <ion-list>
-      <ng-container *ngFor="let item of menuItems">
+      @for (item of menuItems; track item.id) {
         <ion-menu-toggle auto-hide="false">
-          <ion-item button (click)="navigate(item.route)" detail="false">
+          <ion-item
+            button
+            (click)="navigate(item.route)"
+            detail="false"
+            [class.active-item]="isActive(item.route)"
+          >
             <ion-icon slot="start" [name]="item.icon || 'circle-outline'"></ion-icon>
             <ion-label>{{ item.label }}</ion-label>
           </ion-item>
         </ion-menu-toggle>
 
-        <ng-container *ngIf="item.children && item.children.length > 0">
-          <ion-menu-toggle auto-hide="false" *ngFor="let child of item.children">
-            <ion-item button (click)="navigate(child.route)" detail="false" class="menu-child">
-              <ion-icon slot="start" [name]="child.icon || 'circle-outline'"></ion-icon>
-              <ion-label>{{ child.label }}</ion-label>
-            </ion-item>
-          </ion-menu-toggle>
-        </ng-container>
-      </ng-container>
+        @if (item.children && item.children.length > 0) {
+          @for (child of item.children; track child.id) {
+            <ion-menu-toggle auto-hide="false">
+              <ion-item
+                button
+                (click)="navigate(child.route)"
+                detail="false"
+                class="menu-child"
+                [class.active-item]="isActive(child.route)"
+              >
+                <ion-icon slot="start" [name]="child.icon || 'circle-outline'"></ion-icon>
+                <ion-label>{{ child.label }}</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+          }
+        }
+      }
     </ion-list>
 
     <ion-list class="menu-footer">

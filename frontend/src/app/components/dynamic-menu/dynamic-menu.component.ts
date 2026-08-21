@@ -1,15 +1,15 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonLabel, IonMenuToggle } from '@ionic/angular';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonLabel, IonMenuToggle, IonAvatar, IonNote } from '@ionic/angular';
 import { MenuItem } from '../../models/auth.models';
 import { AuthService } from '../../services/auth.service';
-import { AuthorizationService } from '../../services/authorization.service';
 
 @Component({
   selector: 'app-dynamic-menu',
   standalone: true,
-  imports: [CommonModule, IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonLabel, IonMenuToggle],
+  imports: [CommonModule, IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonLabel, IonMenuToggle, IonAvatar, IonNote],
   templateUrl: './dynamic-menu.component.html',
   styleUrls: ['./dynamic-menu.component.scss'],
 })
@@ -20,12 +20,18 @@ export class DynamicMenuComponent implements OnInit {
   menuItems: MenuItem[] = [];
   userName = '';
   userEmail = '';
+  selectedRoute = '';
 
   constructor(
     private authService: AuthService,
-    private authorizationService: AuthorizationService,
     private router: Router
-  ) {}
+  ) {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.selectedRoute = event.urlAfterRedirects;
+    });
+  }
 
   ngOnInit(): void {
     this.authService.menu$.subscribe((items) => {
@@ -44,6 +50,13 @@ export class DynamicMenuComponent implements OnInit {
     if (route) {
       this.router.navigate([route]);
     }
+  }
+
+  isActive(route: string | null | undefined): boolean {
+    if (!route || !this.selectedRoute) {
+      return false;
+    }
+    return this.selectedRoute === route || this.selectedRoute.startsWith(route + '/');
   }
 
   logout(): void {

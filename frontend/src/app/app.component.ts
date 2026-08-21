@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { IonApp, IonRouterOutlet } from '@ionic/angular';
+import { IonApp, IonRouterOutlet, IonSplitPane } from '@ionic/angular';
 import { DynamicMenuComponent } from './components/dynamic-menu/dynamic-menu.component';
 import { AuthService } from './services/auth.service';
 
@@ -7,7 +7,7 @@ import { AuthService } from './services/auth.service';
   selector: 'app-root',
   templateUrl: 'app.component.html',
   standalone: true,
-  imports: [IonApp, IonRouterOutlet, DynamicMenuComponent],
+  imports: [IonApp, IonSplitPane, IonRouterOutlet, DynamicMenuComponent],
 })
 export class AppComponent implements OnInit {
   constructor(private authService: AuthService) {}

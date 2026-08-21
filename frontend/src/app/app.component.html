@@ -1,4 +1,6 @@
 <ion-app>
-  <app-dynamic-menu menuId="main-menu" contentId="main-content"></app-dynamic-menu>
-  <ion-router-outlet id="main-content"></ion-router-outlet>
+  <ion-split-pane contentId="main-content">
+    <app-dynamic-menu menuId="main-menu" contentId="main-content"></app-dynamic-menu>
+    <ion-router-outlet id="main-content"></ion-router-outlet>
+  </ion-split-pane>
 </ion-app>
