@@ -1,5 +1,5 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
+<ion-header>
+  <ion-toolbar color="primary">
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
@@ -7,21 +7,77 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Dashboard</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
+<ion-content>
   <div class="dashboard-container">
-    <ion-card>
+    <div class="welcome-section">
+      <h2>Welcome, {{ userName }}!</h2>
+      <p class="subtitle">Here's your overview</p>
+    </div>
+
+    <ion-grid>
+      <ion-row>
+        <ion-col size="12" size-md="6" size-lg="3">
+          <ion-card class="stat-card users-card">
+            <ion-card-header>
+              <ion-icon name="people"></ion-icon>
+              <ion-card-title>Users</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <div class="stat-value">{{ loading ? '...' : stats.users }}</div>
+              <ion-label class="stat-label">Total Users</ion-label>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+
+        <ion-col size="12" size-md="6" size-lg="3">
+          <ion-card class="stat-card roles-card">
+            <ion-card-header>
+              <ion-icon name="shield"></ion-icon>
+              <ion-card-title>Roles</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <div class="stat-value">{{ loading ? '...' : stats.roles }}</div>
+              <ion-label class="stat-label">Total Roles</ion-label>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+
+        <ion-col size="12" size-md="6" size-lg="3">
+          <ion-card class="stat-card permissions-card">
+            <ion-card-header>
+              <ion-icon name="key"></ion-icon>
+              <ion-card-title>Permissions</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <div class="stat-value">{{ loading ? '...' : stats.permissions }}</div>
+              <ion-label class="stat-label">Total Permissions</ion-label>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+
+        <ion-col size="12" size-md="6" size-lg="3">
+          <ion-card class="stat-card menu-card">
+            <ion-card-header>
+              <ion-icon name="list"></ion-icon>
+              <ion-card-title>Menu Items</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <div class="stat-value">{{ loading ? '...' : stats.menuItems }}</div>
+              <ion-label class="stat-label">Total Menu Items</ion-label>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-card class="info-card">
       <ion-card-header>
-        <ion-card-title>Welcome, {{ userName }}</ion-card-title>
+        <ion-card-title>Your Roles</ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        <p><strong>Roles:</strong> {{ userRoles.join(', ') }}</p>
-        <p><strong>Permissions:</strong> {{ permissions.length }} granted</p>
+        <div class="roles-list">
+          <ion-chip *ngFor="let role of userRoles" color="primary">{{ role }}</ion-chip>
+        </div>
       </ion-card-content>
     </ion-card>
   </div>

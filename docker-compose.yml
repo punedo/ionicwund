@@ -39,7 +39,7 @@ services:
       JWT_REFRESH_TTL: 2592000
       APP_FROM_EMAIL: noreply@ionicwund.local
       APP_FROM_NAME: IonicWund
-      MAILER_DSN: null://null
+      MAILER_DSN: smtp://mailpit:1025
     networks:
       - ionicwund_network
     depends_on:
@@ -109,6 +109,17 @@ services:
       - "8081:80"
     depends_on:
       - mysql
+
+  # Mailpit (Local SMTP testing)
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: ionicwund_mailpit
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    networks:
+      - ionicwund_network
 
 networks:
   ionicwund_network:

@@ -56,7 +56,35 @@ export const routes: Routes = [
   {
     path: 'admin',
     canActivate: [AuthGuard],
-    data: { permission: null },
+    loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
+  },
+  {
+    path: 'admin/users',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'admin.users.view' },
+    loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
+  },
+  {
+    path: 'admin/roles',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'admin.roles.view' },
+    loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
+  },
+  {
+    path: 'admin/permissions',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'admin.permissions.view' },
+    loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
+  },
+  {
+    path: 'admin/menu',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'admin.menu.view' },
+    loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
+  },
+  {
+    path: 'admin/settings',
+    canActivate: [AuthGuard],
     loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
   },
   {
