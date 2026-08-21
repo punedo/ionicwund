@@ -1,0 +1,43 @@
+<ion-menu [menuId]="menuId" contentId="{{ contentId }}" type="overlay">
+  <ion-header>
+    <ion-toolbar color="primary">
+      <ion-title>IonicWund</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content>
+    <div class="menu-user" *ngIf="userEmail">
+      <div class="menu-user-name">{{ userName }}</div>
+      <div class="menu-user-email">{{ userEmail }}</div>
+    </div>
+
+    <ion-list>
+      <ng-container *ngFor="let item of menuItems">
+        <ion-menu-toggle auto-hide="false">
+          <ion-item button (click)="navigate(item.route)" detail="false">
+            <ion-icon slot="start" [name]="item.icon || 'circle-outline'"></ion-icon>
+            <ion-label>{{ item.label }}</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+
+        <ng-container *ngIf="item.children && item.children.length > 0">
+          <ion-menu-toggle auto-hide="false" *ngFor="let child of item.children">
+            <ion-item button (click)="navigate(child.route)" detail="false" class="menu-child">
+              <ion-icon slot="start" [name]="child.icon || 'circle-outline'"></ion-icon>
+              <ion-label>{{ child.label }}</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
+        </ng-container>
+      </ng-container>
+    </ion-list>
+
+    <ion-list class="menu-footer">
+      <ion-menu-toggle auto-hide="false">
+        <ion-item button (click)="logout()" detail="false">
+          <ion-icon slot="start" name="log-out-outline"></ion-icon>
+          <ion-label>Logout</ion-label>
+        </ion-item>
+      </ion-menu-toggle>
+    </ion-list>
+  </ion-content>
+</ion-menu>
