@@ -1,0 +1,19 @@
+<app-admin-shell pageTitle="Bestellübersicht">
+  <div class="orders-intro">
+    Multimandantenfähiges Bestellportal: Bestellungen über verschiedene Einrichtungen und Wohnbereiche hinweg zentral verwalten. Bestellvorschläge werden automatisch aus aktiven Versorgungen und hinterlegten Wechselintervallen generiert.
+  </div>
+
+  <app-data-table
+    [columns]="columns"
+    [data]="orders"
+    [headerActions]="headerActions"
+    [rowActions]="rowActions"
+    [loading]="loading"
+    searchPlaceholder="Suche nach Bestellnr., Patient..."
+    emptyMessage="Keine Bestellungen vorhanden."
+  ></app-data-table>
+
+  <p class="orders-hint">
+    „Lieferdatum kann abweichen“ ist eine Lieferanten-Schätzung – das tatsächliche Eintreffen kann je nach Verfügbarkeit variieren. Im Prototyp öffnet jede Zeile beispielhaft dieselbe Bestellung.
+  </p>
+</app-admin-shell>

@@ -1,0 +1,32 @@
+.orders-intro {
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+  max-width: 900px;
+}
+
+.orders-hint {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  margin-top: 1.25rem;
+  max-width: 900px;
+}
+
+:host ::ng-deep {
+  .status-offen {
+    background: #f1f5f9;
+    color: #475569;
+  }
+
+  .status-abgeschlossen {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .status-storniert {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+}

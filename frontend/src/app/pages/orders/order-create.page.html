@@ -1,0 +1,134 @@
+<app-admin-shell pageTitle="Bestellung anlegen">
+  <form #orderForm="ngForm" (ngSubmit)="onSubmit(orderForm)" class="order-form" autocomplete="off">
+    <div class="form-card">
+      <h2 class="section-title">Bestellart</h2>
+
+      <div class="form-field field-order-type">
+        <div class="radio-group">
+          @for (type of orderTypes; track type) {
+            <label class="radio-pill" [class.selected]="order.type === type">
+              <input
+                type="radio"
+                name="type"
+                [value]="type"
+                [(ngModel)]="order.type"
+                (ngModelChange)="onTypeChange()"
+                required
+              />
+              <span>{{ type === 'Patientenbezogen' ? 'Patientenbezogen' : 'Sammelbestellung für Wohnbereich' }}</span>
+            </label>
+          }
+        </div>
+      </div>
+
+      <div class="form-grid two-cols">
+        <div class="form-field">
+          <label for="facility">Einrichtung <span class="required">*</span></label>
+          <select id="facility" name="facility" [(ngModel)]="order.facility" required #facility="ngModel">
+            <option value="">— bitte wählen —</option>
+            @for (f of facilities; track f) {
+              <option [value]="f">{{ f }}</option>
+            }
+          </select>
+          @if (submitted && facility.invalid) {
+            <span class="field-error">Einrichtung ist erforderlich.</span>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="livingArea">Wohnbereich (optional)</label>
+          <input
+            id="livingArea"
+            type="text"
+            name="livingArea"
+            [(ngModel)]="order.livingArea"
+            placeholder="z. B. Wohnbereich 2"
+          />
+        </div>
+
+        @if (order.type === 'Patientenbezogen') {
+          <div class="form-field">
+            <label for="patient">Patient <span class="required">*</span></label>
+            <select id="patient" name="patient" [(ngModel)]="order.patient" [required]="order.type === 'Patientenbezogen'" #patient="ngModel">
+              <option value="">— bitte wählen —</option>
+              @for (p of patients; track p) {
+                <option [value]="p">{{ p }}</option>
+              }
+            </select>
+            @if (submitted && patient.invalid) {
+              <span class="field-error">Patient ist erforderlich.</span>
+            }
+          </div>
+        }
+
+        <div class="form-field">
+          <label for="desiredDeliveryDate">Gewünschter Liefertermin <span class="required">*</span></label>
+          <input
+            id="desiredDeliveryDate"
+            type="date"
+            name="desiredDeliveryDate"
+            [(ngModel)]="order.desiredDeliveryDate"
+            required
+            #desiredDeliveryDate="ngModel"
+          />
+          @if (submitted && desiredDeliveryDate.invalid) {
+            <span class="field-error">Liefertermin ist erforderlich.</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h2 class="section-title">Produkte</h2>
+      <span class="badge badge-secondary">Automatischer Vorschlag aus aktiver Versorgung</span>
+
+      <div class="products-list">
+        @for (item of order.items; track item.name; let i = $index) {
+          <div class="product-row">
+            <span class="product-name">{{ item.name }}</span>
+            <div class="product-quantity">
+              <input
+                type="number"
+                [name]="'quantity' + i"
+                [(ngModel)]="item.quantity"
+                min="1"
+              />
+              <span class="unit-label">{{ item.unit }}</span>
+            </div>
+            <button type="button" class="btn-icon" (click)="removeItem(i)" title="Entfernen">
+              <ion-icon name="trash-outline"></ion-icon>
+            </button>
+          </div>
+        } @empty {
+          <p class="empty-products">Noch keine Produkte hinzugefügt.</p>
+        }
+      </div>
+
+      <div class="product-add">
+        <select [(ngModel)]="selectedProduct" name="selectedProduct" (change)="onProductChange()">
+          <option value="">— Produkt wählen —</option>
+          @for (p of products; track p.name) {
+            <option [value]="p.name">{{ p.name }}</option>
+          }
+        </select>
+        @if (selectedProduct) {
+          <span class="unit-hint">Einheit: {{ selectedProductUnit }}</span>
+        }
+        <button type="button" class="btn btn-secondary" (click)="addItem()" [disabled]="!selectedProduct">
+          + Produkt hinzufügen
+        </button>
+      </div>
+    </div>
+
+    @if (errorMessage) {
+      <div class="form-error">{{ errorMessage }}</div>
+    }
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="onCancel()">Abbrechen</button>
+      <button type="submit" class="btn btn-primary" [disabled]="saving">
+        Bestellung anlegen
+      </button>
+    </div>
+  </form>
+</app-admin-shell>

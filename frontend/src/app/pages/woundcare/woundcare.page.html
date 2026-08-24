@@ -1,0 +1,22 @@
+<app-admin-shell pageTitle="Versorgungsplanung">
+  <div class="intro">
+    <p>
+      Alle laufenden Versorgungsaufträge über alle Patient:innen hinweg – unabhängig von einzelnen Aufgaben oder Bestellungen.
+      Details je Auftrag (Artikel, VO-Info, Aufzählung) finden Sie im Versorgungen-Tab der jeweiligen Patientenakte.
+    </p>
+  </div>
+
+  <div class="woundcare-table">
+    <app-data-table
+      [columns]="columns"
+      [data]="filteredRows"
+      [headerActions]="headerActions"
+      [rowActions]="rowActions"
+      searchPlaceholder="Suche nach Patient, Auftragsnr. ..."
+      [loading]="loading"
+      [emptyMessage]="'Keine laufenden Versorgungsaufträge gefunden.'"
+      (searchChange)="onSearch($event)"
+      (filterChange)="onFilterChange($event)"
+    ></app-data-table>
+  </div>
+</app-admin-shell>

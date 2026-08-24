@@ -147,6 +147,7 @@ export const routes: Routes = [
     data: { permission: 'admin.reports.view' },
     loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
   },
+
   {
     path: '',
     redirectTo: 'dashboard',

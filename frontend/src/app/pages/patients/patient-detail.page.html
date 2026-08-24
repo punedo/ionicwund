@@ -1,0 +1,214 @@
+<app-admin-shell [pageTitle]="displayName()">
+  @if (patient) {
+    <div class="crumb">
+      <a routerLink="/woundcare">Versorgungsplanung</a> / {{ displayName() }}
+    </div>
+
+    <div class="page-head">
+      <h1>
+        {{ patient.lastName }}, {{ patient.firstName }}
+        @if (patient.status) {
+          <span class="tag amber">{{ patient.status }}</span>
+        }
+      </h1>
+    </div>
+
+    <div class="tabs">
+      @for (t of tabs; track t.id) {
+        <button
+          type="button"
+          class="tab"
+          [class.active]="activeTab === t.id"
+          (click)="selectTab(t.id)"
+        >
+          {{ t.label }}
+          @if (t.badge) {
+            <span class="badge">{{ t.badge }}</span>
+          }
+        </button>
+      }
+    </div>
+
+    <!-- Übersicht -->
+    @if (activeTab === 'overview') {
+      <div class="tab-panel">
+        <div class="grid grid-3">
+          <div class="card master-data">
+            <div class="card-head-row">
+              <h4>Stammdaten</h4>
+              <button class="btn ghost sm" (click)="editPatient()">✎ Bearbeiten</button>
+            </div>
+            <table class="data-table">
+              <tbody>
+                <tr><td>Geburtsdatum</td><td>{{ patient.dateOfBirth ? (patient.dateOfBirth | date:'dd.MM.yyyy') : '—' }}</td></tr>
+                <tr>
+                  <td>Versicherung</td>
+                  <td>
+                    {{ patient.insuranceCompany ?? '—' }}
+                    @if (patient.insuranceType) {
+                      <span class="tag">{{ patient.insuranceType }}</span>
+                    }
+                  </td>
+                </tr>
+                <tr>
+                  <td>Adresse</td>
+                  <td>
+                    {{ patient.street ?? '' }} {{ patient.houseNumber ?? '' }}<br>
+                    {{ patient.zip ?? '' }} {{ patient.city ?? '' }}
+                  </td>
+                </tr>
+                <tr><td>Telefon</td><td>{{ patient.phone ?? '—' }}</td></tr>
+                <tr>
+                  <td>Behandelnde Ärzte</td>
+                  <td>
+                    {{ patient.treatingDoctor ?? '—' }}
+                    @if (patient.treatingDoctor) {
+                      <span class="tag">Hausarzt</span>
+                    }
+                  </td>
+                </tr>
+                <tr>
+                  <td>Pflegedienst <span class="sub">(Versorgung vor Ort)</span></td>
+                  <td>{{ patient.responsibleCareService ?? '—' }}</td>
+                </tr>
+                <tr>
+                  <td>Homecare <span class="sub">(Produktbelieferung)</span></td>
+                  <td>{{ patient.additionalService ?? '—' }}</td>
+                </tr>
+                <tr>
+                  <td>Einrichtung</td>
+                  <td>{{ patient.facility ?? '— ambulant, keine Einrichtung —' }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <button class="btn ghost sm" style="margin-top: 8px;" (click)="handover()">↷ Übergabe an Kollegen</button>
+          </div>
+
+          <div class="card">
+            <h4>Aktuelle Wunde</h4>
+            <div class="photo-box">[Wundfoto – aktuell]</div>
+            <div class="chip-row">
+              <span class="tag">{{ patient.woundType ?? 'Diabet. Fußsyndrom' }}</span>
+              @if (patient.score) {
+                <span class="tag">{{ patient.score }}</span>
+              }
+            </div>
+            <p class="foot">Letzte Dokumentation: {{ patient.lastDocumentedAt ? (patient.lastDocumentedAt | date:'dd.MM.yyyy, HH:mm') : '—' }}</p>
+          </div>
+
+          <div class="card">
+            <h4>Verordnung / Rezept</h4>
+            <p class="foot">Verband- & Hilfsmittel nach § 37 SGB V · genehmigt bis 30.09.</p>
+            <span class="tag green">OptaData verknüpft</span>
+            <span class="tag">E-Rezept aktiv</span>
+            <button class="btn ghost sm" style="margin-top: 8px;">📤 Rezept hochladen</button>
+          </div>
+
+          <div class="card">
+            <h4>Elektronische Patientenakte (ePA)</h4>
+            <p class="foot">Zuletzt synchronisiert: heute, 07:12 Uhr</p>
+            <span class="tag green">Verknüpft</span>
+            <span class="tag">Einwilligung erteilt</span>
+          </div>
+        </div>
+
+        <div class="card status-card">
+          <h4>Patientenstatus</h4>
+          <div class="status-row">
+            <span class="status-chip selected">Aktiv</span>
+            <span class="status-chip">Verstorben</span>
+            <span class="status-chip">Archiviert</span>
+          </div>
+          <p class="foot" style="margin-top: 8px;">Aktueller Status: {{ patient.status ?? 'Aktiv' }}</p>
+          <button class="btn ghost sm" style="margin-top: 8px;">Status speichern</button>
+        </div>
+
+        <div class="danger-zone">
+          <p class="foot">Nur für Fehlanlagen/Duplikate – entfernt alle Daten unwiderruflich.</p>
+          <button class="danger-link">🗑 Patient löschen</button>
+        </div>
+      </div>
+    }
+
+    <!-- Wundverlauf -->
+    @if (activeTab === 'wound') {
+      <div class="tab-panel">
+        <div class="card">
+          <h4>Wundverlauf</h4>
+          <p class="foot">Hier wird der dokumentierte Wundverlauf mit Fotos, Maßen und Scores angezeigt.</p>
+          <div class="placeholder-content">[Wundverlauf & Foto-Vergleich – Inhalt folgt]</div>
+        </div>
+      </div>
+    }
+
+    <!-- Medikation -->
+    @if (activeTab === 'medication') {
+      <div class="tab-panel">
+        <div class="card">
+          <h4>Medikation</h4>
+          <p class="foot">Aus ePA synchronisierter Medikationsplan und wundrelevante Hinweise.</p>
+          <div class="placeholder-content">[Medikationsplan BMP – Inhalt folgt]</div>
+        </div>
+      </div>
+    }
+
+    <!-- Versorgungen -->
+    @if (activeTab === 'supplies') {
+      <div class="tab-panel">
+        <div class="card">
+          <h4>Versorgungen</h4>
+          <p class="foot">Aktuelle und abgeschlossene Versorgungen mit Artikelliste und Änderungsanfragen.</p>
+          <div class="placeholder-content">[Versorgungsübersicht – Inhalt folgt]</div>
+        </div>
+      </div>
+    }
+
+    <!-- Aufgaben -->
+    @if (activeTab === 'tasks') {
+      <div class="tab-panel">
+        <div class="card">
+          <h4>Aufgaben</h4>
+          <p class="foot">Kanban-Übersicht der offenen, in Bearbeitung befindlichen und erledigten Aufgaben.</p>
+          <div class="placeholder-content">[Aufgaben-Board – Inhalt folgt]</div>
+        </div>
+      </div>
+    }
+
+    <!-- Termine -->
+    @if (activeTab === 'appointments') {
+      <div class="tab-panel">
+        <div class="card">
+          <h4>Termine & Nachweise</h4>
+          <p class="foot">Anstehende und vergangene Termine inkl. Leistungsnachweisen.</p>
+          <div class="placeholder-content">[Terminliste – Inhalt folgt]</div>
+        </div>
+      </div>
+    }
+
+    <!-- Chat -->
+    @if (activeTab === 'chat') {
+      <div class="tab-panel">
+        <div class="card">
+          <h4>Chat</h4>
+          <p class="foot">Fallbasierte Kommunikation zwischen Arzt, Pflegedienst und Homecare.</p>
+          <div class="placeholder-content">[Chatverlauf – Inhalt folgt]</div>
+        </div>
+      </div>
+    }
+
+    <!-- Dokumente -->
+    @if (activeTab === 'documents') {
+      <div class="tab-panel">
+        <div class="card">
+          <h4>Dokumente</h4>
+          <p class="foot">Ordnerstruktur mit Anamnese, KV, Genehmigungen, Verordnungen und weiteren Dokumenten.</p>
+          <div class="placeholder-content">[Dokumentenordner – Inhalt folgt]</div>
+        </div>
+      </div>
+    }
+  }
+
+  @if (loading) {
+    <div class="loading">Patientendaten werden geladen ...</div>
+  }
+</app-admin-shell>

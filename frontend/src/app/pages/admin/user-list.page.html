@@ -1,0 +1,23 @@
+<app-admin-shell pageTitle="Nutzer- & Rollenverwaltung">
+  <p class="tab-description">
+    Verwalten Sie alle Nutzer im System, ihre Rollen, Qualifikationen und Organisationszugehörigkeiten.
+  </p>
+
+  <app-data-table
+    title="Nutzer im System"
+    [columns]="columns"
+    [data]="users"
+    [headerActions]="headerActions"
+    [rowActions]="rowActions"
+    searchPlaceholder="Suche nach Name, E-Mail, Rolle..."
+    emptyMessage="Keine Nutzer gefunden."
+    [loading]="loading"
+  ></app-data-table>
+
+  <div class="organization-settings">
+    <label class="checkbox-label">
+      <input type="checkbox" />
+      <span>Organisationseinstellungen</span>
+    </label>
+  </div>
+</app-admin-shell>
