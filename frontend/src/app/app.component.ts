@@ -1,6 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { filter, finalize, timeout } from 'rxjs/operators';
 import { IonApp, IonRouterOutlet } from '@ionic/angular';
 import { AuthService } from './services/auth.service';
 import { LoadingService } from './services/loading.service';
@@ -36,13 +36,14 @@ export class AppComponent implements OnInit {
     this.loadingService.show('Initializing...');
 
     if (this.authService.isAuthenticated()) {
-      this.authService.loadCurrentUser().subscribe({
-        next: () => {
-          this.loadingService.hide();
-        },
+      this.authService.loadCurrentUser().pipe(
+        timeout(8000),
+        finalize(() => this.loadingService.hide())
+      ).subscribe({
+        next: () => {},
         error: () => {
-          this.loadingService.hide();
           this.authService.clearAuth();
+          this.router.navigate(['/login']);
         },
       });
     } else {

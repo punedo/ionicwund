@@ -48,6 +48,18 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
   },
   {
+    path: 'appointments',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'woundcare.view' },
+    loadComponent: () => import('./pages/appointments/appointments.page').then((m) => m.AppointmentsPage),
+  },
+  {
+    path: 'appointments/create',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'woundcare.view' },
+    loadComponent: () => import('./pages/appointments/appointment-create.page').then((m) => m.AppointmentCreatePage),
+  },
+  {
     path: 'documents',
     canActivate: [AuthGuard, PermissionGuard],
     data: { permission: 'documents.view' },

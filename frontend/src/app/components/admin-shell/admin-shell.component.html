@@ -33,6 +33,8 @@
           <h1 class="page-title">{{ pageTitle }}</h1>
           @if (isAdmin) {
             <span class="role-badge">Admin</span>
+          } @else if (isWoundExpert) {
+            <span class="role-badge">Wundexpertin</span>
           }
         </header>
 

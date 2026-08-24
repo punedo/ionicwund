@@ -28,9 +28,10 @@ export class AdminShellComponent implements OnInit {
   @Input() pageTitle = '';
 
   isAdmin = false;
+  isWoundExpert = false;
   currentRoute = '';
 
-  navSections: NavSection[] = [
+  adminNavSections: NavSection[] = [
     {
       title: 'NAVIGATION',
       items: [
@@ -42,6 +43,8 @@ export class AdminShellComponent implements OnInit {
       title: 'VERSORGUNG',
       items: [
         { label: 'Versorgungsplanung', icon: 'bandage-outline', route: '/woundcare' },
+        { label: 'Termine & Nachweise', icon: 'calendar-outline', route: '/appointments' },
+        { label: 'Wundtermine', icon: 'time-outline', route: '/appointments' },
       ],
     },
     {
@@ -63,6 +66,33 @@ export class AdminShellComponent implements OnInit {
     },
   ];
 
+  userNavSections: NavSection[] = [
+    {
+      title: 'NAVIGATION',
+      items: [
+        { label: 'Dashboard', icon: 'square', route: '/dashboard' },
+      ],
+    },
+  ];
+
+  pflegeNavSections: NavSection[] = [
+    {
+      title: 'NAVIGATION',
+      items: [
+        { label: 'Dashboard', icon: 'square', route: '/dashboard' },
+        { label: 'Patientenübersicht', icon: 'reorder-three-outline', route: '/patients' },
+      ],
+    },
+    {
+      title: 'VERSORGUNG',
+      items: [
+        { label: 'Versorgungsplanung', icon: 'bandage-outline', route: '/woundcare' },
+        { label: 'Termine & Nachweise', icon: 'calendar-outline', route: '/appointments' },
+        { label: 'Wundtermine', icon: 'time-outline', route: '/appointments' },
+      ],
+    },
+  ];
+
   constructor(
     private authService: AuthService,
     private loadingService: LoadingService,
@@ -78,6 +108,17 @@ export class AdminShellComponent implements OnInit {
   ngOnInit(): void {
     const user = this.authService.getCurrentUser();
     this.isAdmin = !!user && user.roles.includes('ROLE_ADMIN');
+    this.isWoundExpert = !!user && user.roles.includes('ROLE_PFLEGE');
+  }
+
+  get navSections(): NavSection[] {
+    if (this.isAdmin) {
+      return this.adminNavSections;
+    }
+    if (this.isWoundExpert) {
+      return this.pflegeNavSections;
+    }
+    return this.userNavSections;
   }
 
   isActive(route: string): boolean {
@@ -95,10 +136,12 @@ export class AdminShellComponent implements OnInit {
     this.loadingService.show('Abmelden...');
     this.authService.logout().subscribe({
       next: () => {
+        this.loadingService.hide();
         this.authService.clearAuth();
         this.router.navigate(['/login']);
       },
       error: () => {
+        this.loadingService.hide();
         this.authService.clearAuth();
         this.router.navigate(['/login']);
       },

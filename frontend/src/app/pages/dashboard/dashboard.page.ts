@@ -40,6 +40,7 @@ export class DashboardPage implements OnInit {
   stats: DashboardStats = { users: 0, roles: 0, permissions: 0, menuItems: 0 };
   loading = true;
   isAdmin = false;
+  isWoundExpert = false;
   currentRoute = '';
 
   adminNavSections: NavSection[] = [
@@ -54,6 +55,8 @@ export class DashboardPage implements OnInit {
       title: 'VERSORGUNG',
       items: [
         { label: 'Versorgungsplanung', icon: 'bandage-outline', route: '/woundcare' },
+        { label: 'Termine & Nachweise', icon: 'calendar-outline', route: '/appointments' },
+        { label: 'Wundtermine', icon: 'time-outline', route: '/appointments' },
       ],
     },
     {
@@ -84,6 +87,24 @@ export class DashboardPage implements OnInit {
     },
   ];
 
+  pflegeNavSections: NavSection[] = [
+    {
+      title: 'NAVIGATION',
+      items: [
+        { label: 'Dashboard', icon: 'square', route: '/dashboard' },
+        { label: 'Patientenübersicht', icon: 'reorder-three-outline', route: '/patients' },
+      ],
+    },
+    {
+      title: 'VERSORGUNG',
+      items: [
+        { label: 'Versorgungsplanung', icon: 'bandage-outline', route: '/woundcare' },
+        { label: 'Termine & Nachweise', icon: 'calendar-outline', route: '/appointments' },
+        { label: 'Wundtermine', icon: 'time-outline', route: '/appointments' },
+      ],
+    },
+  ];
+
   constructor(
     private authService: AuthService,
     private http: HttpClient,
@@ -98,6 +119,7 @@ export class DashboardPage implements OnInit {
       this.userName = [user.firstName, user.lastName].filter(Boolean).join(' ') || user.email;
       this.userRoles = user.roles;
       this.isAdmin = user.roles.includes('ROLE_ADMIN');
+      this.isWoundExpert = user.roles.includes('ROLE_PFLEGE');
     }
     this.permissions = this.authService.getPermissions();
     this.currentRoute = this.router.url;
@@ -127,10 +149,12 @@ export class DashboardPage implements OnInit {
     this.loadingService.show('Abmelden...');
     this.authService.logout().subscribe({
       next: () => {
+        this.loadingService.hide();
         this.authService.clearAuth();
         this.router.navigate(['/login']);
       },
       error: () => {
+        this.loadingService.hide();
         this.authService.clearAuth();
         this.router.navigate(['/login']);
       },
@@ -138,6 +162,12 @@ export class DashboardPage implements OnInit {
   }
 
   get navSections(): NavSection[] {
-    return this.isAdmin ? this.adminNavSections : this.userNavSections;
+    if (this.isAdmin) {
+      return this.adminNavSections;
+    }
+    if (this.isWoundExpert) {
+      return this.pflegeNavSections;
+    }
+    return this.userNavSections;
   }
 }
