@@ -42,6 +42,16 @@
           }
         </header>
 
+        @if (isAdmin) {
+          <!-- Quick Actions -->
+          <div class="quick-actions">
+            <button class="quick-action primary" (click)="navigate('/admin/users/invite')">+ Nutzer einladen</button>
+            <button class="quick-action" (click)="navigate('/facilities/create')">+ Einrichtung anlegen</button>
+            <button class="quick-action" (click)="navigate('/admin/contracts/create')">+ Kostenträger / Vertrag</button>
+            <button class="quick-action" (click)="navigate('/admin/reports')">▧ Berichte &amp; Audits</button>
+          </div>
+        }
+
         <!-- KPI 4-Card Row -->
         <div class="stats-row">
           <div class="stat-card">

@@ -74,7 +74,13 @@ export const routes: Routes = [
     path: 'admin/users',
     canActivate: [AuthGuard, PermissionGuard],
     data: { permission: 'admin.users.view' },
-    loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
+    loadComponent: () => import('./pages/admin/user-list.page').then((m) => m.UserListPage),
+  },
+  {
+    path: 'admin/users/invite',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'admin.users.create' },
+    loadComponent: () => import('./pages/admin/user-invite.page').then((m) => m.UserInvitePage),
   },
   {
     path: 'admin/roles',
@@ -97,6 +103,18 @@ export const routes: Routes = [
   {
     path: 'admin/settings',
     canActivate: [AuthGuard],
+    loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
+  },
+  {
+    path: 'admin/contracts/create',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'admin.contracts.create' },
+    loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
+  },
+  {
+    path: 'admin/reports',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'admin.reports.view' },
     loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
   },
   {

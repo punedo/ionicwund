@@ -12,8 +12,10 @@ import {
 } from '../../components/data-table/data-table.component';
 import { Patient } from '../../models/patient.model';
 import { Facility } from '../../models/facility.model';
+import { Doctor } from '../../models/doctor.model';
 import { PatientService } from '../../services/patient.service';
 import { FacilityService } from '../../services/facility.service';
+import { DoctorService } from '../../services/doctor.service';
 
 @Component({
   selector: 'app-patients-list',
@@ -27,6 +29,8 @@ export class PatientsListPage implements OnInit {
   filteredPatients: Patient[] = [];
   facilities: Facility[] = [];
   filteredFacilities: Facility[] = [];
+  doctors: Doctor[] = [];
+  filteredDoctors: Doctor[] = [];
   loading = false;
 
   activeTab = 'patients';
@@ -202,6 +206,7 @@ export class PatientsListPage implements OnInit {
   constructor(
     private patientService: PatientService,
     private facilityService: FacilityService,
+    private doctorService: DoctorService,
     private router: Router
   ) {}
 
@@ -225,7 +230,7 @@ export class PatientsListPage implements OnInit {
       case 'facilities':
         return this.filteredFacilities;
       case 'doctors':
-        return [];
+        return this.filteredDoctors;
       default:
         return this.filteredPatients;
     }
@@ -307,10 +312,10 @@ export class PatientsListPage implements OnInit {
       this.loadPatients();
     } else if (this.activeTab === 'facilities') {
       this.loadFacilities();
+    } else if (this.activeTab === 'doctors') {
+      this.loadDoctors();
     } else {
       this.loading = false;
-      this.filteredPatients = [];
-      this.filteredFacilities = [];
     }
   }
 
@@ -406,6 +411,11 @@ export class PatientsListPage implements OnInit {
       return;
     }
 
+    if (this.activeTab === 'doctors') {
+      this.filteredDoctors = this.doctors;
+      return;
+    }
+
     this.filteredPatients = [];
     this.filteredFacilities = [];
   }
@@ -423,6 +433,21 @@ export class PatientsListPage implements OnInit {
   onDocuments(patient: Patient): void {
     // TODO: navigate to documents
     console.log('Documents for', patient);
+  }
+
+  loadDoctors(): void {
+    this.doctorService.getDoctors().subscribe({
+      next: (data) => {
+        console.log('[PatientsListPage] loaded doctors:', data);
+        this.doctors = data;
+        this.applyFilters();
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('[PatientsListPage] loadDoctors error:', err);
+        this.loading = false;
+      },
+    });
   }
 
   onDeleteFacility(facility: Facility): void {

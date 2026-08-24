@@ -131,6 +131,42 @@
   }
 }
 
+/* Quick Actions */
+.quick-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+
+  .quick-action {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+
+    &:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    &.primary {
+      background: #3b82f6;
+      color: white;
+      border-color: #3b82f6;
+
+      &:hover {
+        background: #2563eb;
+        border-color: #2563eb;
+      }
+    }
+  }
+}
+
 /* Top Stats Cards Grid */
 .stats-row {
   display: grid;
