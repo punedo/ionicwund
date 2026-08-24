@@ -45,7 +45,13 @@ export const routes: Routes = [
     path: 'woundcare',
     canActivate: [AuthGuard, PermissionGuard],
     data: { permission: 'woundcare.view' },
-    loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
+    loadComponent: () => import('./pages/woundcare/woundcare.page').then((m) => m.WoundcarePage),
+  },
+  {
+    path: 'patients/:id',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'woundcare.view' },
+    loadComponent: () => import('./pages/patients/patient-detail.page').then((m) => m.PatientDetailPage),
   },
   {
     path: 'appointments',
@@ -70,6 +76,18 @@ export const routes: Routes = [
     canActivate: [AuthGuard, PermissionGuard],
     data: { permission: 'products.view' },
     loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
+  },
+  {
+    path: 'orders',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'orders.view' },
+    loadComponent: () => import('./pages/orders/orders-list.page').then((m) => m.OrdersListPage),
+  },
+  {
+    path: 'orders/create',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'orders.create' },
+    loadComponent: () => import('./pages/orders/order-create.page').then((m) => m.OrderCreatePage),
   },
   {
     path: 'profile',

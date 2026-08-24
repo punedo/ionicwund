@@ -70,10 +70,15 @@ export class PatientCreatePage implements OnInit {
     this.patientService.getCareServices().subscribe((data) => (this.careServices = data));
     this.patientService.getWoundExperts().subscribe((data) => (this.woundExperts = data));
     this.patientService.getFacilities().subscribe((data) => (this.facilities = data));
-    this.patientService.getInsuranceCompanies().subscribe((data) => (this.insuranceCompanies = data));
+    this.loadInsuranceCompanies(this.patient.insuranceType);
     this.patientService.getInsuranceClasses().subscribe((data) => (this.insuranceClasses = data));
     this.patientService.getAdditionalServices().subscribe((data) => (this.additionalServices = data));
     this.patientService.getWoundTypes().subscribe((data) => (this.woundTypes = data));
+  }
+
+  loadInsuranceCompanies(type?: InsuranceType): void {
+    this.patient.insuranceCompany = '';
+    this.patientService.getInsuranceCompanies(type).subscribe((data) => (this.insuranceCompanies = data));
   }
 
   onCancel(): void {

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { Patient, PatientCreateRequest } from '../models/patient.model';
+import { Patient, PatientCreateRequest, InsuranceType } from '../models/patient.model';
 
 @Injectable({
   providedIn: 'root',
@@ -69,13 +69,15 @@ export class PatientService {
     ]);
   }
 
-  getInsuranceCompanies(): Observable<string[]> {
-    return of([
-      'AOK Nordost',
-      'Techniker Krankenkasse',
-      'Barmer',
-      'AXA Krankenversicherung',
-    ]);
+  getInsuranceCompanies(type?: InsuranceType): Observable<string[]> {
+    const url = type ? `${environment.apiUrl}/insurance-companies?type=${type}` : `${environment.apiUrl}/insurance-companies`;
+    return this.http.get<{ companies: { id: number; name: string; type: string }[] }>(url).pipe(
+      map((res) => (res.companies ?? []).map((c) => c.name)),
+      catchError((err) => {
+        console.error('[PatientService] getInsuranceCompanies error:', err);
+        return of([]);
+      })
+    );
   }
 
   getInsuranceClasses(): Observable<string[]> {

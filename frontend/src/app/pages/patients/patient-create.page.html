@@ -123,6 +123,7 @@
                 name="insuranceType"
                 [value]="type"
                 [(ngModel)]="patient.insuranceType"
+                (ngModelChange)="loadInsuranceCompanies(type)"
               />
               <span>{{ type === 'GKV' ? 'Gesetzlich (GKV)' : 'Privat (PKV)' }}</span>
             </label>
