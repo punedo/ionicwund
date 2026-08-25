@@ -1,0 +1,86 @@
+<app-admin-shell pageTitle="Terminwünsche">
+  @if (loading) {
+    <div class="loading-placeholder">Terminwünsche werden geladen …</div>
+  } @else if (terminWuensche.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">📅</div>
+      <h3>Keine ausstehenden Terminwünsche</h3>
+      <p>Es gibt derzeit keine Terminwünsche von Patient:innen.</p>
+    </div>
+  } @else {
+    <div class="termin-wuensche-list">
+      @for (wunsch of terminWuensche; track wunsch.id) {
+        <div class="wunsch-card">
+          <div class="wunsch-header">
+            <div class="patient-info">
+              <strong>{{ wunsch.patientName }}</strong>
+              <span class="tag {{ getStatusClass(wunsch.status) }}">{{ getStatusLabel(wunsch.status) }}</span>
+            </div>
+            <div class="wunsch-date">{{ wunsch.createdAt }}</div>
+          </div>
+          <div class="wunsch-body">
+            <div class="wunsch-details">
+              <div class="detail-row">
+                <span class="label">Bevorzugtes Datum:</span>
+                <span class="value">{{ wunsch.preferredDate }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Bevorzugte Uhrzeit:</span>
+                <span class="value">{{ wunsch.preferredTime }}</span>
+              </div>
+              @if (wunsch.notes) {
+                <div class="detail-row">
+                  <span class="label">Anmerkungen:</span>
+                  <span class="value">{{ wunsch.notes }}</span>
+                </div>
+              }
+            </div>
+            @if (wunsch.status === 'ausstehend') {
+              <div class="wunsch-actions">
+                <button class="btn primary sm" (click)="acceptWunsch(wunsch)">✓ Annehmen</button>
+                <button class="btn danger sm" (click)="openRejectModal(wunsch)">✗ Ablehnen</button>
+              </div>
+            } @else if (wunsch.status === 'angenommen') {
+              <div class="wunsch-result success">
+                ✓ Angenommen von {{ wunsch.reviewedBy }} am {{ wunsch.reviewedAt }}
+                @if (wunsch.convertedAppointmentId) {
+                  <span class="appointment-link">Termin #{{ wunsch.convertedAppointmentId }} erstellt</span>
+                }
+              </div>
+            } @else if (wunsch.status === 'abgelehnt') {
+              <div class="wunsch-result error">
+                ✗ Abgelehnt von {{ wunsch.reviewedBy }} am {{ wunsch.reviewedAt }}
+                @if (wunsch.reviewNotes) {
+                  <span class="review-notes">Grund: {{ wunsch.reviewNotes }}</span>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (selectedWunsch) {
+    <div class="modal-overlay" (click)="closeRejectModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Terminwunsch ablehnen</h3>
+          <button class="modal-close" (click)="closeRejectModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Patient:</strong> {{ selectedWunsch.patientName }}</p>
+          <p><strong>Bevorzugter Termin:</strong> {{ selectedWunsch.preferredDate }} um {{ selectedWunsch.preferredTime }}</p>
+          <div class="form-group">
+            <label for="rejectNotes">Grund für Ablehnung (optional)</label>
+            <textarea id="rejectNotes" [(ngModel)]="rejectNotes" class="form-textarea" rows="3" placeholder="z. B. Keine Kapazität an diesem Tag"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn ghost" (click)="closeRejectModal()">Abbrechen</button>
+          <button class="btn danger" (click)="rejectWunsch()">Ablehnen</button>
+        </div>
+      </div>
+    </div>
+  }
+</app-admin-shell>

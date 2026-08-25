@@ -1,0 +1,125 @@
+<app-admin-shell pageTitle="Termine &amp; Nachweise">
+  <div class="page-header">
+    <button class="btn primary" (click)="openTerminWunschModal()">✎ Terminwunsch senden</button>
+  </div>
+
+  <div class="tabs">
+    <div class="tab" [class.active]="activeTab === 'termine'" (click)="switchTab('termine')">Termine</div>
+    <div class="tab" [class.active]="activeTab === 'nachweise'" (click)="switchTab('nachweise')">Nachweise</div>
+  </div>
+
+  @if (activeTab === 'termine') {
+    <div class="grid-2">
+      <div>
+        <div class="col-head">▾ Ihre nächsten Termine</div>
+        @for (apt of upcomingAppointments; track apt.date) {
+          <div class="termin-card">
+            <div class="thead">{{ apt.date }}</div>
+            <div class="termin-meta">
+              <span><b>{{ apt.time }}</b></span>
+              <span>{{ apt.address }}</span>
+            </div>
+            <div class="service-row">
+              <div class="service-left">{{ apt.service }}, {{ apt.provider }}</div>
+            </div>
+            <div class="termin-actions">
+              <button class="action-btn" (click)="requestChange()">✎ Änderung anfragen</button>
+            </div>
+          </div>
+        }
+      </div>
+      <div>
+        <div class="col-head">▾ Abgeschlossene Termine</div>
+        @for (apt of completedAppointments; track apt.date) {
+          <div class="termin-card">
+            <div class="thead">
+              {{ apt.date }}
+              @if (apt.completed) {
+                <span class="tag green">Abgeschlossen</span>
+              }
+            </div>
+            <div class="termin-meta">
+              <span><b>{{ apt.time }}</b></span>
+              <span>{{ apt.address }}</span>
+            </div>
+            <div class="service-row">
+              <div class="service-left">{{ apt.service }}, {{ apt.provider }}</div>
+            </div>
+          </div>
+        }
+        <div class="footnote">Alle vergangenen Termine finden Sie zusätzlich unter „Nachweise" inkl. Ihrer Bestätigung.</div>
+      </div>
+    </div>
+    <div class="footnote">Terminänderungen erfolgen in Absprache mit Ihrem Pflegedienst – Ihre Anfrage landet direkt im Chat des Behandlerteams.</div>
+  }
+
+  @if (activeTab === 'nachweise') {
+    <p class="info-text">Bitte bestätigen Sie durchgeführte Verbandwechsel mit Ihrer Unterschrift – damit wird die Leistung für Ihren Pflegedienst freigegeben.</p>
+    <div class="card">
+      <h4>Offen – Di. 21.07.2026</h4>
+      <div class="kpi-sub">45 Min Verbandwechsel ambulant, 12:00–14:15 · P. Meier</div>
+      <div class="signature-placeholder">[✍ Hier unterschreiben]</div>
+      <button class="btn accent sm" (click)="confirmSignature()">Bestätigen</button>
+    </div>
+    <div class="card">
+      <h4>Bereits bestätigt</h4>
+      <table class="cert-table">
+        <tbody>
+          <tr>
+            <th>Datum</th>
+            <th>Leistung</th>
+            <th>Status</th>
+          </tr>
+          @for (cert of certificates; track cert.date) {
+            <tr>
+              <td>{{ cert.date }}</td>
+              <td>{{ cert.service }}</td>
+              <td><span class="tag green">{{ cert.status }}</span></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (loading) {
+    <div class="loading-placeholder">Termine werden geladen …</div>
+  }
+
+  @if (showTerminWunschModal) {
+    <div class="modal-overlay" (click)="closeTerminWunschModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Terminwunsch senden</h3>
+          <button class="modal-close" (click)="closeTerminWunschModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="patientId">Patient</label>
+            <select id="patientId" [(ngModel)]="terminWunsch.patientId" class="form-input">
+              @for (patient of patients; track patient.id) {
+                <option [value]="patient.id">{{ patient.firstName }} {{ patient.lastName }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="preferredDate">Bevorzugtes Datum</label>
+            <input type="date" id="preferredDate" [(ngModel)]="terminWunsch.preferredDate" class="form-input">
+          </div>
+          <div class="form-group">
+            <label for="preferredTime">Bevorzugte Uhrzeit</label>
+            <input type="time" id="preferredTime" [(ngModel)]="terminWunsch.preferredTime" class="form-input">
+          </div>
+          <div class="form-group">
+            <label for="notes">Anmerkungen (optional)</label>
+            <textarea id="notes" [(ngModel)]="terminWunsch.notes" class="form-textarea" rows="3" placeholder="z. B. Vormittags bevorzugt, nach 10 Uhr"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn ghost" (click)="closeTerminWunschModal()">Abbrechen</button>
+          <button class="btn primary" (click)="sendTerminWunsch()">Senden</button>
+        </div>
+      </div>
+    </div>
+  }
+</app-admin-shell>

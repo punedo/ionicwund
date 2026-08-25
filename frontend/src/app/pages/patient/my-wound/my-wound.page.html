@@ -1,0 +1,89 @@
+<app-admin-shell pageTitle="Meine Wunde">
+  @if (patientDashboard) {
+    <!-- Alert Banner -->
+    <div class="wound-banner alert">
+      <div>
+        <b>Hat sich Ihre Wunde verändert?</b><br>
+        Stärkere Schmerzen, Blutung, Geruch oder Fieber?
+        <a href="javascript:void(0)" (click)="navigate('/symptom-report')">Jetzt melden →</a>
+      </div>
+    </div>
+
+    <!-- Photo + Pain Slider -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="photo-box">[Aktuelles Wundfoto]</div>
+        <div class="kpi-sub">Letzte Aktualisierung: vor 2 Tagen durch {{ patientDashboard.wound.responsibleWoundExpert ?? 'P. Meier' }}</div>
+      </div>
+      <div class="card">
+        <h4>Wie stark sind Ihre Schmerzen heute?</h4>
+        <input type="range" min="0" max="10" [(ngModel)]="painValue" class="pain-slider">
+        <div class="kpi-sub">0 = keine Schmerzen · 10 = stärkste vorstellbare Schmerzen</div>
+        <button class="btn accent sm" (click)="submitPain()">Wert übermitteln</button>
+      </div>
+    </div>
+
+    <!-- Wound Trend Chart -->
+    <div class="card">
+      <h4>Verlauf (vereinfachte Ansicht)</h4>
+      <svg class="svg-chart" viewBox="0 0 300 100">
+        <polyline points="0,20 60,30 120,45 180,55 240,70 300,80" fill="none" stroke="#16a34a" stroke-width="2"></polyline>
+      </svg>
+      <div class="kpi-sub">Ihre Wunde verkleinert sich kontinuierlich – weiter so!</div>
+    </div>
+
+    <!-- Healing Progress -->
+    <div class="card">
+      <h4>Voraussichtliche Versorgungsdauer</h4>
+      <div class="progress-track">
+        <div class="progress-fill" [style.width.%]="progressPercent"></div>
+      </div>
+      <div class="kpi-sub">Wundfläche seit Behandlungsbeginn um {{ progressPercent }}% reduziert (10,4 cm² → 4,1 cm²)</div>
+      <table class="info-table">
+        <tbody>
+          <tr><td>Versorgung begonnen am</td><td>12.06.2026</td></tr>
+          <tr><td>Voraussichtliches Ende</td><td>ca. Ende September 2026 <span class="kpi-sub">(noch ca. 5–7 Wochen)</span></td></tr>
+        </tbody>
+      </table>
+      <div class="footnote">Schätzung auf Basis des bisherigen Heilungsverlaufs – kann sich je nach Behandlungsverlauf ändern. Für eine verbindliche Einschätzung sprechen Sie bitte mit Ihrem Behandlerteam.</div>
+    </div>
+
+    <!-- Care Plan -->
+    <div class="card">
+      <h4>Mein aktueller Behandlungsplan</h4>
+      <table class="info-table">
+        <tbody>
+          <tr><td>Verbandwechsel-Rhythmus</td><td>{{ patientDashboard.carePlan.interval }}</td></tr>
+          <tr><td>Nächster Verbandwechsel fällig</td><td>20.08.2026</td></tr>
+          <tr><td>Verbandmaterial</td><td>{{ patientDashboard.carePlan.material }}</td></tr>
+        </tbody>
+      </table>
+      <div class="wound-banner info">
+        ℹ Seit 17.08. angepasst (vorher alle 3 Tage) – Ihr Arzt Dr. Roth hat den Rhythmus nach Rücksprache mit Ihrem Pflegeteam verkürzt, um die Wundrandrötung engmaschiger zu kontrollieren.
+      </div>
+    </div>
+
+    <!-- Communication -->
+    <div class="card">
+      <h4>Kommunikation</h4>
+      <div class="comm-buttons">
+        <button class="btn ghost sm" (click)="navigate('/message')">✉ Nachricht an Pflegedienst</button>
+        <button class="btn ghost sm" (click)="navigate('/message')">✉ Nachricht an Wundteam</button>
+        <button class="btn ghost sm" (click)="navigate('/message')">📞 Rückruf anfordern</button>
+        <button class="btn ghost sm" (click)="navigate('/message')">📹 Videosprechstunde vereinbaren</button>
+      </div>
+      <div class="footnote">Bei einer Videosprechstunde kann Ihre Wunde häufig direkt beurteilt werden, ohne dass Sie in die Praxis kommen müssen.</div>
+    </div>
+
+    <!-- Info / Verhaltenshinweise -->
+    <div class="card">
+      <h4>Informationen zu Ihrer Wundversorgung</h4>
+      <p class="info-text">Was Sie im Alltag beachten sollten, abgestimmt auf Ihre Versorgung.</p>
+      <button class="btn ghost sm">📖 Verhaltenshinweise ansehen</button>
+    </div>
+  } @else if (loading) {
+    <div class="loading-placeholder">Wunddaten werden geladen …</div>
+  } @else {
+    <div class="loading-placeholder">Keine Wunddaten verfügbar.</div>
+  }
+</app-admin-shell>
