@@ -29,6 +29,7 @@ export class AdminShellComponent implements OnInit {
 
   isAdmin = false;
   isWoundExpert = false;
+  isPatient = false;
   currentRoute = '';
 
   adminNavSections: NavSection[] = [
@@ -62,6 +63,7 @@ export class AdminShellComponent implements OnInit {
         { label: 'Wundformulare', icon: 'document-text-outline', route: '/documents' },
         { label: 'Hausarztanbindung', icon: 'medkit-outline', route: '/doctor-link' },
         { label: 'Nutzer & Rollen', icon: 'settings-outline', route: '/admin/users' },
+        { label: 'Terminwünsche', icon: 'calendar-outline', route: '/admin/termin-wuensche' },
       ],
     },
   ];
@@ -93,6 +95,19 @@ export class AdminShellComponent implements OnInit {
     },
   ];
 
+  patientNavSections: NavSection[] = [
+    {
+      title: 'NAVIGATION',
+      items: [
+        { label: 'Dashboard', icon: 'square', route: '/dashboard' },
+        { label: 'Termine & Nachweise', icon: 'calendar-outline', route: '/my-appointments' },
+        { label: 'Meine Wunde', icon: 'bandage-outline', route: '/my-wound' },
+        { label: 'Meine Dokumente', icon: 'document-text-outline', route: '/my-documents' },
+        { label: 'Einwilligungen', icon: 'shield-checkmark-outline', route: '/consents' },
+      ],
+    },
+  ];
+
   constructor(
     private authService: AuthService,
     private loadingService: LoadingService,
@@ -109,6 +124,7 @@ export class AdminShellComponent implements OnInit {
     const user = this.authService.getCurrentUser();
     this.isAdmin = !!user && user.roles.includes('ROLE_ADMIN');
     this.isWoundExpert = !!user && user.roles.includes('ROLE_PFLEGE');
+    this.isPatient = !!user && user.roles.includes('ROLE_PATIENT');
   }
 
   get navSections(): NavSection[] {
@@ -117,6 +133,9 @@ export class AdminShellComponent implements OnInit {
     }
     if (this.isWoundExpert) {
       return this.pflegeNavSections;
+    }
+    if (this.isPatient) {
+      return this.patientNavSections;
     }
     return this.userNavSections;
   }

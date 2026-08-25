@@ -130,6 +130,17 @@
   }
 }
 
+/* Patient / content placeholders */
+.placeholder-content {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 32px;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 @media (max-width: 768px) {
   .sidebar-container {
     display: none;

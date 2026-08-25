@@ -96,6 +96,42 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
   },
   {
+    path: 'my-wound',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'dashboard.view' },
+    loadComponent: () => import('./pages/patient/my-wound/my-wound.page').then((m) => m.MyWoundPage),
+  },
+  {
+    path: 'my-appointments',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'dashboard.view' },
+    loadComponent: () => import('./pages/patient/my-appointments/my-appointments.page').then((m) => m.MyAppointmentsPage),
+  },
+  {
+    path: 'my-documents',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'documents.view' },
+    loadComponent: () => import('./pages/patient/my-documents/my-documents.page').then((m) => m.MyDocumentsPage),
+  },
+  {
+    path: 'consents',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'documents.view' },
+    loadComponent: () => import('./pages/patient/consents/consents.page').then((m) => m.ConsentsPage),
+  },
+  {
+    path: 'symptom-report',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'dashboard.view' },
+    loadComponent: () => import('./pages/patient/symptom-report/symptom-report.page').then((m) => m.SymptomReportPage),
+  },
+  {
+    path: 'message',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'dashboard.view' },
+    loadComponent: () => import('./pages/patient/message-send/message-send.page').then((m) => m.MessageSendPage),
+  },
+  {
     path: 'admin',
     canActivate: [AuthGuard],
     loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
@@ -146,6 +182,12 @@ export const routes: Routes = [
     canActivate: [AuthGuard, PermissionGuard],
     data: { permission: 'admin.reports.view' },
     loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
+  },
+  {
+    path: 'admin/termin-wuensche',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'admin.users.view' },
+    loadComponent: () => import('./pages/admin/termin-wuensche/termin-wuensche.page').then((m) => m.TerminWuenschePage),
   },
 
   {

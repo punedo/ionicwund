@@ -44,7 +44,7 @@ export class PermissionGuard implements CanActivate {
       }
     }
 
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/login']);
     return false;
   }
 }

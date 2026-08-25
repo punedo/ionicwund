@@ -1,171 +1,227 @@
-<ion-content [fullscreen]="true" class="dashboard-viewport">
-  <div class="layout-wrapper">
+@if (isPatient) {
+  <app-admin-shell pageTitle="Dashboard">
+    @if (patientDashboard) {
+      <!-- Patient Quick Actions -->
+      <div class="quick-actions">
+        <button class="quick-action primary" (click)="navigate('/symptom-report')">Symptom melden</button>
+        <button class="quick-action" (click)="navigate('/my-wound')">Meine Wunde</button>
+        <button class="quick-action" (click)="navigate('/message')">Nachricht senden</button>
+        <button class="quick-action" (click)="navigate('/my-appointments')">Meine Termine</button>
+      </div>
 
-    <!-- LEFT SIDEBAR -->
-    <aside class="sidebar-container">
-
-      @for (section of navSections; track section.title) {
-        <div class="nav-section">
-          <span class="nav-section-title">{{ section.title }}</span>
-          @for (item of section.items; track item.route) {
-            <div
-              class="nav-item"
-              [class.active]="currentRoute === item.route"
-              (click)="navigate(item.route)"
-            >
-              <ion-icon [name]="item.icon" class="nav-icon" [class.active-icon]="currentRoute === item.route"></ion-icon>
-              <span class="nav-label">{{ item.label }}</span>
+      <!-- Patient KPI Cards -->
+      <div class="patient-cards">
+        <div class="patient-card kpi-clickable" (click)="navigate('/my-appointments')">
+          <h4 class="card-title">Nächster Termin</h4>
+          @if (patientDashboard.nextAppointment) {
+            <div class="card-value accent-text">
+              {{ formatPatientAppointment(patientDashboard.nextAppointment.date, patientDashboard.nextAppointment.startTime) }}
             </div>
+            <div class="card-sub">{{ patientDashboard.nextAppointment.serviceType }}, {{ patientDashboard.nextAppointment.provider }}</div>
+          } @else {
+            <div class="card-value">—</div>
+            <div class="card-sub">Keine anstehenden Termine</div>
           }
+          <div class="card-link">Zu meinen Terminen →</div>
+        </div>
+
+        <div class="patient-card kpi-clickable" (click)="navigate('/my-wound')">
+          <h4 class="card-title">Meine Wunde</h4>
+          <div class="card-value teal-text">{{ patientDashboard.wound.score ?? '—' }}</div>
+          <div class="card-sub">Fläche {{ patientDashboard.wound.woundArea ?? '—' }} · {{ patientDashboard.wound.woundTrend ?? '' }}</div>
+          <div class="card-link">Details ansehen →</div>
+        </div>
+
+        <div class="patient-card kpi-clickable" (click)="navigate('/consents')">
+          <h4 class="card-title">Offene Einwilligung</h4>
+          <div class="card-value">{{ pendingConsentsCount(patientDashboard.openConsents) }}</div>
+          <div class="card-sub">{{ firstPendingConsentTitle(patientDashboard.openConsents) }}</div>
+          <div class="card-link">Jetzt bearbeiten →</div>
+        </div>
+      </div>
+
+      <!-- Patient Banner -->
+      @if (patientDashboard.banner) {
+        <div class="patient-banner">
+          <span class="banner-icon">⚠</span>
+          <span>{{ patientDashboard.banner }}</span>
+          <button class="quick-action sm" (click)="navigate('/my-appointments')">Ansehen</button>
         </div>
       }
+    } @else {
+      <div class="patient-loading">Patienten-Dashboard wird geladen …</div>
+    }
+  </app-admin-shell>
+} @else {
+  <ion-content [fullscreen]="true" class="dashboard-viewport">
+    <div class="layout-wrapper">
 
-      <!-- Logout -->
-      <div class="nav-section nav-section-footer">
-        <div class="nav-item logout-item" (click)="logout()">
-          <ion-icon name="log-out-outline" class="nav-icon"></ion-icon>
-          <span class="nav-label">Logout</span>
+      <!-- LEFT SIDEBAR -->
+      <aside class="sidebar-container">
+
+        @for (section of navSections; track section.title) {
+          <div class="nav-section">
+            <span class="nav-section-title">{{ section.title }}</span>
+            @for (item of section.items; track item.route) {
+              <div
+                class="nav-item"
+                [class.active]="currentRoute === item.route"
+                (click)="navigate(item.route)"
+              >
+                <ion-icon [name]="item.icon" class="nav-icon" [class.active-icon]="currentRoute === item.route"></ion-icon>
+                <span class="nav-label">{{ item.label }}</span>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Logout -->
+        <div class="nav-section nav-section-footer">
+          <div class="nav-item logout-item" (click)="logout()">
+            <ion-icon name="log-out-outline" class="nav-icon"></ion-icon>
+            <span class="nav-label">Logout</span>
+          </div>
         </div>
-      </div>
 
-    </aside>
+      </aside>
 
-    <!-- RIGHT MAIN CONTENT -->
-    <main class="main-viewport">
-      <div class="dashboard-container">
+      <!-- RIGHT MAIN CONTENT -->
+      <main class="main-viewport">
+        <div class="dashboard-container">
 
-        <!-- Top Header -->
-        <header class="content-header">
-          <h1 class="page-title">Dashboard</h1>
+          <!-- Top Header -->
+          <header class="content-header">
+            <h1 class="page-title">Dashboard</h1>
+            @if (isAdmin) {
+              <span class="role-badge">Admin</span>
+            }
+          </header>
+
           @if (isAdmin) {
-            <span class="role-badge">Admin</span>
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+              <button class="quick-action primary" (click)="navigate('/admin/users/invite')">+ Nutzer einladen</button>
+              <button class="quick-action" (click)="navigate('/facilities/create')">+ Einrichtung anlegen</button>
+              <button class="quick-action" (click)="navigate('/admin/contracts/create')">+ Kostenträger / Vertrag</button>
+              <button class="quick-action" (click)="navigate('/admin/reports')">▧ Berichte &amp; Audits</button>
+            </div>
           }
-        </header>
 
-        @if (isAdmin) {
-          <!-- Quick Actions -->
-          <div class="quick-actions">
-            <button class="quick-action primary" (click)="navigate('/admin/users/invite')">+ Nutzer einladen</button>
-            <button class="quick-action" (click)="navigate('/facilities/create')">+ Einrichtung anlegen</button>
-            <button class="quick-action" (click)="navigate('/admin/contracts/create')">+ Kostenträger / Vertrag</button>
-            <button class="quick-action" (click)="navigate('/admin/reports')">▧ Berichte &amp; Audits</button>
-          </div>
-        }
+          <!-- KPI 4-Card Row -->
+          <div class="stats-row">
+            <div class="stat-card">
+              <span class="stat-title">NUTZER IM SYSTEM</span>
+              <div class="stat-val">{{ loading ? '...' : stats.users }}</div>
+              <div class="stat-sub">Gesamt registrierte Nutzer</div>
+            </div>
 
-        <!-- KPI 4-Card Row -->
-        <div class="stats-row">
-          <div class="stat-card">
-            <span class="stat-title">NUTZER IM SYSTEM</span>
-            <div class="stat-val">{{ loading ? '...' : stats.users }}</div>
-            <div class="stat-sub">Gesamt registrierte Nutzer</div>
-          </div>
+            <div class="stat-card">
+              <span class="stat-title">ROLLEN</span>
+              <div class="stat-val">{{ loading ? '...' : stats.roles }}</div>
+              <div class="stat-sub">Verfügbare Rollen im System</div>
+            </div>
 
-          <div class="stat-card">
-            <span class="stat-title">ROLLEN</span>
-            <div class="stat-val">{{ loading ? '...' : stats.roles }}</div>
-            <div class="stat-sub">Verfügbare Rollen im System</div>
-          </div>
+            <div class="stat-card">
+              <span class="stat-title">BERECHTIGUNGEN</span>
+              <div class="stat-val orange-text">{{ loading ? '...' : stats.permissions }}</div>
+              <div class="stat-sub">Definierte Berechtigungen</div>
+            </div>
 
-          <div class="stat-card">
-            <span class="stat-title">BERECHTIGUNGEN</span>
-            <div class="stat-val orange-text">{{ loading ? '...' : stats.permissions }}</div>
-            <div class="stat-sub">Definierte Berechtigungen</div>
+            <div class="stat-card">
+              <span class="stat-title">MENÜPUNKTE</span>
+              <div class="stat-val">{{ loading ? '...' : stats.menuItems }}</div>
+              <div class="stat-sub">Konfigurierte Navigationseinträge</div>
+            </div>
           </div>
 
-          <div class="stat-card">
-            <span class="stat-title">MENÜPUNKTE</span>
-            <div class="stat-val">{{ loading ? '...' : stats.menuItems }}</div>
-            <div class="stat-sub">Konfigurierte Navigationseinträge</div>
-          </div>
+          @if (isAdmin) {
+            <!-- Lower 2 Panels -->
+            <div class="panels-row">
+
+              <!-- Activity Box -->
+              <div class="panel-box">
+                <h2 class="panel-heading">AUFGABEN / AKTIVITÄT</h2>
+
+                <div class="activity-items">
+                  <div class="activity-item">
+                    <span class="activity-name">Débridement – Fischer, M.</span>
+                    <span class="badge badge-due">fällig heute</span>
+                  </div>
+
+                  <div class="activity-item item-highlight">
+                    <span class="activity-name">Abweichung prüfen – Yilmaz, T.</span>
+                    <span class="badge badge-priority">hohe Priorität</span>
+                  </div>
+
+                  <div class="activity-item">
+                    <span class="activity-name">Wechselintervall bestätigt – Fischer, M.</span>
+                    <span class="badge badge-done">erledigt</span>
+                  </div>
+                </div>
+
+                <div class="panel-link-footer">
+                  Direkt aus <a href="javascript:void(0)">Aufgaben</a> · <a href="javascript:void(0)">Eskalationen</a>
+                </div>
+              </div>
+
+              <!-- Trend Chart Box -->
+              <div class="panel-box">
+                <h2 class="panel-heading">WUNDFLÄCHENVERLAUF (PORTALWEIT, Ø ALLER AKTIVEN WUNDEN)</h2>
+
+                <div class="chart-wrapper">
+                  <svg viewBox="0 0 500 160" preserveAspectRatio="none" class="trend-chart-svg">
+                    <line x1="0" y1="140" x2="500" y2="140" stroke="#e2e8f0" stroke-width="1.5" />
+                    <path
+                      d="M 10 120 C 100 115, 140 100, 200 90 C 260 80, 310 60, 380 50 C 420 45, 460 25, 490 15"
+                      fill="none"
+                      stroke="#2563eb"
+                      stroke-width="3"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                </div>
+
+                <div class="chart-meta">
+                  Trend über die 4 aktuell dokumentierten Patient:innen.
+                </div>
+              </div>
+
+            </div>
+          } @else {
+            <!-- Non-admin: roles info + chart -->
+            <div class="panels-row">
+              <div class="panel-box">
+                <h2 class="panel-heading">IHRE ROLLEN</h2>
+                <div class="roles-list">
+                  @for (role of userRoles; track role) {
+                    <span class="role-chip">{{ role }}</span>
+                  }
+                </div>
+              </div>
+              <div class="panel-box">
+                <h2 class="panel-heading">WUNDFLÄCHENVERLAUF (PORTALWEIT, Ø ALLER AKTIVEN WUNDEN)</h2>
+                <div class="chart-wrapper">
+                  <svg viewBox="0 0 500 160" preserveAspectRatio="none" class="trend-chart-svg">
+                    <line x1="0" y1="140" x2="500" y2="140" stroke="#e2e8f0" stroke-width="1.5" />
+                    <path
+                      d="M 10 120 C 100 115, 140 100, 200 90 C 260 80, 310 60, 380 50 C 420 45, 460 25, 490 15"
+                      fill="none"
+                      stroke="#2563eb"
+                      stroke-width="3"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                </div>
+                <div class="chart-meta">
+                  Trend über die aktuell dokumentierten Patient:innen.
+                </div>
+              </div>
+            </div>
+          }
+
         </div>
+      </main>
 
-        @if (isAdmin) {
-          <!-- Lower 2 Panels -->
-          <div class="panels-row">
-
-            <!-- Activity Box -->
-            <div class="panel-box">
-              <h2 class="panel-heading">AUFGABEN / AKTIVITÄT</h2>
-
-              <div class="activity-items">
-                <div class="activity-item">
-                  <span class="activity-name">Débridement – Fischer, M.</span>
-                  <span class="badge badge-due">fällig heute</span>
-                </div>
-
-                <div class="activity-item item-highlight">
-                  <span class="activity-name">Abweichung prüfen – Yilmaz, T.</span>
-                  <span class="badge badge-priority">hohe Priorität</span>
-                </div>
-
-                <div class="activity-item">
-                  <span class="activity-name">Wechselintervall bestätigt – Fischer, M.</span>
-                  <span class="badge badge-done">erledigt</span>
-                </div>
-              </div>
-
-              <div class="panel-link-footer">
-                Direkt aus <a href="javascript:void(0)">Aufgaben</a> · <a href="javascript:void(0)">Eskalationen</a>
-              </div>
-            </div>
-
-            <!-- Trend Chart Box -->
-            <div class="panel-box">
-              <h2 class="panel-heading">WUNDFLÄCHENVERLAUF (PORTALWEIT, Ø ALLER AKTIVEN WUNDEN)</h2>
-
-              <div class="chart-wrapper">
-                <svg viewBox="0 0 500 160" preserveAspectRatio="none" class="trend-chart-svg">
-                  <line x1="0" y1="140" x2="500" y2="140" stroke="#e2e8f0" stroke-width="1.5" />
-                  <path
-                    d="M 10 120 C 100 115, 140 100, 200 90 C 260 80, 310 60, 380 50 C 420 45, 460 25, 490 15"
-                    fill="none"
-                    stroke="#2563eb"
-                    stroke-width="3"
-                    stroke-linecap="round"
-                  />
-                </svg>
-              </div>
-
-              <div class="chart-meta">
-                Trend über die 4 aktuell dokumentierten Patient:innen.
-              </div>
-            </div>
-
-          </div>
-        } @else {
-          <!-- Non-admin: roles info + chart -->
-          <div class="panels-row">
-            <div class="panel-box">
-              <h2 class="panel-heading">IHRE ROLLEN</h2>
-              <div class="roles-list">
-                @for (role of userRoles; track role) {
-                  <span class="role-chip">{{ role }}</span>
-                }
-              </div>
-            </div>
-            <div class="panel-box">
-              <h2 class="panel-heading">WUNDFLÄCHENVERLAUF (PORTALWEIT, Ø ALLER AKTIVEN WUNDEN)</h2>
-              <div class="chart-wrapper">
-                <svg viewBox="0 0 500 160" preserveAspectRatio="none" class="trend-chart-svg">
-                  <line x1="0" y1="140" x2="500" y2="140" stroke="#e2e8f0" stroke-width="1.5" />
-                  <path
-                    d="M 10 120 C 100 115, 140 100, 200 90 C 260 80, 310 60, 380 50 C 420 45, 460 25, 490 15"
-                    fill="none"
-                    stroke="#2563eb"
-                    stroke-width="3"
-                    stroke-linecap="round"
-                  />
-                </svg>
-              </div>
-              <div class="chart-meta">
-                Trend über die aktuell dokumentierten Patient:innen.
-              </div>
-            </div>
-          </div>
-        }
-
-      </div>
-    </main>
-
-  </div>
-</ion-content>
+    </div>
+  </ion-content>
+}
