@@ -10,24 +10,13 @@ import { LoadingService } from '../../services/loading.service';
 import { PatientDashboardService } from '../../services/patient-dashboard.service';
 import { PatientDashboard, ConsentItem } from '../../models/patient-dashboard.model';
 import { AdminShellComponent } from '../../components/admin-shell/admin-shell.component';
+import { MenuItem } from '../../models/auth.models';
 
 interface DashboardStats {
   users: number;
   roles: number;
   permissions: number;
   menuItems: number;
-}
-
-interface NavItem {
-  label: string;
-  icon: string;
-  route: string;
-  active?: boolean;
-}
-
-interface NavSection {
-  title: string;
-  items: NavItem[];
 }
 
 @Component({
@@ -49,81 +38,7 @@ export class DashboardPage implements OnInit {
   currentRoute = '';
   patientLoading = false;
   patientDashboard: PatientDashboard | null = null;
-
-  adminNavSections: NavSection[] = [
-    {
-      title: 'NAVIGATION',
-      items: [
-        { label: 'Dashboard', icon: 'square', route: '/dashboard' },
-        { label: 'Patientenübersicht', icon: 'reorder-three-outline', route: '/patients' },
-      ],
-    },
-    {
-      title: 'VERSORGUNG',
-      items: [
-        { label: 'Versorgungsplanung', icon: 'bandage-outline', route: '/woundcare' },
-        { label: 'Termine & Nachweise', icon: 'calendar-outline', route: '/appointments' },
-        { label: 'Wundtermine', icon: 'time-outline', route: '/appointments' },
-      ],
-    },
-    {
-      title: 'ABRECHNUNG & REZEPTE',
-      items: [
-        { label: 'Abrechnung', icon: 'cash-outline', route: '/billing' },
-        { label: 'Kassen & Vertragsmanagement', icon: 'grid-outline', route: '/contracts' },
-        { label: 'Rezeptübersicht', icon: 'receipt-outline', route: '/prescriptions' },
-        { label: 'Bestellübersicht', icon: 'cube-outline', route: '/orders' },
-      ],
-    },
-    {
-      title: 'VERWALTUNG',
-      items: [
-        { label: 'Wundformulare', icon: 'document-text-outline', route: '/documents' },
-        { label: 'Hausarztanbindung', icon: 'medkit-outline', route: '/doctor-link' },
-        { label: 'Nutzer & Rollen', icon: 'settings-outline', route: '/admin/users' },
-      ],
-    },
-  ];
-
-  userNavSections: NavSection[] = [
-    {
-      title: 'NAVIGATION',
-      items: [
-        { label: 'Dashboard', icon: 'square', route: '/dashboard' },
-      ],
-    },
-  ];
-
-  pflegeNavSections: NavSection[] = [
-    {
-      title: 'NAVIGATION',
-      items: [
-        { label: 'Dashboard', icon: 'square', route: '/dashboard' },
-        { label: 'Patientenübersicht', icon: 'reorder-three-outline', route: '/patients' },
-      ],
-    },
-    {
-      title: 'VERSORGUNG',
-      items: [
-        { label: 'Versorgungsplanung', icon: 'bandage-outline', route: '/woundcare' },
-        { label: 'Termine & Nachweise', icon: 'calendar-outline', route: '/appointments' },
-        { label: 'Wundtermine', icon: 'time-outline', route: '/appointments' },
-      ],
-    },
-  ];
-
-  patientNavSections: NavSection[] = [
-    {
-      title: 'NAVIGATION',
-      items: [
-        { label: 'Dashboard', icon: 'square', route: '/dashboard' },
-        { label: 'Termine & Nachweise', icon: 'calendar-outline', route: '/my-appointments' },
-        { label: 'Meine Wunde', icon: 'bandage-outline', route: '/my-wound' },
-        { label: 'Meine Dokumente', icon: 'document-text-outline', route: '/my-documents' },
-        { label: 'Einwilligungen', icon: 'shield-checkmark-outline', route: '/consents' },
-      ],
-    },
-  ];
+  menuItems: MenuItem[] = [];
 
   constructor(
     private authService: AuthService,
@@ -145,6 +60,10 @@ export class DashboardPage implements OnInit {
     }
     this.permissions = this.authService.getPermissions();
     this.currentRoute = this.router.url;
+
+    this.authService.menu$.subscribe((items) => {
+      this.menuItems = items;
+    });
 
     if (this.isPatient) {
       this.loadPatientDashboard();
@@ -173,9 +92,19 @@ export class DashboardPage implements OnInit {
     });
   }
 
-  navigate(route: string): void {
+  navigate(route: string | null | undefined): void {
+    if (!route) {
+      return;
+    }
     this.currentRoute = route;
     this.router.navigateByUrl(route);
+  }
+
+  isActive(route: string | null | undefined): boolean {
+    if (!route || !this.currentRoute) {
+      return false;
+    }
+    return this.currentRoute === route || this.currentRoute.startsWith(route + '/');
   }
 
   logout(): void {
@@ -192,19 +121,6 @@ export class DashboardPage implements OnInit {
         this.router.navigate(['/login']);
       },
     });
-  }
-
-  get navSections(): NavSection[] {
-    if (this.isAdmin) {
-      return this.adminNavSections;
-    }
-    if (this.isWoundExpert) {
-      return this.pflegeNavSections;
-    }
-    if (this.isPatient) {
-      return this.patientNavSections;
-    }
-    return this.userNavSections;
   }
 
   loadPatientDashboard(): void {

@@ -59,21 +59,32 @@
       <!-- LEFT SIDEBAR -->
       <aside class="sidebar-container">
 
-        @for (section of navSections; track section.title) {
-          <div class="nav-section">
-            <span class="nav-section-title">{{ section.title }}</span>
-            @for (item of section.items; track item.route) {
-              <div
-                class="nav-item"
-                [class.active]="currentRoute === item.route"
-                (click)="navigate(item.route)"
-              >
-                <ion-icon [name]="item.icon" class="nav-icon" [class.active-icon]="currentRoute === item.route"></ion-icon>
-                <span class="nav-label">{{ item.label }}</span>
-              </div>
+        <div class="nav-section">
+          <span class="nav-section-title">NAVIGATION</span>
+          @for (item of menuItems; track item.id) {
+            <div
+              class="nav-item"
+              [class.active]="isActive(item.route)"
+              (click)="navigate(item.route)"
+            >
+              <ion-icon [name]="item.icon || 'square'" class="nav-icon" [class.active-icon]="isActive(item.route)"></ion-icon>
+              <span class="nav-label">{{ item.label }}</span>
+            </div>
+
+            @if (item.children && item.children.length > 0) {
+              @for (child of item.children; track child.id) {
+                <div
+                  class="nav-item nav-child"
+                  [class.active]="isActive(child.route)"
+                  (click)="navigate(child.route)"
+                >
+                  <ion-icon [name]="child.icon || 'square'" class="nav-icon" [class.active-icon]="isActive(child.route)"></ion-icon>
+                  <span class="nav-label">{{ child.label }}</span>
+                </div>
+              }
             }
-          </div>
-        }
+          }
+        </div>
 
         <!-- Logout -->
         <div class="nav-section nav-section-footer">
