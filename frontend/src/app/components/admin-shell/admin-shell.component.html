@@ -12,9 +12,16 @@
           >
             <ion-icon [name]="item.icon || 'square'" class="nav-icon"></ion-icon>
             <span class="nav-label">{{ item.label }}</span>
+            @if (item.children && item.children.length > 0) {
+              <ion-icon
+                class="nav-toggle"
+                [name]="isExpanded(item.id) ? 'chevron-up-outline' : 'chevron-down-outline'"
+                (click)="toggleAccordion(item.id, $event)"
+              ></ion-icon>
+            }
           </div>
 
-          @if (item.children && item.children.length > 0) {
+          @if (item.children && item.children.length > 0 && isExpanded(item.id)) {
             @for (child of item.children; track child.id) {
               <div
                 class="nav-item nav-child"
@@ -56,3 +63,47 @@
     </main>
   </div>
 </ion-content>
+
+@if (isAdmin) {
+  <ion-footer class="admin-mobile-footer">
+    <ion-toolbar>
+      <div class="mobile-footer-nav">
+        <div
+          class="mobile-footer-item"
+          [class.active]="isActive('/dashboard')"
+          (click)="navigate('/dashboard')"
+        >
+          <ion-icon name="home-outline" class="mobile-footer-icon"></ion-icon>
+          <span class="mobile-footer-label">Dashboard</span>
+        </div>
+
+        <div
+          class="mobile-footer-item"
+          [class.active]="isActive('/woundcare')"
+          (click)="navigate('/woundcare')"
+        >
+          <ion-icon name="medkit-outline" class="mobile-footer-icon"></ion-icon>
+          <span class="mobile-footer-label">WundCare</span>
+        </div>
+
+        <div
+          class="mobile-footer-item"
+          [class.active]="isActive('/appointments')"
+          (click)="navigate('/appointments')"
+        >
+          <ion-icon name="calendar-outline" class="mobile-footer-icon"></ion-icon>
+          <span class="mobile-footer-label">Termine</span>
+        </div>
+
+        <div
+          class="mobile-footer-item"
+          [class.active]="isActive('/orders')"
+          (click)="navigate('/orders')"
+        >
+          <ion-icon name="cart-outline" class="mobile-footer-icon"></ion-icon>
+          <span class="mobile-footer-label">Bestellung</span>
+        </div>
+      </div>
+    </ion-toolbar>
+  </ion-footer>
+}

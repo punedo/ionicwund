@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { IonContent, IonIcon } from '@ionic/angular';
+import { IonContent, IonFooter, IonIcon, IonToolbar } from '@ionic/angular';
 import { finalize, timeout, catchError, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../services/auth.service';
@@ -22,7 +22,7 @@ interface DashboardStats {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, IonContent, IonIcon, AdminShellComponent],
+  imports: [CommonModule, IonContent, IonFooter, IonIcon, IonToolbar, AdminShellComponent],
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
 })
@@ -39,6 +39,7 @@ export class DashboardPage implements OnInit {
   patientLoading = false;
   patientDashboard: PatientDashboard | null = null;
   menuItems: MenuItem[] = [];
+  expandedItemIds = new Set<string>();
 
   constructor(
     private authService: AuthService,
@@ -63,6 +64,7 @@ export class DashboardPage implements OnInit {
 
     this.authService.menu$.subscribe((items) => {
       this.menuItems = items;
+      this.expandActive();
     });
 
     if (this.isPatient) {
@@ -105,6 +107,30 @@ export class DashboardPage implements OnInit {
       return false;
     }
     return this.currentRoute === route || this.currentRoute.startsWith(route + '/');
+  }
+
+  isExpanded(itemId: string): boolean {
+    return this.expandedItemIds.has(itemId);
+  }
+
+  toggleAccordion(itemId: string, event?: Event): void {
+    event?.stopPropagation();
+    if (this.expandedItemIds.has(itemId)) {
+      this.expandedItemIds.delete(itemId);
+    } else {
+      this.expandedItemIds.clear();
+      this.expandedItemIds.add(itemId);
+    }
+  }
+
+  private expandActive(): void {
+    this.expandedItemIds.clear();
+    for (const item of this.menuItems) {
+      if (item.children?.length && (this.isActive(item.route) || item.children.some((child) => this.isActive(child.route)))) {
+        this.expandedItemIds.add(item.id);
+        break;
+      }
+    }
   }
 
   logout(): void {

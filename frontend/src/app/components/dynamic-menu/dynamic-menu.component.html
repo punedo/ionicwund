@@ -18,40 +18,49 @@
       </div>
     }
 
-    <ion-list>
+    <ion-list lines="none">
       @for (item of menuItems; track item.id) {
-        <ion-menu-toggle auto-hide="false">
-          <ion-item
-            button
-            (click)="navigate(item.route)"
-            detail="false"
-            [class.active-item]="isActive(item.route)"
-          >
-            <ion-icon slot="start" [name]="item.icon || 'circle-outline'"></ion-icon>
-            <ion-label>{{ item.label }}</ion-label>
-          </ion-item>
-        </ion-menu-toggle>
-
         @if (item.children && item.children.length > 0) {
-          @for (child of item.children; track child.id) {
-            <ion-menu-toggle auto-hide="false">
-              <ion-item
-                button
-                (click)="navigate(child.route)"
-                detail="false"
-                class="menu-child"
-                [class.active-item]="isActive(child.route)"
-              >
-                <ion-icon slot="start" [name]="child.icon || 'circle-outline'"></ion-icon>
-                <ion-label>{{ child.label }}</ion-label>
-              </ion-item>
-            </ion-menu-toggle>
+          <ion-item button detail="false" [class.active-item]="isActive(item.route)" (click)="toggleAccordion(item.id)">
+            <ion-icon slot="start" [name]="item.icon || 'list-outline'"></ion-icon>
+            <ion-label>{{ item.label }}</ion-label>
+            <ion-icon slot="end" [name]="isExpanded(item.id) ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+          </ion-item>
+          @if (isExpanded(item.id)) {
+            <ion-list lines="none" class="submenu-list">
+              @for (child of item.children; track child.id) {
+                <ion-menu-toggle auto-hide="false">
+                  <ion-item
+                    button
+                    (click)="navigate(child.route)"
+                    detail="false"
+                    class="menu-child"
+                    [class.active-item]="isActive(child.route)"
+                  >
+                    <ion-icon slot="start" [name]="child.icon || 'circle-outline'"></ion-icon>
+                    <ion-label>{{ child.label }}</ion-label>
+                  </ion-item>
+                </ion-menu-toggle>
+              }
+            </ion-list>
           }
+        } @else {
+          <ion-menu-toggle auto-hide="false">
+            <ion-item
+              button
+              (click)="navigate(item.route)"
+              detail="false"
+              [class.active-item]="isActive(item.route)"
+            >
+              <ion-icon slot="start" [name]="item.icon || 'circle-outline'"></ion-icon>
+              <ion-label>{{ item.label }}</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
         }
       }
     </ion-list>
 
-    <ion-list class="menu-footer">
+    <ion-list class="menu-footer" lines="none">
       <ion-menu-toggle auto-hide="false">
         <ion-item button (click)="logout()" detail="false">
           <ion-icon slot="start" name="log-out-outline"></ion-icon>

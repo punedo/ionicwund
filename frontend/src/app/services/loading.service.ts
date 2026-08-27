@@ -5,6 +5,7 @@ import { Injectable, signal } from '@angular/core';
 })
 export class LoadingService {
   isLoading = signal(false);
+  isRouteLoading = signal(false);
   message = signal<string | undefined>(undefined);
 
   show(message?: string): void {
@@ -15,5 +16,13 @@ export class LoadingService {
   hide(): void {
     this.isLoading.set(false);
     this.message.set(undefined);
+  }
+
+  showRouteLoading(): void {
+    this.isRouteLoading.set(true);
+  }
+
+  hideRouteLoading(): void {
+    this.isRouteLoading.set(false);
   }
 }

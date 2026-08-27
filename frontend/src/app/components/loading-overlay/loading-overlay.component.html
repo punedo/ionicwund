@@ -1,4 +1,4 @@
-@if (loadingService.isLoading()) {
+@if (loadingService.isLoading() || loadingService.isRouteLoading()) {
   <div class="loading-overlay">
     <div class="loading-box">
       <ion-spinner name="crescent" class="loading-spinner"></ion-spinner>

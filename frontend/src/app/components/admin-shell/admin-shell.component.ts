@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { IonContent, IonIcon } from '@ionic/angular';
+import { IonContent, IonFooter, IonIcon, IonToolbar } from '@ionic/angular';
 import { AuthService } from '../../services/auth.service';
 import { LoadingService } from '../../services/loading.service';
 import { MenuItem } from '../../models/auth.models';
@@ -10,7 +10,7 @@ import { MenuItem } from '../../models/auth.models';
 @Component({
   selector: 'app-admin-shell',
   standalone: true,
-  imports: [CommonModule, IonContent, IonIcon],
+  imports: [CommonModule, IonContent, IonFooter, IonIcon, IonToolbar],
   templateUrl: './admin-shell.component.html',
   styleUrls: ['./admin-shell.component.scss'],
 })
@@ -22,6 +22,7 @@ export class AdminShellComponent implements OnInit {
   isPatient = false;
   currentRoute = '';
   menuItems: MenuItem[] = [];
+  expandedItemIds = new Set<string>();
 
   constructor(
     private authService: AuthService,
@@ -32,10 +33,12 @@ export class AdminShellComponent implements OnInit {
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
         this.currentRoute = event.urlAfterRedirects;
+        this.expandActive();
       });
   }
 
   ngOnInit(): void {
+    this.currentRoute = this.router.url;
     const user = this.authService.getCurrentUser();
     this.isAdmin = !!user && user.roles.includes('ROLE_ADMIN');
     this.isWoundExpert = !!user && user.roles.includes('ROLE_PFLEGE');
@@ -43,6 +46,7 @@ export class AdminShellComponent implements OnInit {
 
     this.authService.menu$.subscribe((items) => {
       this.menuItems = items;
+      this.expandActive();
     });
   }
 
@@ -52,6 +56,30 @@ export class AdminShellComponent implements OnInit {
       return false;
     }
     return this.currentRoute === route || this.currentRoute.startsWith(route + '/');
+  }
+
+  isExpanded(itemId: string): boolean {
+    return this.expandedItemIds.has(itemId);
+  }
+
+  toggleAccordion(itemId: string, event?: Event): void {
+    event?.stopPropagation();
+    if (this.expandedItemIds.has(itemId)) {
+      this.expandedItemIds.delete(itemId);
+    } else {
+      this.expandedItemIds.clear();
+      this.expandedItemIds.add(itemId);
+    }
+  }
+
+  private expandActive(): void {
+    this.expandedItemIds.clear();
+    for (const item of this.menuItems) {
+      if (item.children?.length && (this.isActive(item.route) || item.children.some((child) => this.isActive(child.route)))) {
+        this.expandedItemIds.add(item.id);
+        break;
+      }
+    }
   }
 
   navigate(route: string | null | undefined): void {

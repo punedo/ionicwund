@@ -21,6 +21,7 @@ export class DynamicMenuComponent implements OnInit {
   userName = '';
   userEmail = '';
   selectedRoute = '';
+  expandedItemIds = new Set<string>();
 
   constructor(
     private authService: AuthService,
@@ -57,6 +58,19 @@ export class DynamicMenuComponent implements OnInit {
       return false;
     }
     return this.selectedRoute === route || this.selectedRoute.startsWith(route + '/');
+  }
+
+  toggleAccordion(itemId: string): void {
+    if (this.expandedItemIds.has(itemId)) {
+      this.expandedItemIds.delete(itemId);
+    } else {
+      this.expandedItemIds.clear();
+      this.expandedItemIds.add(itemId);
+    }
+  }
+
+  isExpanded(itemId: string): boolean {
+    return this.expandedItemIds.has(itemId);
   }
 
   logout(): void {
