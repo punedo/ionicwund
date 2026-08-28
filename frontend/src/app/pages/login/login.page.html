@@ -48,4 +48,56 @@
       </ion-button>
     </form>
   </div>
+
+  @if (showPasswordChange) {
+    <div class="password-change-overlay">
+      <div class="password-change-card">
+        <h2>Passwort ändern</h2>
+        <p>Da Sie sich zum ersten Mal anmelden, müssen Sie ein neues Passwort vergeben.</p>
+
+        <form (ngSubmit)="onSetupPassword()" class="password-change-form">
+          <ion-item>
+            <ion-input
+              type="password"
+              label="Neues Passwort"
+              labelPlacement="floating"
+              [(ngModel)]="newPassword"
+              name="newPassword"
+              placeholder="Mindestens 8 Zeichen"
+              autocomplete="new-password"
+              required
+            ></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-input
+              type="password"
+              label="Passwort bestätigen"
+              labelPlacement="floating"
+              [(ngModel)]="confirmPassword"
+              name="confirmPassword"
+              placeholder="Passwort wiederholen"
+              autocomplete="new-password"
+              required
+            ></ion-input>
+          </ion-item>
+
+          @if (setupError) {
+            <ion-note color="danger" class="error-message">{{ setupError }}</ion-note>
+          }
+
+          <ion-button
+            type="submit"
+            expand="block"
+            [disabled]="setupLoading"
+          >
+            @if (setupLoading) {
+              <span class="spinner"></span>
+            }
+            Passwort speichern
+          </ion-button>
+        </form>
+      </div>
+    </div>
+  }
 </ion-content>

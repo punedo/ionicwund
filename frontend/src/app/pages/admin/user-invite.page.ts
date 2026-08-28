@@ -97,10 +97,12 @@ export class UserInvitePage implements OnInit {
     this.loadingService.show('Einladung wird gesendet...');
 
     this.http.post(`${environment.apiUrl}/admin/users/invite`, this.invite).subscribe({
-      next: () => {
+      next: (response: any) => {
         this.saving = false;
         this.loadingService.hide();
-        this.successMessage = 'Einladung erfolgreich gesendet!';
+        this.successMessage = response?.emailSent === false
+          ? 'Benutzer angelegt, aber die E-Mail konnte nicht gesendet werden.'
+          : 'Einladung erfolgreich gesendet!';
         setTimeout(() => {
           this.router.navigate(['/admin/users']);
         }, 2000);

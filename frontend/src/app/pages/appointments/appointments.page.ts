@@ -104,7 +104,8 @@ export class AppointmentsPage implements OnInit {
 
   loadData(): void {
     this.loading = true;
-    this.appointmentService.getAppointments().subscribe({
+    const weekStart = this.formatISODate(this.weekStart);
+    this.appointmentService.getAppointments(weekStart).subscribe({
       next: (data) => {
         this.appointments = data;
         this.loading = false;
@@ -115,7 +116,7 @@ export class AppointmentsPage implements OnInit {
       },
     });
 
-    this.appointmentService.getCertificates().subscribe({
+    this.appointmentService.getCertificates(weekStart).subscribe({
       next: (data) => {
         this.certificates = data;
       },
@@ -142,14 +143,17 @@ export class AppointmentsPage implements OnInit {
 
   previousWeek(): void {
     this.weekStart = this.addDays(this.weekStart, -7);
+    this.loadData();
   }
 
   nextWeek(): void {
     this.weekStart = this.addDays(this.weekStart, 7);
+    this.loadData();
   }
 
   goToToday(): void {
     this.weekStart = this.getWeekStart(new Date());
+    this.loadData();
   }
 
   onCreate(): void {

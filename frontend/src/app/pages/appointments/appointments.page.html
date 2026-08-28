@@ -18,22 +18,70 @@
       <button class="nav-btn" (click)="nextWeek()">Nächste Woche &gt;</button>
     </div>
 
-    <div class="appointments-layout">
-      <div class="appointments-column">
-        <h3 class="column-title">Zu erfassen</h3>
-        @for (day of weekDays; track day.label) {
-          @if (day.appointments.length > 0) {
-            <div class="day-card">
-              <div class="day-header">{{ day.label }}</div>
-              <div class="day-appointments">
-                @for (appointment of day.appointments; track appointment.id) {
-                  @if (!appointment.recordedAt && appointment.status !== 'durchgeführt') {
+    @if (loading) {
+      <p class="empty-message">Termine werden geladen...</p>
+    } @else if (appointments.length === 0) {
+      <p class="empty-message">Keine Termine für diese Woche.</p>
+    } @else {
+      <div class="appointments-layout">
+        <div class="appointments-column">
+          <h3 class="column-title">Zu erfassen</h3>
+          @for (day of weekDays; track day.label) {
+            @if (day.appointments.length > 0) {
+              <div class="day-card">
+                <div class="day-header">{{ day.label }}</div>
+                <div class="day-appointments">
+                  @for (appointment of day.appointments; track appointment.id) {
+                    @if (!appointment.recordedAt && appointment.status !== 'durchgeführt') {
+                      <div class="appointment-row">
+                        <div class="appointment-meta">
+                          <span class="appointment-time">{{ appointment.startTime }} – {{ appointment.endTime }}</span>
+                          <span class="appointment-address">{{ getPatientAddress(appointment) }}</span>
+                        </div>
+                        <div class="appointment-card">
+                          <div class="appointment-service">{{ getServiceDisplay(appointment) }}</div>
+                          <div class="appointment-badges">
+                            <span class="badge badge-v" title="gültige Verordnung liegt vor">V</span>
+                            <span class="badge badge-g" title="Kassengenehmigung erteilt">G</span>
+                          </div>
+                        </div>
+                        <div class="appointment-actions">
+                          <button class="action-btn" (click)="onRecord(appointment)">
+                            <ion-icon name="time-outline"></ion-icon> Zeit erfassen
+                          </button>
+                          <button class="action-btn" (click)="onEdit(appointment)">
+                            <ion-icon name="create-outline"></ion-icon> Bearbeiten
+                          </button>
+                          <button class="action-btn danger" (click)="onDelete(appointment)">
+                            <ion-icon name="trash-outline"></ion-icon> Löschen
+                          </button>
+                        </div>
+                      </div>
+                    }
+                  }
+                </div>
+              </div>
+            }
+          }
+          @if (weekDays.every(d => d.appointments.length === 0)) {
+            <p class="empty-message">Keine offenen Termine für diese Woche.</p>
+          }
+        </div>
+
+        <div class="appointments-column">
+          <h3 class="column-title">Zeiten erfasst</h3>
+          @for (day of completedAppointments; track day.label) {
+            @if (day.appointments.length > 0) {
+              <div class="day-card">
+                <div class="day-header">{{ day.label }}</div>
+                <div class="day-appointments">
+                  @for (appointment of day.appointments; track appointment.id) {
                     <div class="appointment-row">
                       <div class="appointment-meta">
                         <span class="appointment-time">{{ appointment.startTime }} – {{ appointment.endTime }}</span>
                         <span class="appointment-address">{{ getPatientAddress(appointment) }}</span>
                       </div>
-                      <div class="appointment-card">
+                      <div class="appointment-card completed">
                         <div class="appointment-service">{{ getServiceDisplay(appointment) }}</div>
                         <div class="appointment-badges">
                           <span class="badge badge-v" title="gültige Verordnung liegt vor">V</span>
@@ -41,11 +89,8 @@
                         </div>
                       </div>
                       <div class="appointment-actions">
-                        <button class="action-btn" (click)="onRecord(appointment)">
-                          <ion-icon name="time-outline"></ion-icon> Zeit erfassen
-                        </button>
-                        <button class="action-btn" (click)="onEdit(appointment)">
-                          <ion-icon name="create-outline"></ion-icon> Bearbeiten
+                        <button class="action-btn" (click)="onOpenCertificateForAppointment(appointment)">
+                          <ion-icon name="eye-outline"></ion-icon> Nachweis ansehen
                         </button>
                         <button class="action-btn danger" (click)="onDelete(appointment)">
                           <ion-icon name="trash-outline"></ion-icon> Löschen
@@ -53,58 +98,19 @@
                       </div>
                     </div>
                   }
-                }
+                </div>
               </div>
+            }
+          }
+          @if (completedAppointments.every(d => d.appointments.length === 0)) {
+            <div class="all-captured">
+              <div class="check-icon">✓</div>
+              <p>Alle weiteren Zeiten für diese Woche sind erfasst.</p>
             </div>
           }
-        }
-        @if (weekDays.every(d => d.appointments.length === 0)) {
-          <p class="empty-message">Keine Termine für diese Woche.</p>
-        }
+        </div>
       </div>
-
-      <div class="appointments-column">
-        <h3 class="column-title">Zeiten erfasst</h3>
-        @for (day of completedAppointments; track day.label) {
-          @if (day.appointments.length > 0) {
-            <div class="day-card">
-              <div class="day-header">{{ day.label }}</div>
-              <div class="day-appointments">
-                @for (appointment of day.appointments; track appointment.id) {
-                  <div class="appointment-row">
-                    <div class="appointment-meta">
-                      <span class="appointment-time">{{ appointment.startTime }} – {{ appointment.endTime }}</span>
-                      <span class="appointment-address">{{ getPatientAddress(appointment) }}</span>
-                    </div>
-                    <div class="appointment-card completed">
-                      <div class="appointment-service">{{ getServiceDisplay(appointment) }}</div>
-                      <div class="appointment-badges">
-                        <span class="badge badge-v" title="gültige Verordnung liegt vor">V</span>
-                        <span class="badge badge-g" title="Kassengenehmigung erteilt">G</span>
-                      </div>
-                    </div>
-                    <div class="appointment-actions">
-                      <button class="action-btn" (click)="onOpenCertificateForAppointment(appointment)">
-                        <ion-icon name="eye-outline"></ion-icon> Nachweis ansehen
-                      </button>
-                      <button class="action-btn danger" (click)="onDelete(appointment)">
-                        <ion-icon name="trash-outline"></ion-icon> Löschen
-                      </button>
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-          }
-        }
-        @if (completedAppointments.every(d => d.appointments.length === 0)) {
-          <div class="all-captured">
-            <div class="check-icon">✓</div>
-            <p>Alle weiteren Zeiten für diese Woche sind erfasst.</p>
-          </div>
-        }
-      </div>
-    </div>
+    }
 
     <p class="footer-note">V = gültige Verordnung liegt vor. G = Kassengenehmigung erteilt. Beides ist Voraussetzung für die Abrechnbarkeit der Leistung.</p>
   }

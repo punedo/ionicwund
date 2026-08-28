@@ -75,8 +75,8 @@ export class AppointmentService {
     return this.http.post<Appointment>(`${this.apiUrl}/${id}/record`, {});
   }
 
-  getCertificates(): Observable<Certificate[]> {
-    return this.getAppointments().pipe(
+  getCertificates(weekStart?: string): Observable<Certificate[]> {
+    return this.getAppointments(weekStart).pipe(
       map((appointments) =>
         appointments
           .filter((a) => a.recordedAt || a.status === 'durchgeführt')

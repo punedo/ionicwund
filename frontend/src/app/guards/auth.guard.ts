@@ -18,6 +18,10 @@ export class AuthGuard implements CanActivate {
     _state: RouterStateSnapshot
   ): boolean {
     if (this.authService.isAuthenticated()) {
+      if (this.authService.getCurrentUser()?.mustChangePassword) {
+        this.router.navigate(['/login']);
+        return false;
+      }
       return true;
     }
 

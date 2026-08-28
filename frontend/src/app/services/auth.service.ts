@@ -8,6 +8,7 @@ import {
   User,
   MenuItem,
   TwoFactorRequiredResponse,
+  SetupPasswordResponse,
 } from '../models/auth.models';
 
 @Injectable({
@@ -104,6 +105,31 @@ export class AuthService {
           this.setMenu(response.menu);
         })
       );
+  }
+
+  setupPassword(newPassword: string): Observable<SetupPasswordResponse> {
+    return this.http.post<SetupPasswordResponse>(
+      `${this.apiUrl}/auth/setup-password`,
+      { newPassword }
+    );
+  }
+
+  updateProfile(payload: {
+    firstName?: string | null;
+    lastName?: string | null;
+    email: string;
+  }): Observable<{ status: string; user: User }> {
+    return this.http.put<{ status: string; user: User }>(
+      `${this.apiUrl}/auth/me`,
+      payload
+    );
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<{ status: string; user: User }> {
+    return this.http.post<{ status: string; user: User }>(
+      `${this.apiUrl}/auth/change-password`,
+      { currentPassword, newPassword }
+    );
   }
 
   isAuthenticated(): boolean {

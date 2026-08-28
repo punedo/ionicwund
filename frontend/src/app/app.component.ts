@@ -44,7 +44,11 @@ export class AppComponent implements OnInit {
         timeout(8000),
         finalize(() => this.loadingService.hide())
       ).subscribe({
-        next: () => {},
+        next: () => {
+          if (this.authService.getCurrentUser()?.mustChangePassword) {
+            this.router.navigate(['/login']);
+          }
+        },
         error: () => {
           this.authService.clearAuth();
           this.router.navigate(['/login']);

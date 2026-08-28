@@ -1,0 +1,123 @@
+<app-admin-shell pageTitle="Mein Profil">
+  <div class="profile-layout">
+    <!-- Basic info -->
+    <section class="profile-card">
+      <h2 class="card-title">Persönliche Daten</h2>
+      <p class="card-description">Aktualisieren Sie Ihre E-Mail-Adresse und Ihren Namen.</p>
+
+      <form (ngSubmit)="onSaveProfile()" class="profile-form">
+        <div class="form-row">
+          <ion-item class="form-field">
+            <ion-input
+              type="text"
+              label="Vorname"
+              labelPlacement="floating"
+              [(ngModel)]="firstName"
+              name="firstName"
+              placeholder="Vorname"
+            ></ion-input>
+          </ion-item>
+
+          <ion-item class="form-field">
+            <ion-input
+              type="text"
+              label="Nachname"
+              labelPlacement="floating"
+              [(ngModel)]="lastName"
+              name="lastName"
+              placeholder="Nachname"
+            ></ion-input>
+          </ion-item>
+        </div>
+
+        <ion-item class="form-field">
+          <ion-input
+            type="email"
+            label="E-Mail"
+            labelPlacement="floating"
+            [(ngModel)]="email"
+            name="email"
+            placeholder="E-Mail-Adresse"
+            required
+          ></ion-input>
+        </ion-item>
+
+        @if (profileError) {
+          <ion-note color="danger" class="message error">{{ profileError }}</ion-note>
+        }
+        @if (profileSuccess) {
+          <ion-note color="success" class="message success">{{ profileSuccess }}</ion-note>
+        }
+
+        <ion-button
+          type="submit"
+          class="submit-button"
+          [disabled]="profileSaving"
+        >
+          {{ profileSaving ? 'Wird gespeichert...' : 'Profil speichern' }}
+        </ion-button>
+      </form>
+    </section>
+
+    <!-- Password -->
+    <section class="profile-card">
+      <h2 class="card-title">Passwort ändern</h2>
+      <p class="card-description">Geben Sie Ihr aktuelles Passwort und ein neues Passwort ein.</p>
+
+      <form (ngSubmit)="onChangePassword()" class="profile-form">
+        <ion-item class="form-field">
+          <ion-input
+            type="password"
+            label="Aktuelles Passwort"
+            labelPlacement="floating"
+            [(ngModel)]="currentPassword"
+            name="currentPassword"
+            placeholder="Aktuelles Passwort"
+            required
+          ></ion-input>
+        </ion-item>
+
+        <div class="form-row">
+          <ion-item class="form-field">
+            <ion-input
+              type="password"
+              label="Neues Passwort"
+              labelPlacement="floating"
+              [(ngModel)]="newPassword"
+              name="newPassword"
+              placeholder="Mindestens 8 Zeichen"
+              required
+            ></ion-input>
+          </ion-item>
+
+          <ion-item class="form-field">
+            <ion-input
+              type="password"
+              label="Passwort bestätigen"
+              labelPlacement="floating"
+              [(ngModel)]="confirmPassword"
+              name="confirmPassword"
+              placeholder="Neues Passwort wiederholen"
+              required
+            ></ion-input>
+          </ion-item>
+        </div>
+
+        @if (passwordError) {
+          <ion-note color="danger" class="message error">{{ passwordError }}</ion-note>
+        }
+        @if (passwordSuccess) {
+          <ion-note color="success" class="message success">{{ passwordSuccess }}</ion-note>
+        }
+
+        <ion-button
+          type="submit"
+          class="submit-button"
+          [disabled]="passwordSaving"
+        >
+          {{ passwordSaving ? 'Wird gespeichert...' : 'Passwort ändern' }}
+        </ion-button>
+      </form>
+    </section>
+  </div>
+</app-admin-shell>

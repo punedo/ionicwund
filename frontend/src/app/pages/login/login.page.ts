@@ -19,9 +19,20 @@ export class LoginPage implements OnInit {
   password = '';
   errorMessage = '';
   loading = false;
+  showPasswordChange = false;
+  newPassword = '';
+  confirmPassword = '';
+  setupError = '';
+  setupLoading = false;
 
   ngOnInit(): void {
     this.loadingService.hide();
+
+    const user = this.authService.getCurrentUser();
+    if (user?.mustChangePassword) {
+      this.email = user.email;
+      this.showPasswordChange = true;
+    }
   }
 
   constructor(
@@ -65,12 +76,17 @@ export class LoginPage implements OnInit {
             },
           });
         } else if (response.status === 'authenticated') {
-          this.loadingService.show('Dashboard wird geladen...');
-          this.router.navigate(['/dashboard']).then(() => {
+          if (response.user?.mustChangePassword) {
             this.loadingService.hide();
-          }).catch(() => {
-            this.loadingService.hide();
-          });
+            this.showPasswordChange = true;
+          } else {
+            this.loadingService.show('Dashboard wird geladen...');
+            this.router.navigate(['/dashboard']).then(() => {
+              this.loadingService.hide();
+            }).catch(() => {
+              this.loadingService.hide();
+            });
+          }
         } else {
           this.loadingService.hide();
           this.errorMessage = 'Unexpected login response. Please try again.';
@@ -80,6 +96,42 @@ export class LoginPage implements OnInit {
         console.error('[LoginPage] Unexpected login error:', error);
         this.loadingService.hide();
         this.errorMessage = 'An unexpected error occurred. Please try again.';
+      },
+    });
+  }
+
+  onSetupPassword(): void {
+    this.setupError = '';
+
+    if (this.newPassword.length < 8) {
+      this.setupError = 'Das Passwort muss mindestens 8 Zeichen lang sein.';
+      return;
+    }
+
+    if (this.newPassword !== this.confirmPassword) {
+      this.setupError = 'Die Passwörter stimmen nicht überein.';
+      return;
+    }
+
+    this.setupLoading = true;
+    this.authService.setupPassword(this.newPassword).subscribe({
+      next: (response) => {
+        this.setupLoading = false;
+        if (response.status === 'success') {
+          this.showPasswordChange = false;
+          this.loadingService.show('Dashboard wird geladen...');
+          this.router.navigate(['/dashboard']).then(() => {
+            this.loadingService.hide();
+          }).catch(() => {
+            this.loadingService.hide();
+          });
+        } else {
+          this.setupError = 'Passwort konnte nicht gespeichert werden.';
+        }
+      },
+      error: (error) => {
+        this.setupLoading = false;
+        this.setupError = error.error?.message || 'Fehler beim Speichern des Passworts.';
       },
     });
   }

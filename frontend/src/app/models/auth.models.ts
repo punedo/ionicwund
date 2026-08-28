@@ -6,6 +6,12 @@ export interface User {
   lastName?: string | null;
   twoFactorEnabled: boolean;
   emailVerified: boolean;
+  mustChangePassword: boolean;
+}
+
+export interface SetupPasswordResponse {
+  status: string;
+  user?: User;
 }
 
 export interface MenuItem {
