@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { ViewWillEnter } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AdminShellComponent } from '../../components/admin-shell/admin-shell.component';
@@ -24,7 +25,7 @@ import { DoctorService } from '../../services/doctor.service';
   templateUrl: './patients-list.page.html',
   styleUrls: ['./patients-list.page.scss'],
 })
-export class PatientsListPage implements OnInit {
+export class PatientsListPage implements ViewWillEnter {
   patients: Patient[] = [];
   filteredPatients: Patient[] = [];
   facilities: Facility[] = [];
@@ -301,7 +302,7 @@ export class PatientsListPage implements OnInit {
     }
   }
 
-  ngOnInit(): void {
+  ionViewWillEnter(): void {
     this.loadData();
   }
 
