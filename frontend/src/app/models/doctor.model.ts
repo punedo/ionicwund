@@ -6,6 +6,8 @@ export interface Doctor {
   phone?: string;
   email?: string;
   status?: string;
+  facilityId?: number | null;
+  facility?: string | null;
   createdAt?: string;
 }
 
@@ -16,4 +18,5 @@ export interface DoctorCreateRequest {
   phone?: string;
   email?: string;
   status?: string;
+  facilityId?: number | null;
 }

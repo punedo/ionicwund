@@ -138,6 +138,7 @@ export class PatientsListPage implements ViewWillEnter {
     { key: 'name', label: 'Arzt / Klinik', sortable: true },
     { key: 'type', label: 'Fachgebiet', sortable: true },
     { key: 'city', label: 'Ort', sortable: true },
+    { key: 'facility', label: 'Einrichtung', sortable: true },
   ];
 
   patientHeaderActions: TableHeaderAction[] = [

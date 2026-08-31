@@ -3,7 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { Patient, PatientCreateRequest, InsuranceType } from '../models/patient.model';
+import { Patient, PatientCreateRequest } from '../models/patient.model';
+import { Doctor } from '../models/doctor.model';
+import { Facility } from '../models/facility.model';
 
 @Injectable({
   providedIn: 'root',
@@ -40,36 +42,34 @@ export class PatientService {
   }
 
   getDoctors(): Observable<string[]> {
-    return of([
-      'Dr. med. S. Roth - Hausarztpraxis Roth',
-      'Dr. med. A. Schmidt - Praxis Schmidt',
-      'Dr. med. K. Klein - Klinik Berlin',
-      'Dr. med. J. Kaiser - Homecare Süd',
-    ]);
+    return this.http.get<{ doctors: Doctor[] }>(`${environment.apiUrl}/doctors`).pipe(
+      map((res) => (res.doctors ?? []).map((d) => d.name)),
+      catchError((err) => {
+        console.error('[PatientService] getDoctors error:', err);
+        return of([]);
+      })
+    );
   }
 
   getCareServices(): Observable<string[]> {
-    return of([
-      'R. Meier - Pflegedienst Nord',
-      'J. Kaiser - Homecare Süd',
-      'Pflegedienst Berlin-Mitte',
-    ]);
+    return this.getReferenceDataValues('care_service');
   }
 
   getWoundExperts(): Observable<string[]> {
-    return of(['Homecare Süd', 'Wundexperte Nord', 'Wundexpertise Berlin']);
+    return this.getReferenceDataValues('wound_expert');
   }
 
   getFacilities(): Observable<string[]> {
-    return of([
-      '— ambulant, keine Einrichtung —',
-      'Pflegeheim Nord',
-      'Seniorenresidenz Süd',
-      'Klinik Berlin',
-    ]);
+    return this.http.get<{ facilities: Facility[] }>(`${environment.apiUrl}/facilities`).pipe(
+      map((res) => (res.facilities ?? []).map((f) => f.name)),
+      catchError((err) => {
+        console.error('[PatientService] getFacilities error:', err);
+        return of([]);
+      })
+    );
   }
 
-  getInsuranceCompanies(type?: InsuranceType): Observable<string[]> {
+  getInsuranceCompanies(type?: string): Observable<string[]> {
     const url = type ? `${environment.apiUrl}/insurance-companies?type=${type}` : `${environment.apiUrl}/insurance-companies`;
     return this.http.get<{ companies: { id: number; name: string; type: string }[] }>(url).pipe(
       map((res) => (res.companies ?? []).map((c) => c.name)),
@@ -81,24 +81,32 @@ export class PatientService {
   }
 
   getInsuranceClasses(): Observable<string[]> {
-    return of(['Kostenvoranschlag (Wartefall)', 'Behandlungskosten', 'Keine']);
+    return this.getReferenceDataValues('insurance_class');
   }
 
   getAdditionalServices(): Observable<string[]> {
-    return of([
-      'Zusatzangebotlich (100%, min. 5€ / max. 10€-Vereinbarung)',
-      'Befreiungsbescheinigung hinterlegt',
-      'Keine',
-    ]);
+    return this.getReferenceDataValues('additional_service');
   }
 
   getWoundTypes(): Observable<string[]> {
-    return of([
-      'Diabetisches Fußsyndrom',
-      'Ulcus cruris varicosum',
-      'Dekubital-Sakral',
-      'Dekubital-Trochanter',
-      'Postoperativ',
-    ]);
+    return this.getReferenceDataValues('wound_type');
+  }
+
+  getGenders(): Observable<string[]> {
+    return this.getReferenceDataValues('gender');
+  }
+
+  getInsuranceTypes(): Observable<string[]> {
+    return this.getReferenceDataValues('insurance_type');
+  }
+
+  private getReferenceDataValues(category: string): Observable<string[]> {
+    return this.http.get<{ values: string[] }>(`${environment.apiUrl}/reference-data/values?category=${category}`).pipe(
+      map((res) => res.values ?? []),
+      catchError((err) => {
+        console.error(`[PatientService] getReferenceDataValues(${category}) error:`, err);
+        return of([]);
+      })
+    );
   }
 }

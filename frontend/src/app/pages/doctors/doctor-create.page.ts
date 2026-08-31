@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { ViewWillEnter } from '@ionic/angular';
 import { AdminShellComponent } from '../../components/admin-shell/admin-shell.component';
 import {
   DynamicFormComponent,
@@ -8,6 +9,7 @@ import {
 } from '../../components/dynamic-form/dynamic-form.component';
 import { DoctorCreateRequest } from '../../models/doctor.model';
 import { DoctorService } from '../../services/doctor.service';
+import { FacilityService } from '../../services/facility.service';
 import { LoadingService } from '../../services/loading.service';
 
 @Component({
@@ -17,7 +19,7 @@ import { LoadingService } from '../../services/loading.service';
   templateUrl: './doctor-create.page.html',
   styleUrls: ['./doctor-create.page.scss'],
 })
-export class DoctorCreatePage {
+export class DoctorCreatePage implements ViewWillEnter {
   config: FormConfig = {
     submitLabel: 'Arzt anlegen & öffnen',
     cancelLabel: 'Abbrechen',
@@ -73,6 +75,12 @@ export class DoctorCreatePage {
               { value: 'inaktiv', label: 'inaktiv' },
             ],
           },
+          {
+            key: 'facilityId',
+            label: 'Einrichtung',
+            type: 'select',
+            options: [{ value: '', label: 'Keine Einrichtung' }],
+          },
         ],
       },
     ],
@@ -85,6 +93,7 @@ export class DoctorCreatePage {
     phone: '',
     email: '',
     status: 'aktiv',
+    facilityId: '',
   };
 
   saving = false;
@@ -93,9 +102,37 @@ export class DoctorCreatePage {
 
   constructor(
     private doctorService: DoctorService,
+    private facilityService: FacilityService,
     private loadingService: LoadingService,
     private router: Router
   ) {}
+
+  ionViewWillEnter(): void {
+    this.loadFacilities();
+  }
+
+  loadFacilities(): void {
+    this.facilityService.getFacilities().subscribe({
+      next: (facilities) => {
+        const options = [
+          { value: '', label: 'Keine Einrichtung' },
+          ...facilities.map((f) => ({
+            value: String(f.id),
+            label: f.name,
+          })),
+        ];
+
+        const section = this.config.sections[0];
+        const field = section.fields.find((f) => f.key === 'facilityId');
+        if (field) {
+          field.options = options;
+        }
+      },
+      error: (err) => {
+        console.error('[DoctorCreatePage] loadFacilities error:', err);
+      },
+    });
+  }
 
   onSubmit(values: Record<string, any>): void {
     this.submitted = true;
@@ -106,6 +143,8 @@ export class DoctorCreatePage {
       return;
     }
 
+    const facilityValue = values['facilityId'];
+
     const request: DoctorCreateRequest = {
       name: values['name'].trim(),
       type: values['type'] || undefined,
@@ -113,6 +152,7 @@ export class DoctorCreatePage {
       phone: values['phone'] || undefined,
       email: values['email'] || undefined,
       status: values['status'] || undefined,
+      facilityId: facilityValue ? Number(facilityValue) : null,
     };
 
     this.saving = true;

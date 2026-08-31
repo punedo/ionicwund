@@ -1,6 +1,6 @@
 export type PatientStatus = 'Beobachtung' | 'kritisch' | 'neu';
-export type InsuranceType = 'GKV' | 'PKV';
-export type Gender = 'weiblich' | 'männlich' | 'divers';
+export type InsuranceType = string;
+export type Gender = string;
 
 export interface Patient {
   id: number;

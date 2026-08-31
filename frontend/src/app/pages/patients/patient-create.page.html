@@ -196,6 +196,7 @@
         <div class="form-field">
           <label for="facility">Einrichtung (optional)</label>
           <select id="facility" name="facility" [(ngModel)]="patient.facility">
+            <option value="">— ambulant, keine Einrichtung —</option>
             @for (f of facilities; track f) {
               <option [value]="f">{{ f }}</option>
             }

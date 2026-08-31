@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { ViewWillEnter } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonIcon } from '@ionic/angular';
 import { AdminShellComponent } from '../../components/admin-shell/admin-shell.component';
-import { PatientCreateRequest, Gender, InsuranceType } from '../../models/patient.model';
+import { PatientCreateRequest } from '../../models/patient.model';
 import { PatientService } from '../../services/patient.service';
 import { LoadingService } from '../../services/loading.service';
 
@@ -15,7 +16,7 @@ import { LoadingService } from '../../services/loading.service';
   templateUrl: './patient-create.page.html',
   styleUrls: ['./patient-create.page.scss'],
 })
-export class PatientCreatePage implements OnInit {
+export class PatientCreatePage implements ViewWillEnter {
   patient: PatientCreateRequest = {
     firstName: '',
     lastName: '',
@@ -34,13 +35,13 @@ export class PatientCreatePage implements OnInit {
     additionalService: '',
     responsibleCareService: '',
     responsibleWoundExpert: '',
-    facility: '— ambulant, keine Einrichtung —',
+    facility: '',
     woundType: '',
     score: '',
   };
 
-  genders: Gender[] = ['weiblich', 'männlich', 'divers'];
-  insuranceTypes: InsuranceType[] = ['GKV', 'PKV'];
+  genders: string[] = [];
+  insuranceTypes: string[] = [];
 
   doctors: string[] = [];
   careServices: string[] = [];
@@ -61,11 +62,13 @@ export class PatientCreatePage implements OnInit {
     private router: Router
   ) {}
 
-  ngOnInit(): void {
+  ionViewWillEnter(): void {
     this.loadReferenceData();
   }
 
   loadReferenceData(): void {
+    this.patientService.getGenders().subscribe((data) => (this.genders = data));
+    this.patientService.getInsuranceTypes().subscribe((data) => (this.insuranceTypes = data));
     this.patientService.getDoctors().subscribe((data) => (this.doctors = data));
     this.patientService.getCareServices().subscribe((data) => (this.careServices = data));
     this.patientService.getWoundExperts().subscribe((data) => (this.woundExperts = data));
@@ -76,7 +79,7 @@ export class PatientCreatePage implements OnInit {
     this.patientService.getWoundTypes().subscribe((data) => (this.woundTypes = data));
   }
 
-  loadInsuranceCompanies(type?: InsuranceType): void {
+  loadInsuranceCompanies(type?: string): void {
     this.patient.insuranceCompany = '';
     this.patientService.getInsuranceCompanies(type).subscribe((data) => (this.insuranceCompanies = data));
   }
