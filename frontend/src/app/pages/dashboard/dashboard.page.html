@@ -65,7 +65,7 @@
             <div
               class="nav-item"
               [class.active]="isActive(item.route)"
-              (click)="navigate(item.route)"
+              (click)="onMenuItemClick(item, $event)"
             >
               <ion-icon [name]="item.icon || 'square'" class="nav-icon" [class.active-icon]="isActive(item.route)"></ion-icon>
               <span class="nav-label">{{ item.label }}</span>
@@ -112,6 +112,8 @@
             <h1 class="page-title">Dashboard</h1>
             @if (isAdmin) {
               <span class="role-badge">Admin</span>
+            } @else if (isWoundExpert) {
+              <span class="role-badge">Pflegedienst / Wundexperte</span>
             }
           </header>
 
@@ -123,34 +125,61 @@
               <button class="quick-action" (click)="navigate('/admin/contracts/create')">+ Kostenträger / Vertrag</button>
               <button class="quick-action" (click)="navigate('/admin/reports')">▧ Berichte &amp; Audits</button>
             </div>
+          } @else if (isWoundExpert) {
+            <!-- Pflege Quick Actions -->
+            <div class="quick-actions">
+              @for (action of visibleQuickActions; track action.label) {
+                <button
+                  class="quick-action"
+                  [class.primary]="action.primary"
+                  (click)="navigate(quickActionRoute(action))"
+                >
+                  {{ action.label }}
+                </button>
+              }
+            </div>
+
+            <!-- Pflege KPI Cards -->
+            <div class="stats-row">
+              @for (card of pflegeKpiCards; track card.key) {
+                <div class="stat-card kpi-clickable" (click)="navigate(card.route)">
+                  <span class="stat-title">{{ card.title }}</span>
+                  <div class="stat-val" [class.orange-text]="card.accent === 'orange'">{{ pflegeLoading ? '...' : card.value }}</div>
+                  <div class="stat-sub">{{ card.sub }}</div>
+                  <div class="stat-link">{{ card.linkLabel }}</div>
+                </div>
+              }
+            </div>
           }
 
-          <!-- KPI 4-Card Row -->
-          <div class="stats-row">
-            <div class="stat-card">
-              <span class="stat-title">NUTZER IM SYSTEM</span>
-              <div class="stat-val">{{ loading ? '...' : stats.users }}</div>
-              <div class="stat-sub">Gesamt registrierte Nutzer</div>
-            </div>
+          @if (isAdmin) {
+            <!-- KPI 4-Card Row -->
+            <div class="stats-row">
+              <div class="stat-card">
+                <span class="stat-title">NUTZER IM SYSTEM</span>
+                <div class="stat-val">{{ loading ? '...' : stats.users }}</div>
+                <div class="stat-sub">Gesamt registrierte Nutzer</div>
+              </div>
 
-            <div class="stat-card">
-              <span class="stat-title">ROLLEN</span>
-              <div class="stat-val">{{ loading ? '...' : stats.roles }}</div>
-              <div class="stat-sub">Verfügbare Rollen im System</div>
-            </div>
+              <div class="stat-card">
+                <span class="stat-title">ROLLEN</span>
+                <div class="stat-val">{{ loading ? '...' : stats.roles }}</div>
+                <div class="stat-sub">Verfügbare Rollen im System</div>
+              </div>
 
-            <div class="stat-card">
-              <span class="stat-title">BERECHTIGUNGEN</span>
-              <div class="stat-val orange-text">{{ loading ? '...' : stats.permissions }}</div>
-              <div class="stat-sub">Definierte Berechtigungen</div>
-            </div>
+              <div class="stat-card">
+                <span class="stat-title">BERECHTIGUNGEN</span>
+                <div class="stat-val orange-text">{{ loading ? '...' : stats.permissions }}</div>
+                <div class="stat-sub">Definierte Berechtigungen</div>
+              </div>
 
-            <div class="stat-card">
-              <span class="stat-title">MENÜPUNKTE</span>
-              <div class="stat-val">{{ loading ? '...' : stats.menuItems }}</div>
-              <div class="stat-sub">Konfigurierte Navigationseinträge</div>
+              <div class="stat-card">
+                <span class="stat-title">MENÜPUNKTE</span>
+                <div class="stat-val">{{ loading ? '...' : stats.menuItems }}</div>
+                <div class="stat-sub">Konfigurierte Navigationseinträge</div>
+              </div>
             </div>
-          </div>
+          }
 
           @if (isAdmin) {
             <!-- Lower 2 Panels -->
@@ -204,6 +233,53 @@
                 </div>
               </div>
 
+            </div>
+          } @else if (isWoundExpert) {
+            <!-- Pflege: activity feed + wound chart -->
+            <div class="panels-row">
+              @if (hasPermission('tasks.view')) {
+                <div class="panel-box">
+                  <h2 class="panel-heading">AUFGABEN / AKTIVITÄT</h2>
+
+                  <div class="activity-items">
+                    @for (task of activityTasks; track task.id) {
+                      <div class="activity-item" [class.item-highlight]="task.priority === 'Hoch' && task.status !== 'Erledigt'">
+                        <span class="activity-name">{{ task.title }} – {{ task.patientName }}</span>
+                        <span class="badge" [ngClass]="taskBadge(task).css">{{ taskBadge(task).label }}</span>
+                      </div>
+                    } @empty {
+                      <div class="activity-item">
+                        <span class="activity-name">Keine Aufgaben vorhanden</span>
+                      </div>
+                    }
+                  </div>
+
+                  <div class="panel-link-footer">
+                    Direkt aus <a href="javascript:void(0)" (click)="navigate('/tasks')">Aufgaben</a>@if (hasPermission('escalations.view')) { · <a href="javascript:void(0)" (click)="navigate('/escalations')">Eskalationen</a> }
+                  </div>
+                </div>
+              }
+
+              @if (hasPermission('woundcare.view')) {
+                <div class="panel-box">
+                  <h2 class="panel-heading">WUNDFLÄCHENVERLAUF (PORTALWEIT, Ø ALLER AKTIVEN WUNDEN)</h2>
+                  <div class="chart-wrapper">
+                    <svg viewBox="0 0 500 160" preserveAspectRatio="none" class="trend-chart-svg">
+                      <line x1="0" y1="140" x2="500" y2="140" stroke="#e2e8f0" stroke-width="1.5" />
+                      <path
+                        d="M 10 120 C 100 115, 140 100, 200 90 C 260 80, 310 60, 380 50 C 420 45, 460 25, 490 15"
+                        fill="none"
+                        stroke="#2563eb"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                  </div>
+                  <div class="chart-meta">
+                    Trend über die {{ pflegePatients.length }} aktuell dokumentierten Patient:innen.
+                  </div>
+                </div>
+              }
             </div>
           } @else {
             <!-- Non-admin: roles info + chart -->

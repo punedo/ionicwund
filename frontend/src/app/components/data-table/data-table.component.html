@@ -77,17 +77,29 @@
             <th
               [style.width]="col.width"
               [class.sortable]="col.sortable"
-              (click)="onSort(col)"
+              [class.filterable]="col.filterable"
             >
-              <span>{{ col.label }}</span>
-              @if (col.sortable) {
-                <span class="sort-indicator">
-                  @if (sortColumn === col.key) {
-                    <ion-icon [name]="sortAsc ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
-                  } @else {
-                    <ion-icon name="swap-vertical-outline"></ion-icon>
-                  }
-                </span>
+              <div class="th-content" (click)="col.sortable ? onSort(col) : null">
+                <span>{{ col.label }}</span>
+                @if (col.sortable) {
+                  <span class="sort-indicator">
+                    @if (sortColumn === col.key) {
+                      <ion-icon [name]="sortAsc ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+                    } @else {
+                      <ion-icon name="swap-vertical-outline"></ion-icon>
+                    }
+                  </span>
+                }
+              </div>
+              @if (col.filterable) {
+                <input
+                  type="text"
+                  class="column-filter"
+                  [placeholder]="col.filterPlaceholder ?? 'Filter...'"
+                  [value]="getColumnFilter(col)"
+                  (input)="onColumnFilter(col, $event)"
+                  (click)="$event.stopPropagation()"
+                />
               }
             </th>
           }
@@ -102,9 +114,14 @@
             @for (col of columns; track col.key) {
               <td [class]="getCellClass(col, row)" [attr.data-label]="col.label">
                 @if (col.type === 'badge') {
-                  <span class="status-badge" [class]="getCellClass(col, row)">
-                    {{ getCellValue(col, row) }}
-                  </span>
+                  @let badgeValue = getCellValue(col, row);
+                  @if (badgeValue) {
+                    <span class="status-badge" [class]="getCellClass(col, row)">
+                      {{ badgeValue }}
+                    </span>
+                  } @else {
+                    <span class="empty-cell-value">-</span>
+                  }
                 } @else {
                   @let value = getCellValue(col, row);
                   @if (isMultiLine(value)) {

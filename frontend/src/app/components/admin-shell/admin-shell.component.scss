@@ -41,7 +41,8 @@
       margin-bottom: 8px;
     }
 
-    .nav-item {
+    .nav-item,
+    .nav-cat {
       display: flex;
       align-items: center;
       gap: 12px;
@@ -53,26 +54,20 @@
       font-weight: 500;
       transition: all 0.15s ease;
 
+      .nav-ic,
       .nav-icon {
         font-size: 16px;
         color: #94a3b8;
       }
 
-      .nav-toggle {
-        margin-left: auto;
-        font-size: 14px;
-        color: #94a3b8;
-        cursor: pointer;
-        transition: color 0.15s ease;
-
-        &:hover {
-          color: #f1f5f9;
-        }
-      }
-
       &:hover {
         background: rgba(255, 255, 255, 0.04);
         color: #f1f5f9;
+
+        .nav-ic,
+        .nav-icon {
+          color: #f1f5f9;
+        }
       }
 
       &.active {
@@ -80,17 +75,63 @@
         border: 1px solid #0d9488;
         color: #ffffff;
 
+        .nav-ic,
         .nav-icon {
           color: #14b8a6;
         }
+      }
+    }
 
-        .nav-toggle {
-          color: #ffffff;
-        }
+    .nav-cat {
+      .nav-cat-count {
+        margin-left: auto;
+        background: #334155;
+        color: #f1f5f9;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 10px;
       }
 
-      &.nav-child {
+      .chev {
+        margin-left: 8px;
+        font-size: 14px;
+        color: #94a3b8;
+        transition: transform 0.2s ease;
+        transform: rotate(0deg);
+      }
+
+      &.open .chev {
+        transform: rotate(90deg);
+      }
+
+      &:hover .chev {
+        color: #f1f5f9;
+      }
+
+      &.active .nav-cat-count {
+        background: #0d9488;
+        color: #ffffff;
+      }
+    }
+
+    .nav-sub {
+      display: flex;
+      flex-direction: column;
+      padding-left: 12px;
+
+      .nav-item {
         padding-left: 30px;
+        border-left: 1px solid #1e293b;
+        border-radius: 0 8px 8px 0;
+        margin-left: 8px;
+
+        &.active {
+          background: rgba(13, 148, 136, 0.12);
+          border-left-color: #0d9488;
+          border: none;
+          border-left: 3px solid #0d9488;
+        }
       }
     }
   }

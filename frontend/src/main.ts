@@ -1,4 +1,5 @@
 import { bootstrapApplication } from '@angular/platform-browser';
+import { provideZoneChangeDetection } from '@angular/core';
 import { RouteReuseStrategy, provideRouter, withComponentInputBinding } from '@angular/router';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -22,7 +23,8 @@ import {
   cogOutline, 
   chevronDownOutline, 
   chevronUpOutline,
-  logOutOutline
+  logOutOutline,
+  chatboxEllipsesOutline
 } from 'ionicons/icons';
 import { authInterceptor } from './app/interceptors/auth.interceptor';
 
@@ -50,11 +52,13 @@ addIcons({
   'chevron-down-outline': chevronDownOutline,
   'chevron-up-outline': chevronUpOutline,
   'log-out-outline': logOutOutline,
+  'chatbox-ellipses-outline': chatboxEllipsesOutline,
 });
 
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    provideZoneChangeDetection({ eventCoalescing: true }),
     provideIonicAngular(),
     provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(withInterceptors([authInterceptor])),

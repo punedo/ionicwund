@@ -58,6 +58,10 @@ export class AdminShellComponent implements OnInit {
     return this.currentRoute === route || this.currentRoute.startsWith(route + '/');
   }
 
+  isCategoryActive(item: MenuItem): boolean {
+    return !!item.children?.some((child) => this.isActive(child.route));
+  }
+
   isExpanded(itemId: string): boolean {
     return this.expandedItemIds.has(itemId);
   }

@@ -5,33 +5,42 @@
       <div class="nav-section">
         <span class="nav-section-title">NAVIGATION</span>
         @for (item of menuItems; track item.id) {
-          <div
-            class="nav-item"
-            [class.active]="isActive(item.route)"
-            (click)="navigate(item.route)"
-          >
-            <ion-icon [name]="item.icon || 'square'" class="nav-icon"></ion-icon>
-            <span class="nav-label">{{ item.label }}</span>
-            @if (item.children && item.children.length > 0) {
-              <ion-icon
-                class="nav-toggle"
-                [name]="isExpanded(item.id) ? 'chevron-up-outline' : 'chevron-down-outline'"
-                (click)="toggleAccordion(item.id, $event)"
-              ></ion-icon>
-            }
-          </div>
+          @if (item.children && item.children.length > 0) {
+            <div
+              class="nav-cat"
+              [class.open]="isExpanded(item.id)"
+              [class.active]="isCategoryActive(item)"
+              (click)="toggleAccordion(item.id, $event)"
+            >
+              <ion-icon [name]="item.icon || 'square'" class="nav-ic"></ion-icon>
+              <span class="nav-label">{{ item.label }}</span>
+              <span class="nav-cat-count">{{ item.children.length }}</span>
+              <span class="chev">›</span>
+            </div>
 
-          @if (item.children && item.children.length > 0 && isExpanded(item.id)) {
-            @for (child of item.children; track child.id) {
-              <div
-                class="nav-item nav-child"
-                [class.active]="isActive(child.route)"
-                (click)="navigate(child.route)"
-              >
-                <ion-icon [name]="child.icon || 'square'" class="nav-icon"></ion-icon>
-                <span class="nav-label">{{ child.label }}</span>
+            @if (isExpanded(item.id)) {
+              <div class="nav-sub">
+                @for (child of item.children; track child.id) {
+                  <div
+                    class="nav-item"
+                    [class.active]="isActive(child.route)"
+                    (click)="navigate(child.route)"
+                  >
+                    <ion-icon [name]="child.icon || 'square'" class="nav-ic"></ion-icon>
+                    <span class="nav-label">{{ child.label }}</span>
+                  </div>
+                }
               </div>
             }
+          } @else {
+            <div
+              class="nav-item"
+              [class.active]="isActive(item.route)"
+              (click)="navigate(item.route)"
+            >
+              <ion-icon [name]="item.icon || 'square'" class="nav-ic"></ion-icon>
+              <span class="nav-label">{{ item.label }}</span>
+            </div>
           }
         }
       </div>

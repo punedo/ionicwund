@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ApplicationRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -69,6 +69,8 @@ export class AppointmentsPage implements OnInit {
     private appointmentService: AppointmentService,
     private patientService: PatientService,
     private loadingService: LoadingService,
+    private cdr: ChangeDetectorRef,
+    private appRef: ApplicationRef,
     private router: Router
   ) {}
 
@@ -109,19 +111,27 @@ export class AppointmentsPage implements OnInit {
       next: (data) => {
         this.appointments = data;
         this.loading = false;
+        this.cdr.detectChanges();
+        this.appRef.tick();
       },
       error: () => {
         this.appointments = [];
         this.loading = false;
+        this.cdr.detectChanges();
+        this.appRef.tick();
       },
     });
 
     this.appointmentService.getCertificates(weekStart).subscribe({
       next: (data) => {
         this.certificates = data;
+        this.cdr.detectChanges();
+        this.appRef.tick();
       },
       error: () => {
         this.certificates = [];
+        this.cdr.detectChanges();
+        this.appRef.tick();
       },
     });
   }
@@ -130,9 +140,13 @@ export class AppointmentsPage implements OnInit {
     this.patientService.getPatients().subscribe({
       next: (data) => {
         this.patients = data;
+        this.cdr.detectChanges();
+        this.appRef.tick();
       },
       error: () => {
         this.patients = [];
+        this.cdr.detectChanges();
+        this.appRef.tick();
       },
     });
   }

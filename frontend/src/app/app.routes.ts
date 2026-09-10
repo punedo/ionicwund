@@ -190,6 +190,61 @@ export const routes: Routes = [
   },
 
   {
+    path: 'escalations',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'escalations.view' },
+    loadComponent: () => import('./pages/escalations/escalations-list.page').then((m) => m.EscalationsListPage),
+  },
+  {
+    path: 'tasks',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'tasks.view' },
+    loadComponent: () => import('./pages/tasks/tasks-list.page').then((m) => m.TasksListPage),
+  },
+  {
+    path: 'tasks/create',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'tasks.view' },
+    loadComponent: () => import('./pages/tasks/task-create.page').then((m) => m.TaskCreatePage),
+  },
+  {
+    path: 'care-planning',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'care-planning.view' },
+    loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
+  },
+  {
+    path: 'billing',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'billing.view' },
+    loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
+  },
+  {
+    path: 'contracts',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'contracts.view' },
+    loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
+  },
+  {
+    path: 'prescriptions',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'prescriptions.view' },
+    loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
+  },
+  {
+    path: 'wound-forms',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'wound-forms.view' },
+    loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
+  },
+  {
+    path: 'reports',
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { permission: 'reports.view' },
+    loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
+  },
+
+  {
     path: '',
     redirectTo: 'dashboard',
     pathMatch: 'full',

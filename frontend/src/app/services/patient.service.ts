@@ -56,7 +56,17 @@ export class PatientService {
   }
 
   getWoundExperts(): Observable<string[]> {
-    return this.getReferenceDataValues('wound_expert');
+    return this.http
+      .get<{ users: { id: number; email: string; firstName?: string; lastName?: string; fullName: string }[] }>(
+        `${environment.apiUrl}/users?role=ROLE_PFLEGE`
+      )
+      .pipe(
+        map((res) => (res.users ?? []).map((u) => u.fullName)),
+        catchError((err) => {
+          console.error('[PatientService] getWoundExperts error:', err);
+          return of([]);
+        })
+      );
   }
 
   getFacilities(): Observable<string[]> {

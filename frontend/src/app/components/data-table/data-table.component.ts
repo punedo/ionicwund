@@ -7,6 +7,8 @@ export interface TableColumn<T = any> {
   label: string;
   width?: string;
   sortable?: boolean;
+  filterable?: boolean;
+  filterPlaceholder?: string;
   type?: 'text' | 'date' | 'multiline' | 'badge';
   format?: (row: T) => string | string[];
   cssClass?: string | ((row: T) => string);
@@ -60,35 +62,66 @@ export class DataTableComponent<T = any> {
 
   @Output() tabChange = new EventEmitter<string>();
   @Output() filterChange = new EventEmitter<{ key: string; value: string }>();
+  @Output() columnFilterChange = new EventEmitter<{ key: string; value: string }>();
   @Output() searchChange = new EventEmitter<string>();
   @Output() sortChange = new EventEmitter<{ key: string; direction: 'asc' | 'desc' }>();
 
   sortColumn: string | null = null;
   sortAsc = true;
   searchQuery = '';
+  columnFilters: { [key: string]: string } = {};
 
   get displayedData(): T[] {
-    if (!this.data?.length || !this.sortColumn) {
-      return this.data ?? [];
+    let result = this.data ?? [];
+
+    // Global search
+    const query = this.searchQuery.trim().toLowerCase();
+    if (query) {
+      result = result.filter((row) =>
+        this.columns.some((col) => {
+          const value = this.getCellValue(col, row);
+          const text = Array.isArray(value) ? value.join(' ') : String(value ?? '');
+          return text.toLowerCase().includes(query);
+        })
+      );
     }
 
-    const col = this.columns.find((c) => c.key === this.sortColumn);
-    if (!col || !col.sortable) {
-      return this.data ?? [];
+    // Per-column filters
+    for (const col of this.columns) {
+      if (!col.filterable) {
+        continue;
+      }
+      const filterValue = (this.columnFilters[col.key] ?? '').trim().toLowerCase();
+      if (!filterValue) {
+        continue;
+      }
+      result = result.filter((row) => {
+        const value = this.getCellValue(col, row);
+        const text = Array.isArray(value) ? value.join(' ') : String(value ?? '');
+        return text.toLowerCase().includes(filterValue);
+      });
     }
 
-    const multiplier = this.sortAsc ? 1 : -1;
-    return [...this.data].sort((a, b) => {
-      const av = this.getSortValue(col, a).toLowerCase();
-      const bv = this.getSortValue(col, b).toLowerCase();
-      if (av < bv) {
-        return -1 * multiplier;
+    // Sort
+    if (this.sortColumn) {
+      const col = this.columns.find((c) => c.key === this.sortColumn);
+      if (col && col.sortable) {
+        const multiplier = this.sortAsc ? 1 : -1;
+        result = [...result].sort((a, b) => {
+          const av = this.getSortValue(col, a).toLowerCase();
+          const bv = this.getSortValue(col, b).toLowerCase();
+          if (av < bv) {
+            return -1 * multiplier;
+          }
+          if (av > bv) {
+            return 1 * multiplier;
+          }
+          return 0;
+        });
       }
-      if (av > bv) {
-        return 1 * multiplier;
-      }
-      return 0;
-    });
+    }
+
+    return result;
   }
 
   getCellValue(col: TableColumn<T>, row: T): string | string[] {
@@ -151,6 +184,16 @@ export class DataTableComponent<T = any> {
     const select = event.target as HTMLSelectElement;
     const value = select.value;
     this.filterChange.emit({ key: filter.key, value });
+  }
+
+  onColumnFilter(col: TableColumn<T>, event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.columnFilters[col.key] = value;
+    this.columnFilterChange.emit({ key: col.key, value });
+  }
+
+  getColumnFilter(col: TableColumn<T>): string {
+    return this.columnFilters[col.key] ?? '';
   }
 
   handleHeaderAction(action: TableHeaderAction): void {
