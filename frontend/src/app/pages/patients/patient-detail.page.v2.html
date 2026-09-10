@@ -15,17 +15,16 @@
 
     <div class="tabs">
       @for (t of tabs; track t.id) {
-        <button
-          type="button"
+        <div
           class="tab"
           [class.active]="activeTab === t.id"
           (click)="selectTab(t.id)"
         >
           {{ t.label }}
           @if (t.badge) {
-            <span class="badge red">{{ t.badge }}</span>
+            <span class="tag red" style="margin-left:4px;">{{ t.badge }}</span>
           }
-        </button>
+        </div>
       }
     </div>
 
@@ -38,7 +37,7 @@
               <h4>Stammdaten</h4>
               <button class="action-btn" (click)="editPatient()">✎ Bearbeiten</button>
             </div>
-            <table class="info-table">
+            <table class="info-table" style="margin-top:8px;">
               <tbody>
                 <tr><td>Geburtsdatum</td><td>{{ patient.dateOfBirth ? (patient.dateOfBirth | date:'dd.MM.yyyy') : '—' }}</td></tr>
                 <tr>
@@ -46,10 +45,11 @@
                   <td>
                     {{ patient.insuranceCompany ?? '—' }}
                     @if (patient.insuranceType) {
-                      <span class="tag">{{ patient.insuranceType }}</span>
+                      <span class="tag" style="margin-left:4px;">{{ patient.insuranceType }}</span>
                     }
                   </td>
                 </tr>
+                <tr><td>Zuzahlungsstatus</td><td>Zuzahlungspflichtig <span class="kpi-sub">(10%, max. 10€/Verordnung)</span></td></tr>
                 <tr>
                   <td>Adresse</td>
                   <td>
@@ -63,37 +63,28 @@
                   <td>
                     {{ patient.treatingDoctor ?? '—' }}
                     @if (patient.treatingDoctor) {
-                      <span class="tag" style="margin-left:2px;">Hausarzt</span>
+                      <span class="tag" style="margin-left:2px;">Hausarzt</span><br>
+                      Dr. med. F. Alt <span class="tag" style="margin-left:2px;">Facharzt Gefäßchirurgie</span>
                     }
-                    <br>
-                    <a href="javascript:void(0)" class="kpi-sub" style="margin-left:6px;">+ weiteren Arzt verknüpfen</a>
+                    <a href="javascript:void(0)" (click)="alert('Demo: weiteren Arzt verknüpfen')" class="kpi-sub" style="margin-left:6px;">+ weiteren Arzt verknüpfen</a>
                   </td>
                 </tr>
                 <tr>
                   <td>Pflegedienst <span class="kpi-sub">(Versorgung vor Ort)</span></td>
                   <td>
                     {{ patient.responsibleCareService ?? '—' }}
-                    @if (patient.responsibleCareService && patient.responsibleWoundExpert) {
-                      <span class="kpi-sub"> · Wundexperte: {{ patient.responsibleWoundExpert }}</span>
+                    @if (patient.responsibleWoundExpert) {
+                      <span class="kpi-sub"> · zust. {{ patient.responsibleWoundExpert }}</span>
                     }
                   </td>
                 </tr>
                 <tr>
                   <td>Homecare <span class="kpi-sub">(Produktbelieferung)</span></td>
                   <td>
-                    {{ patient.responsibleWoundExpert ?? '—' }}
-                    @if (patient.additionalService) {
-                      <span class="kpi-sub"> · {{ patient.additionalService }}</span>
-                    }
-                    <a href="javascript:void(0)" class="kpi-sub" style="margin-left:6px;">ändern</a>
+                    {{ patient.additionalService ?? '—' }}
+                    <a href="javascript:void(0)" (click)="alert('Demo: Belieferung würde auf Pflegedienst beliefert direkt umgestellt.')" class="kpi-sub" style="margin-left:6px;">ändern</a>
                   </td>
                 </tr>
-                @if (patient.additionalService) {
-                  <tr>
-                    <td>Zusatzleistung</td>
-                    <td>{{ patient.additionalService }}</td>
-                  </tr>
-                }
                 <tr>
                   <td>Einrichtung</td>
                   <td>{{ patient.facility ?? '— ambulant, keine Einrichtung —' }}</td>
@@ -175,6 +166,18 @@
           <button class="btn accent sm" (click)="alert('Verlaufsdoku')">+ Verlaufsdoku</button>
         </div>
 
+        @if (isArzt) {
+          <div class="action-bar" style="margin-bottom:16px;">
+            <button class="btn ghost sm" (click)="alert('Arztbericht erzeugen')">📄 Arztbericht erzeugen</button>
+            <button class="btn ghost sm" (click)="alert('Verordnung verlängern')">↻ Verordnung verlängern</button>
+            <button class="action-btn danger" (click)="alert('Wunde als abgeheilt markiert und Versorgung abgeschlossen.')">✓ Als abgeheilt abschließen</button>
+          </div>
+        }
+
+        @if (isHomecare) {
+          <div class="banner" style="background:var(--gray-2);border-color:var(--gray-3);color:var(--gray-5);">🔒 Diagnose, Score-Vergabe und Verlaufsdokumentation sind Pflegedienst/Wundexperte und Arztpraxis vorbehalten. Homecare-Anbieter sehen den Wundverlauf zur Bestell- und Lieferplanung, dokumentieren aber nicht selbst klinisch.</div>
+        }
+
         <div class="grid grid-2">
           <div class="card">
             <h4>Wundflächenverlauf (automatisch, Zeitstempel-basiert)</h4>
@@ -183,7 +186,13 @@
               <line x1="0" y1="110" x2="300" y2="110" stroke="#ccc"></line>
             </svg>
             <div class="kpi-sub">Fläche 6.7 cm² (−19% ggü. letzter Doku)</div>
-            <button class="btn ghost sm" style="margin-top:8px;" (click)="alert('Verschlechterung simulieren')">Demo: Verschlechterung simulieren</button>
+            @if (trendAlert) {
+              <div style="margin-top:8px;padding:8px 12px;background:var(--warn-bg);border:1px solid #f0c199;border-radius:6px;color:var(--warn);font-size:12px;font-weight:600;">
+                ⚠ Verlauf auffällig – {{ trendPct }} seit letzter Dokumentation.
+                <button class="btn sm accent" style="margin-top:8px;" (click)="alert('Demo: Hinweis an Dr. S. Roth (zuständiger Arzt) gesendet – inkl. aktueller Maße und letztem Foto.')">Wundexperten/Arzt informieren</button>
+              </div>
+            }
+            <button class="btn ghost sm" style="margin-top:8px;" (click)="simulateTrend()">Demo: Verschlechterung simulieren</button>
           </div>
           <div class="card">
             <h4>Foto-Vergleich</h4>
@@ -243,22 +252,40 @@
             <b>Prednisolon</b> – systemisches Kortikosteroid, kann Wundheilung verzögern und Infektionsrisiko erhöhen. Engmaschige Wundkontrolle empfohlen.
             <div class="kpi-sub">Hinweis von Dr. med. S. Roth · 12.06.2026</div>
           </div>
+          @if (isArzt) {
+            <button class="action-btn" style="margin-top:4px;" (click)="alert('Neuer wundrelevanter Hinweis wird angelegt.')">+ Hinweis hinzufügen</button>
+          }
         </div>
 
-        <div class="card">
-          <div class="card-head-row"><h4>Medikationsplan (BMP)</h4><button class="btn ghost sm" (click)="print()">🖶 Medikationsplan drucken</button></div>
-          <table class="data-table sort-table">
-            <thead>
-              <tr><th>Wirkstoff</th><th>Handelsname</th><th>Dosierung</th><th>Einnahme</th><th>Grund</th><th>Verordnet von</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Phenprocoumon</td><td>Marcumar</td><td>nach INR</td><td>1-0-0-0</td><td>Vorhofflimmern</td><td>Dr. S. Roth</td></tr>
-              <tr><td>Metformin</td><td>Metformin 1000</td><td>1000 mg</td><td>1-0-1-0</td><td>Diabetes mellitus Typ 2</td><td>Dr. S. Roth</td></tr>
-              <tr><td>Prednisolon</td><td>Decortin</td><td>5 mg</td><td>1-0-0-0</td><td>Rheumatoide Arthritis</td><td>Dr. F. Alt</td></tr>
-              <tr><td>Pantoprazol</td><td>Pantozol</td><td>20 mg</td><td>1-0-0-0</td><td>Magenschutz</td><td>Dr. S. Roth</td></tr>
-            </tbody>
-          </table>
-          <div class="footnote">M-M-A-N = Morgens–Mittags–Abends–Nachts, gemäß Bundeseinheitlichem Medikationsplan (BMP).</div>
+        <div class="grid grid-2" style="margin-bottom:16px;">
+          <div class="card">
+            <div class="card-head-row"><h4>Medikationsplan (BMP)</h4><button class="btn ghost sm" (click)="print()">🖶 Medikationsplan drucken</button></div>
+            <table class="data-table sort-table">
+              <thead>
+                <tr><th>Wirkstoff</th><th>Handelsname</th><th>Dosierung</th><th>Einnahme</th><th>Grund</th><th>Verordnet von</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Phenprocoumon</td><td>Marcumar</td><td>nach INR</td><td>1-0-0-0</td><td>Vorhofflimmern</td><td>Dr. S. Roth</td></tr>
+                <tr><td>Metformin</td><td>Metformin 1000</td><td>1000 mg</td><td>1-0-1-0</td><td>Diabetes mellitus Typ 2</td><td>Dr. S. Roth</td></tr>
+                <tr><td>Prednisolon</td><td>Decortin</td><td>5 mg</td><td>1-0-0-0</td><td>Rheumatoide Arthritis</td><td>Dr. F. Alt</td></tr>
+                <tr><td>Pantoprazol</td><td>Pantozol</td><td>20 mg</td><td>1-0-0-0</td><td>Magenschutz</td><td>Dr. S. Roth</td></tr>
+              </tbody>
+            </table>
+            <div class="footnote">M-M-A-N = Morgens–Mittags–Abends–Nachts, gemäß Bundeseinheitlichem Medikationsplan (BMP).</div>
+          </div>
+
+          <div class="card" style="border-left:3px solid var(--accent);">
+            <div class="card-head-row"><h4>Individuelle Patientenanweisungen</h4><button class="action-btn" (click)="alert('Patientenanweisung bearbeiten')">✎ Bearbeiten</button></div>
+            <p class="footnote" style="margin-top:0;">Diese Hinweise sieht die Patientin in ihrem eigenen Zugang unter „Verhaltenshinweise“ – zusätzlich zu den allgemeinen Standardhinweisen.</p>
+            <div class="med-hint">
+              <b>Kompressionsstrumpf</b> – morgens vor dem Aufstehen anziehen, abends vor dem Schlafengehen ausziehen. Bei starken Schmerzen oder Taubheitsgefühl sofort melden.
+              <div class="kpi-sub">Dr. med. S. Roth · 12.06.2026</div>
+            </div>
+            <div class="med-hint">
+              <b>Fußkontrolle</b> – täglich beide Füße mit Spiegel auf neue Druckstellen prüfen, besonders zwischen den Zehen.
+              <div class="kpi-sub">P. Meier · 18.06.2026</div>
+            </div>
+          </div>
         </div>
       </div>
     }
@@ -279,26 +306,76 @@
               <button class="action-btn" (click)="alert('Bestellprozess öffnen')">🛒 Bestellen</button>
             </div>
 
-            <div class="vo-section-head"><h5>Aktuelle Versorgung</h5></div>
+            <div class="vo-section-head"><h5>Aktuelle Versorgung</h5><button class="action-btn" (click)="alert('Artikel hinzufügen')">➕ Hinzufügen</button></div>
             <div class="artikel-list">
               <div class="artikel-row">
                 <div class="artikel-main"><div class="aname">Schaumverband Polyurethan 10×10cm</div><div class="ameta">10 Stk · 29.07.–02.08.2026</div></div>
                 <div class="artikel-cost">0,00€</div>
+                <button class="artikel-toggle" (click)="toggleArtikel('schaum')">Details {{ isArtikelOpen('schaum') ? '▴' : '▾' }}</button>
               </div>
+              @if (isArtikelOpen('schaum')) {
+                <div class="artikel-details">Artikel-Nr. <b>10012345</b> · VPE 10 Stk/Pkg · Rezeptgültigkeit bis 30.09.2026 · Vorrat 6 Stk · Warengruppe Wundauflagen · Zahler AOK Nordost · Nachlieferung —<br><a href="javascript:void(0)" (click)="alert('Demo: Alternativen im Produktkatalog – z. B. Hydrofaser, Silberauflage, jeweils mit Preisvergleich und Verfügbarkeit.')" style="font-size:11px;">🔁 Produktalternativen anzeigen</a></div>
+              }
+
               <div class="artikel-row">
                 <div class="artikel-main"><div class="aname">Kompressionsbinde kurzzugelastisch</div><div class="ameta">4 Stk · 29.07.–02.08.2026</div></div>
                 <div class="artikel-cost">0,00€</div>
+                <button class="artikel-toggle" (click)="toggleArtikel('kompr')">Details {{ isArtikelOpen('kompr') ? '▴' : '▾' }}</button>
               </div>
+              @if (isArtikelOpen('kompr')) {
+                <div class="artikel-details">Artikel-Nr. <b>10012399</b> · VPE 1 Stk/Pkg · Rezeptgültigkeit bis 30.09.2026 · Vorrat 2 Stk · Warengruppe Kompression · Zahler AOK Nordost · Nachlieferung 31.08.2026</div>
+              }
+
               <div class="artikel-row">
                 <div class="artikel-main"><div class="aname">Gesetzliche Zuzahlung</div><div class="ameta">1 Stk</div></div>
                 <div class="artikel-cost neg">−8,40€</div>
               </div>
             </div>
 
+            <div class="vo-section-head"><h5>Materialbedarf berechnen</h5></div>
+            <div class="card" style="margin-bottom:16px;">
+              <div class="inline-fields">
+                <div class="field"><label>Wechselintervall</label>
+                  <select class="form-input" [(ngModel)]="matWechsel">
+                    <option [ngValue]="3">3× pro Woche</option>
+                    <option [ngValue]="2.33">alle 3 Tage (≈2,33×/Woche)</option>
+                    <option [ngValue]="7">täglich</option>
+                  </select>
+                </div>
+                <div class="field"><label>Zeitraum</label>
+                  <select class="form-input" [(ngModel)]="matZeitraum">
+                    <option [ngValue]="4">4 Wochen</option>
+                    <option [ngValue]="8">8 Wochen</option>
+                    <option [ngValue]="12">12 Wochen</option>
+                  </select>
+                </div>
+              </div>
+              <table class="data-table">
+                <thead>
+                  <tr><th>Artikel</th><th>je Wechsel</th><th>Bedarf im Zeitraum</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Schaumverband Polyurethan</td><td>1×</td><td>{{ matResult(1) }}×</td></tr>
+                  <tr><td>Kompresse</td><td>2×</td><td>{{ matResult(2) }}×</td></tr>
+                  <tr><td>Fixiermaterial</td><td>1×</td><td>{{ matResult(1) }}×</td></tr>
+                </tbody>
+              </table>
+              <button class="btn ghost sm" style="margin-top:8px;" (click)="alert('Demo: Berechneter Bedarf wurde in eine Bestellung übernommen.')">In Bestellung übernehmen</button>
+            </div>
+
+            <div class="vo-section-head"><h5>Offene Änderungsanfrage</h5><button class="action-btn" (click)="alert('Änderungsanfrage stellen')">➕ Neue Anfrage</button></div>
             <div class="change-card">
               <div class="aname">🔄 Hydrofaser statt Schaumverband</div>
               <div class="ameta">Grund: zunehmende Exsudation · 10 Stk ab 05.08.2026</div>
-              <span class="tag amber" style="margin-top:8px;display:inline-block;">ärztl. Freigabe ausstehend</span>
+              <div class="ameta">Angefragt von P. Meier · 02.07.2026 · Freigabe durch Dr. med. S. Roth</div>
+              <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;">
+                <span class="tag amber">ärztl. Freigabe ausstehend</span>
+                @if (isArzt) {
+                  <button class="action-btn" style="background:var(--accent);color:#fff;border-color:var(--accent);" (click)="alert('Demo: Änderung freigegeben – Hydrofaser wird in die Versorgung übernommen, Schaumverband entfällt.')">✓ Freigeben</button>
+                  <button class="action-btn" (click)="alert('Demo: Änderung abgelehnt – Begründung geht an P. Meier.')">✕ Ablehnen</button>
+                }
+                <button class="action-btn" (click)="alert('Versorgung bearbeiten')">Details auf Artikelebene →</button>
+              </div>
             </div>
           </div>
         </details>
@@ -327,11 +404,11 @@
       <div class="tab-panel" id="dt-plan">
         <div class="kanban">
           <div class="kcol"><h4>Offen (2)</h4>
-            <div class="kcard prio-mittel">Débridement vorbereiten<div class="meta">fällig: heute</div></div>
-            <div class="kcard">Rücksprache Hausarzt wg. Antibiotikatherapie<div class="meta">fällig: morgen</div></div>
+            <div class="kcard prio-mittel">Débridement vorbereiten<div class="meta">fällig: heute</div><div class="kcard-actions"><button class="move" (click)="alert('Karte würde nach In Bearbeitung verschoben')">→ In Bearbeitung</button></div></div>
+            <div class="kcard">Rücksprache Hausarzt wg. Antibiotikatherapie<div class="meta">fällig: morgen</div><div class="kcard-actions"><button class="move" (click)="alert('Karte würde nach In Bearbeitung verschoben')">→ In Bearbeitung</button></div></div>
           </div>
           <div class="kcol"><h4>In Bearbeitung (0)</h4>
-            <div class="empty-state">✓ Keine Aufgaben in Bearbeitung.</div>
+            <div class="empty-state" style="padding:20px 8px;"><div class="ic" style="width:32px;height:32px;font-size:14px;">✓</div>Keine Aufgaben in Bearbeitung.</div>
           </div>
           <div class="kcol"><h4>Erledigt / Zur Freigabe (1)</h4>
             <div class="kcard">Wechselintervall Verband bestätigt<div class="meta">von Dr. Roth freigegeben</div></div>
@@ -343,22 +420,46 @@
     <!-- Termine -->
     @if (activeTab === 'appointments') {
       <div class="tab-panel" id="dt-termine">
-        <div class="flex-end" style="margin-bottom:16px;"><button class="btn accent sm" (click)="alert('Termin planen')">+ Termin planen</button></div>
+        <div class="flex-between" style="margin-bottom:12px;">
+          <p class="footnote" style="margin:0;display:flex;align-items:center;gap:6px;">
+            <span>Abrechnungsrelevante Termine brauchen Verordnung, Genehmigung und Nachweis.</span>
+            <span class="info-tip" tabindex="0">i<span class="tip-body">Jeder abrechnungsrelevante Termin benötigt eine gültige Verordnung, ggf. eine Kassengenehmigung und einen bestätigten Leistungsnachweis. Die Versorgungsart (Erst-/Folgeversorgung) wird automatisch aus dem Verordnungsverlauf abgeleitet und bestimmt die Abrechnungsposition.</span></span>
+          </p>
+          <button class="btn accent sm" (click)="alert('Termin planen')">+ Termin planen</button>
+        </div>
 
-        <div class="termin-card">
-          <div class="thead">Mi. 01.07.2026</div>
-          <div class="termin-meta"><span><b style="color:var(--ink);">11:00 – 11:45</b></span><span>Sesamstraße 2, 14601 Falkensee</span></div>
-          <div class="service-row"><div class="service-left">45 Min Verbandwechsel ambulant</div><div><span class="tag">Folgeversorgung <span class="icd">Pos. 24002</span></span></div></div>
-          <div class="termin-abr">
-            <span class="tag green">Verordnung gültig bis 30.09.2026</span>
-            <span class="tag green">Genehmigung erteilt</span>
-            <span class="tag green">Abgerechnet</span>
-          </div>
-          <div class="termin-actions">
-            <button class="action-btn" (click)="alert('Zeit erfassen')">🕐 Zeit erfassen</button>
-            <button class="action-btn" (click)="alert('Termin bearbeiten')">✎ Bearbeiten</button>
-            <button class="action-btn danger" (click)="alert('Termin löschen')">🗑 Löschen</button>
-          </div>
+        <div class="table-card">
+          <table class="data-table sort-table">
+            <thead>
+              <tr><th>Datum</th><th>Zeit</th><th>Leistung</th><th>Versorgungsart</th><th>Abrechnung</th><th>Aktionen</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><b>Mi. 01.07.2026</b></td>
+                <td>11:00 – 11:45</td>
+                <td>45 Min Verbandwechsel ambulant<div class="kpi-sub">Sesamstraße 2, Falkensee</div></td>
+                <td>Folgeversorgung <span class="icd">Pos. 24002</span></td>
+                <td><span class="tag green">Abgerechnet</span></td>
+                <td><div style="display:flex;gap:6px;"><button class="action-btn sm" (click)="alert('Zeit erfassen')">🕐 Zeit</button><button class="action-btn sm" (click)="alert('Termin bearbeiten')">✎</button><button class="action-btn sm danger" (click)="alert('Termin löschen')">🗑</button></div></td>
+              </tr>
+              <tr>
+                <td><b>Di. 21.07.2026</b></td>
+                <td>12:00 – 14:15</td>
+                <td>45 Min Verbandwechsel ambulant<div class="kpi-sub">Sesamstraße 2, Falkensee</div></td>
+                <td>Folgeversorgung <span class="icd">Pos. 24002</span></td>
+                <td><span class="tag amber">Nachweis offen</span></td>
+                <td><div style="display:flex;gap:6px;"><button class="action-btn sm" (click)="alert('Zeit erfassen')">🕐 Zeit</button><button class="action-btn sm" (click)="alert('Termin bearbeiten')">✎</button><button class="action-btn sm danger" (click)="alert('Termin löschen')">🗑</button></div></td>
+              </tr>
+              <tr>
+                <td><b>Do. 23.07.2026</b><div><span class="tag" style="background:var(--accent-bg);color:var(--accent-dark);">📹 Video</span></div></td>
+                <td>09:30 – 09:45</td>
+                <td>Kontrolle Wundrandrötung<div class="kpi-sub">Mit Dr. S. Roth</div></td>
+                <td>—</td>
+                <td><span class="tag">nicht abrechenbar<span class="info-tip" tabindex="0">i<span class="tip-body">Ärztliche Leistung – wird über die KV-Abrechnung der Praxis abgerechnet, nicht über die §37-SGB-V-Abrechnung des Pflegedienstes.</span></span></span></td>
+                <td><div style="display:flex;gap:6px;"><button class="action-btn sm" style="background:var(--accent);color:#fff;border-color:var(--accent);" (click)="alert('Videosprechstunde wird gestartet – Einladungslink geht an Fischer, Maria und Dr. S. Roth.')">📹 Beitreten</button><button class="action-btn sm" (click)="alert('Termin bearbeiten')">✎</button><button class="action-btn sm danger" (click)="alert('Termin löschen')">🗑</button></div></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         <div class="card" style="margin-top:16px;">
@@ -387,6 +488,10 @@
             <div class="fb-head"><span class="tag amber">Offen</span><b>Therapieumstellung bei stagnierender Wundheilung erwägen?</b></div>
             <div class="kpi-sub">Teilnehmer:innen: Dr. S. Roth, P. Meier, J. Kaiser (Homecare) · eröffnet 18.08.2026</div>
           </div>
+          <div class="fb-item clickable" style="margin-top:8px;" (click)="alert('Fallbesprechung Detail')">
+            <div class="fb-head"><span class="tag green">Entschieden</span><b>Wechsel auf Hydrofaser bei zunehmender Exsudation?</b></div>
+            <div class="kpi-sub">Teilnehmer:innen: Dr. S. Roth, P. Meier · entschieden am 10.08.2026</div>
+          </div>
         </div>
 
         <div class="banner">⚠ Eskalation: Wundrand zeigt beginnende Rötung – ärztliche Rückmeldung ausstehend.</div>
@@ -396,6 +501,7 @@
           <div class="field" style="margin-top:16px;"><textarea class="form-textarea" placeholder="Nachricht an das Behandlerteam schreiben …"></textarea></div>
           <button class="btn accent sm">Senden</button>
         </div>
+        <div class="footnote">Der Chat ist immer an die Versorgung dieser Patientin gebunden – alle Beteiligten (Arzt, Pflegedienst, Homecare) sehen denselben Verlauf im Patientenkontext statt in einem separaten, patientenlosen Postfach. Dieser Chat läuft zwischen dem Behandlerteam – eine Videosprechstunde mit der Patientin selbst planen Sie stattdessen im Tab „Termine“.</div>
       </div>
     }
 
@@ -403,30 +509,47 @@
     @if (activeTab === 'documents') {
       <div class="tab-panel" id="dt-doks">
         <div class="folder-grid">
-          <div class="folder-card"><div class="ic">📋</div><div class="fname">Anamnese</div><div class="fcount">2 Dokumente</div></div>
-          <div class="folder-card"><div class="ic">🏥</div><div class="fname">KV</div><div class="fcount">1 Dokument</div></div>
-          <div class="folder-card"><div class="ic">✅</div><div class="fname">Genehmigungen</div><div class="fcount">3 Dokumente</div></div>
-          <div class="folder-card" (click)="alert('Rezept hochladen')"><div class="ic">📄</div><div class="fname">Verordnungen</div><div class="fcount">4 Dokumente</div></div>
+          <div class="folder-card" (click)="openDokFolder('anamnese')"><div class="ic">📋</div><div class="fname">Anamnese</div><div class="fcount">2 Dokumente</div></div>
+          <div class="folder-card" (click)="openDokFolder('kv')"><div class="ic">🏥</div><div class="fname">KV</div><div class="fcount">1 Dokument</div></div>
+          <div class="folder-card" (click)="openDokFolder('genehmigungen')"><div class="ic">✅</div><div class="fname">Genehmigungen</div><div class="fcount">3 Dokumente</div></div>
+          <div class="folder-card" (click)="openDokFolder('verordnungen')"><div class="ic">📄</div><div class="fname">Verordnungen</div><div class="fcount">4 Dokumente</div></div>
         </div>
         <div class="card" style="margin-top:16px;">
-          <div class="card-head-row"><h4>📄 Verordnungen</h4><button class="btn accent sm" (click)="alert('Rezept hochladen')">+ Rezept hochladen</button></div>
+          <div class="card-head-row">
+            <div style="display:flex;align-items:center;">
+              @if (selectedDokFolder) {
+                <button class="action-btn" style="margin-right:10px;" (click)="closeDokFolder()">← Alle Ordner</button>
+              }
+              <h4 style="margin:0;">{{ dokFolderTitle() }}</h4>
+            </div>
+            <button class="btn accent sm" (click)="alert('Rezept hochladen')">+ Dokument hochladen</button>
+          </div>
           <table class="data-table sort-table">
             <thead>
-              <tr><th>Dokument</th><th>Ausgestellt</th><th>Gültig bis</th><th>Quelle</th><th>Status</th></tr>
+              <tr><th>Dokument</th><th>Ausgestellt</th><th>Gültig bis</th><th>Quelle</th><th>Status</th><th></th></tr>
             </thead>
             <tbody>
-              <tr><td>Folgeverordnung Verbandmittel §37 SGB V</td><td>02.07.2026</td><td>30.09.2026</td><td>E-Rezept (OptaData)</td><td><span class="tag green">Genehmigt</span></td></tr>
-              <tr><td>Erstverordnung häusliche Krankenpflege</td><td>15.06.2026</td><td>15.09.2026</td><td>E-Rezept (OptaData)</td><td><span class="tag green">Genehmigt</span></td></tr>
-              <tr><td>Verordnung NPWT (Unterdrucktherapie)</td><td>03.06.2026</td><td>—</td><td>Papierrezept (Foto)</td><td><span class="tag amber">Prüfung MD/MDK</span></td></tr>
-              <tr><td>Kompressionstherapie</td><td>02.03.2026</td><td>abgelaufen</td><td>Papierrezept (Foto)</td><td><span class="tag">Archiviert</span></td></tr>
+              <tr><td>Folgeverordnung Verbandmittel §37 SGB V</td><td>02.07.2026</td><td>30.09.2026</td><td>E-Rezept (OptaData)</td><td><span class="tag green">Genehmigt</span></td><td><div style="display:flex;gap:6px;"><button class="action-btn sm" (click)="alert('Dokument wird geöffnet.')">Öffnen</button><button class="action-btn sm" (click)="print()">🖶</button></div></td></tr>
+              <tr><td>Erstverordnung häusliche Krankenpflege</td><td>15.06.2026</td><td>15.09.2026</td><td>E-Rezept (OptaData)</td><td><span class="tag green">Genehmigt</span></td><td><div style="display:flex;gap:6px;"><button class="action-btn sm" (click)="alert('Dokument wird geöffnet.')">Öffnen</button><button class="action-btn sm" (click)="print()">🖶</button></div></td></tr>
+              <tr><td>Verordnung NPWT (Unterdrucktherapie)</td><td>03.06.2026</td><td>—</td><td>Papierrezept (Foto)</td><td><span class="tag amber">Prüfung MD/MDK</span></td><td><div style="display:flex;gap:6px;"><button class="action-btn sm" (click)="alert('Dokument wird geöffnet.')">Öffnen</button><button class="action-btn sm" (click)="print()">🖶</button></div></td></tr>
+              <tr><td>Kompressionstherapie</td><td>02.03.2026</td><td>abgelaufen</td><td>Papierrezept (Foto)</td><td><span class="tag">Archiviert</span></td><td><div style="display:flex;gap:6px;"><button class="action-btn sm" (click)="alert('Dokument wird geöffnet.')">Öffnen</button><button class="action-btn sm" (click)="print()">🖶</button></div></td></tr>
             </tbody>
           </table>
         </div>
+        <div class="footnote">Ordnerstruktur pro Patient – neue Dokumente werden per Drag & Drop oder Upload automatisch dem passenden Ordner zugeordnet (Kategorie manuell änderbar).</div>
       </div>
     }
   }
 
   @if (loading && !patient) {
-    <div class="loading">Patientendaten werden geladen ...</div>
+    <div class="loading">Patientendaten werden geladen ..okay..</div>
+  }
+
+  @if (notFound && !loading) {
+    <div class="card" style="margin-top:20px;">
+      <h4>Patient nicht gefunden</h4>
+      <p class="kpi-sub">{{ loadError ?? 'Der Patient mit der angegebenen ID existiert nicht oder wurde gelöscht.' }}</p>
+      <button class="btn ghost sm" style="margin-top:8px;" (click)="navigate('/woundcare')">Zurück zur Übersicht</button>
+    </div>
   }
 </app-admin-shell>

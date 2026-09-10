@@ -98,6 +98,8 @@ export class EscalationsListPage implements OnInit {
 
   onOpenEscalation(escalation: Escalation): void {
     console.log('Open escalation context for patient:', escalation.patientId);
-    this.router.navigate(['/patients', escalation.patientId]);
+    this.router.navigate(['/patients', escalation.patientId], {
+      queryParams: { tab: 'chat' },
+    });
   }
 }

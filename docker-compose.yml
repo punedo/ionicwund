@@ -42,7 +42,7 @@ services:
       MAILER_DSN: smtp://mailpit:1025
       XDEBUG_MODE: debug
       XDEBUG_CLIENT_HOST: host.docker.internal
-      XDEBUG_START_WITH_REQUEST: yes
+      XDEBUG_START_WITH_REQUEST: no
     networks:
       - ionicwund_network
     depends_on:
