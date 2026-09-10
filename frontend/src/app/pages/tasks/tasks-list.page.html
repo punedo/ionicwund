@@ -1,0 +1,91 @@
+<app-admin-shell [pageTitle]="pageTitle">
+  <div class="tasks-page">
+    <div class="tasks-toolbar">
+      <div class="tasks-filters">
+        <select [(ngModel)]="patientFilter" class="filter-select" (change)="patientFilter = $any($event.target).value">
+          <option value="all">Alle Patienten</option>
+          <option *ngFor="let patient of uniquePatients()" [value]="patient.id">{{ patient.name }}</option>
+        </select>
+
+        <select [(ngModel)]="statusFilter" class="filter-select" (change)="statusFilter = $any($event.target).value">
+          <option value="all">Alle Zustände</option>
+          <option value="Offen">Offen</option>
+          <option value="In Bearbeitung">In Bearbeitung</option>
+          <option value="Erledigt">Erledigt</option>
+        </select>
+
+        <label class="filter-check">
+          <input type="checkbox" [(ngModel)]="mineOnly" />
+          <span>Nur meine Aufgaben</span>
+        </label>
+      </div>
+
+      <button class="create-button" (click)="onCreate()">
+        <ion-icon name="add-outline"></ion-icon>
+        <span>Aufgabe anlegen</span>
+      </button>
+    </div>
+
+    <div class="kanban-board">
+      @for (column of columns; track column.status) {
+        <div class="kanban-column">
+          <div class="kanban-column-header">
+            <span class="kanban-column-title">{{ column.label }}</span>
+            <span class="kanban-column-count">({{ columnCount(column.status) }})</span>
+          </div>
+
+          <div class="kanban-column-body">
+            @for (task of tasksInColumn(column.status); track task.id) {
+              <div
+                class="task-card"
+                [class.priority-high]="task.priority === 'Hoch'"
+                [class.priority-medium]="task.priority === 'Mittel'"
+                [class.priority-low]="task.priority === 'Niedrig'"
+                (click)="onCardClick(task)"
+              >
+                <div class="task-card-title">{{ task.title }} – {{ task.patientName }}</div>
+                <div class="task-card-description" *ngIf="task.description">
+                  {{ task.description }}
+                </div>
+                <div class="task-card-due" *ngIf="task.dueDate">
+                  <ion-icon name="calendar-outline"></ion-icon>
+                  <span>{{ task.dueDate }}</span>
+                </div>
+                <div
+                  class="task-card-responsible"
+                  [class.responsible-mine]="task.responsible === 'Bei mir'"
+                  [class.responsible-waiting]="task.responsible?.startsWith('Wartet auf')"
+                >
+                  <ion-icon name="person-outline"></ion-icon>
+                  <span>{{ task.responsible || '—' }}</span>
+                </div>
+                <div
+                  class="task-card-priority"
+                  [class.priority-high]="task.priority === 'Hoch'"
+                  [class.priority-medium]="task.priority === 'Mittel'"
+                  [class.priority-low]="task.priority === 'Niedrig'"
+                >
+                  {{ task.priority }}
+                </div>
+              </div>
+            } @empty {
+              <div class="task-card-empty">Keine Aufgaben</div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="tasks-legend">
+      <span class="legend-dot priority-high"></span>
+      <span class="legend-label">Hohe Priorität</span>
+      <span class="legend-dot priority-medium"></span>
+      <span class="legend-label">Fällig heute</span>
+      <span class="legend-dot responsible-mine"></span>
+      <span class="legend-label">Bei mir</span>
+      <span class="legend-dot responsible-waiting"></span>
+      <span class="legend-label">Wartet auf ...</span>
+      <span class="legend-text">– eine andere Rolle muss aktiv werden. Karten öffnen im Prototyp beispielhaft immer Fischer, Maria.</span>
+    </div>
+  </div>
+</app-admin-shell>

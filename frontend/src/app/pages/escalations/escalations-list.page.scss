@@ -1,0 +1,43 @@
+.escalations-intro {
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+  max-width: 900px;
+}
+
+.escalations-hint {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  margin-top: 1.25rem;
+  max-width: 900px;
+}
+
+:host ::ng-deep {
+  .priority-mittel .status-badge {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .priority-hoch .status-badge {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+
+  .priority-erledigt .status-badge {
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  .row-action {
+    border-color: #0d9488;
+    color: #0d9488;
+
+    &:hover {
+      background: #f0fdfa;
+      border-color: #0f766e;
+      color: #0f766e;
+    }
+  }
+}

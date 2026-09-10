@@ -1,0 +1,71 @@
+<app-admin-shell [pageTitle]="pageTitle">
+  <div class="task-create-page">
+    <a class="task-breadcrumb" (click)="onCancel()">Aufgaben</a>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="task-form">
+      <div class="form-row">
+        <div class="form-field">
+          <label for="patientId">Patient <span class="required">*</span></label>
+          <select id="patientId" formControlName="patientId" [class.invalid]="form.get('patientId')?.invalid && form.get('patientId')?.touched">
+            <option *ngFor="let patient of patients" [value]="patient.id">
+              {{ patient.lastName }}, {{ patient.firstName }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="dueDate">Fällig am <span class="required">*</span></label>
+          <input id="dueDate" type="date" formControlName="dueDate" [class.invalid]="form.get('dueDate')?.invalid && form.get('dueDate')?.touched" />
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="title">Titel <span class="required">*</span></label>
+        <input id="title" type="text" formControlName="title" placeholder="z. B. Débridement vorbereiten" [class.invalid]="form.get('title')?.invalid && form.get('title')?.touched" />
+      </div>
+
+      <div class="form-field">
+        <label for="description">Beschreibung</label>
+        <textarea id="description" formControlName="description" rows="3" placeholder="Details zur Aufgabe ..."></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label for="responsible">Zuständig <span class="required">*</span></label>
+          <select id="responsible" formControlName="responsible" [class.invalid]="form.get('responsible')?.invalid && form.get('responsible')?.touched">
+            <option *ngFor="let responsible of responsibles" [value]="responsible">{{ responsible }}</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label>Priorität <span class="required">*</span></label>
+          <div class="priority-toggle">
+            <button
+              type="button"
+              *ngFor="let priority of priorities"
+              [class.active]="form.get('priority')?.value === priority"
+              (click)="form.patchValue({ priority })"
+              [class]="'priority-' + priority.toLowerCase()"
+            >
+              {{ priority }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="status">Status <span class="required">*</span></label>
+        <select id="status" formControlName="status" [class.invalid]="form.get('status')?.invalid && form.get('status')?.touched">
+          <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+        </select>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="onCancel()">Abbrechen</button>
+        <button type="submit" class="btn-primary" [disabled]="loading">
+          {{ loading ? 'Wird angelegt...' : 'Aufgabe anlegen' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</app-admin-shell>

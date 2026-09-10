@@ -1,0 +1,14 @@
+<app-admin-shell pageTitle="Eskalationen – Übersicht">
+  <p class="escalations-intro">
+    Kommunikation findet immer im Kontext eines Patienten statt. Diese Übersicht bündelt offene Eskalationen über alle Patienten hinweg – zum Antworten öffnet sich direkt der Chat im jeweiligen Patientendossier.
+  </p>
+
+  <app-data-table
+    [columns]="columns"
+    [data]="escalations"
+    [rowActions]="rowActions"
+    [loading]="loading"
+    searchPlaceholder="Suche nach Patient, Nachricht..."
+    emptyMessage="Keine offenen Eskalationen vorhanden."
+  ></app-data-table>
+</app-admin-shell>
