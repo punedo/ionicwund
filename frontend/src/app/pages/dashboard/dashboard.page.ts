@@ -233,8 +233,7 @@ export class DashboardPage implements OnInit {
         }
         const prioOrder = (p: string) => (p === 'Hoch' ? 0 : p === 'Mittel' ? 1 : 2);
         return prioOrder(a.priority) - prioOrder(b.priority);
-      })
-      .slice(0, 4);
+      });
   }
 
   taskBadge(task: Task): { label: string; css: string } {
