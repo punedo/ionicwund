@@ -108,10 +108,17 @@ export class AuthService {
   }
 
   setupPassword(newPassword: string): Observable<SetupPasswordResponse> {
-    return this.http.post<SetupPasswordResponse>(
-      `${this.apiUrl}/auth/setup-password`,
-      { newPassword }
-    );
+    return this.http
+      .post<SetupPasswordResponse>(`${this.apiUrl}/auth/setup-password`, {
+        newPassword,
+      })
+      .pipe(
+        tap((response) => {
+          if (response.status === 'success' && response.user) {
+            this.setUser(response.user);
+          }
+        })
+      );
   }
 
   updateProfile(payload: {

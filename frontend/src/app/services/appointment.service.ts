@@ -59,6 +59,16 @@ export class AppointmentService {
     );
   }
 
+  getAppointmentsByPatient(patientId: number): Observable<Appointment[]> {
+    return this.http.get<any>(`${this.apiUrl}?patientId=${patientId}`).pipe(
+      map((res) => (Array.isArray(res) ? res : (res.appointments ?? []))),
+      catchError((err) => {
+        console.error('[AppointmentService] getAppointmentsByPatient error:', err);
+        return of([]);
+      })
+    );
+  }
+
   createAppointment(request: AppointmentCreateRequest): Observable<Appointment> {
     return this.http.post<Appointment>(this.apiUrl, request);
   }

@@ -7,6 +7,7 @@ export interface User {
   twoFactorEnabled: boolean;
   emailVerified: boolean;
   mustChangePassword: boolean;
+  isActive: boolean;
 }
 
 export interface SetupPasswordResponse {

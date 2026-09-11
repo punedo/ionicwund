@@ -429,51 +429,82 @@
         </div>
 
         <div class="table-card">
-          <table class="data-table sort-table">
-            <thead>
-              <tr><th>Datum</th><th>Zeit</th><th>Leistung</th><th>Versorgungsart</th><th>Abrechnung</th><th>Aktionen</th></tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><b>Mi. 01.07.2026</b></td>
-                <td>11:00 – 11:45</td>
-                <td>45 Min Verbandwechsel ambulant<div class="kpi-sub">Sesamstraße 2, Falkensee</div></td>
-                <td>Folgeversorgung <span class="icd">Pos. 24002</span></td>
-                <td><span class="tag green">Abgerechnet</span></td>
-                <td><div style="display:flex;gap:6px;"><button class="action-btn sm" (click)="alert('Zeit erfassen')">🕐 Zeit</button><button class="action-btn sm" (click)="alert('Termin bearbeiten')">✎</button><button class="action-btn sm danger" (click)="alert('Termin löschen')">🗑</button></div></td>
-              </tr>
-              <tr>
-                <td><b>Di. 21.07.2026</b></td>
-                <td>12:00 – 14:15</td>
-                <td>45 Min Verbandwechsel ambulant<div class="kpi-sub">Sesamstraße 2, Falkensee</div></td>
-                <td>Folgeversorgung <span class="icd">Pos. 24002</span></td>
-                <td><span class="tag amber">Nachweis offen</span></td>
-                <td><div style="display:flex;gap:6px;"><button class="action-btn sm" (click)="alert('Zeit erfassen')">🕐 Zeit</button><button class="action-btn sm" (click)="alert('Termin bearbeiten')">✎</button><button class="action-btn sm danger" (click)="alert('Termin löschen')">🗑</button></div></td>
-              </tr>
-              <tr>
-                <td><b>Do. 23.07.2026</b><div><span class="tag" style="background:var(--accent-bg);color:var(--accent-dark);">📹 Video</span></div></td>
-                <td>09:30 – 09:45</td>
-                <td>Kontrolle Wundrandrötung<div class="kpi-sub">Mit Dr. S. Roth</div></td>
-                <td>—</td>
-                <td><span class="tag">nicht abrechenbar<span class="info-tip" tabindex="0">i<span class="tip-body">Ärztliche Leistung – wird über die KV-Abrechnung der Praxis abgerechnet, nicht über die §37-SGB-V-Abrechnung des Pflegedienstes.</span></span></span></td>
-                <td><div style="display:flex;gap:6px;"><button class="action-btn sm" style="background:var(--accent);color:#fff;border-color:var(--accent);" (click)="alert('Videosprechstunde wird gestartet – Einladungslink geht an Fischer, Maria und Dr. S. Roth.')">📹 Beitreten</button><button class="action-btn sm" (click)="alert('Termin bearbeiten')">✎</button><button class="action-btn sm danger" (click)="alert('Termin löschen')">🗑</button></div></td>
-              </tr>
-            </tbody>
-          </table>
+          @if (appointmentsLoading) {
+            <p class="kpi-sub" style="padding:12px 0;">Termine werden geladen …</p>
+          } @else if (appointments.length === 0) {
+            <p class="kpi-sub" style="padding:12px 0;">Keine Termine für diese Patientin vorhanden.</p>
+          } @else {
+            <table class="data-table sort-table">
+              <thead>
+                <tr><th>Datum</th><th>Zeit</th><th>Leistung</th><th>Versorgungsart</th><th>Abrechnung</th><th>Aktionen</th></tr>
+              </thead>
+              <tbody>
+                @for (appt of appointments; track appt.id) {
+                  <tr>
+                    <td>
+                      <b>{{ formatAppointmentDate(appt.date) }}</b>
+                      @if (isVideoAppointment(appt)) {
+                        <div><span class="tag" style="background:var(--accent-bg);color:var(--accent-dark);">📹 Video</span></div>
+                      }
+                    </td>
+                    <td>{{ appt.startTime }} – {{ appt.endTime }}</td>
+                    <td>
+                      {{ getServiceDisplay(appt) }}
+                      @if (appt.address) {
+                        <div class="kpi-sub">{{ appt.address }}</div>
+                      }
+                    </td>
+                    <td>{{ getCareType(appt) }}</td>
+                    <td>
+                      <span class="tag" [class]="getBillingStatus(appt).css">{{ getBillingStatus(appt).label }}</span>
+                    </td>
+                    <td>
+                      <div style="display:flex;gap:6px;">
+                        @if (isVideoAppointment(appt)) {
+                          <button class="action-btn sm" style="background:var(--accent);color:#fff;border-color:var(--accent);" (click)="alert('Videosprechstunde wird gestartet.')">📹 Beitreten</button>
+                        } @else {
+                          <button class="action-btn sm" (click)="onRecordAppointment(appt)">🕐 Zeit</button>
+                        }
+                        <button class="action-btn sm" (click)="alert('Termin bearbeiten')">✎</button>
+                        <button class="action-btn sm danger" (click)="onDeleteAppointment(appt)">🗑</button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
         </div>
 
         <div class="card" style="margin-top:16px;">
           <div class="card-head-row"><h4>Leistungsnachweise – {{ patient.lastName }}, {{ patient.firstName }}</h4><button class="action-btn" (click)="alert('Zeit erfassen')">🕐 Zeit erfassen</button></div>
-          <table class="data-table sort-table">
-            <thead>
-              <tr><th>Datum</th><th>Leistung</th><th>Erfassung</th><th>Status</th><th></th></tr>
-            </thead>
-            <tbody>
-              <tr><td>21.07.2026</td><td>45 Min Verbandwechsel ambulant</td><td>—</td><td><span class="tag amber">Offen</span></td><td><button class="action-btn sm">✎ Digital erfassen</button> <button class="action-btn sm">📤 Hochladen</button></td></tr>
-              <tr><td>15.07.2026</td><td>90 Min Verbandwechsel ambulant</td><td>Hochgeladen · P. Meier, Login + 2FA</td><td><span class="tag green">Vollständig</span></td><td><button class="action-btn sm" (click)="print()">🖶 Drucken</button></td></tr>
-              <tr><td>01.07.2026</td><td>45 Min Verbandwechsel ambulant</td><td>Digital · mit Patientenunterschrift</td><td><span class="tag green">Vollständig</span></td><td><button class="action-btn sm" (click)="print()">🖶 Drucken</button></td></tr>
-            </tbody>
-          </table>
+          @if (certificates.length === 0) {
+            <p class="kpi-sub" style="padding:12px 0;">Keine Leistungsnachweise vorhanden.</p>
+          } @else {
+            <table class="data-table sort-table">
+              <thead>
+                <tr><th>Datum</th><th>Leistung</th><th>Erfassung</th><th>Status</th><th></th></tr>
+              </thead>
+              <tbody>
+                @for (cert of certificates; track cert.id) {
+                  <tr>
+                    <td>{{ cert.date }}</td>
+                    <td>{{ cert.serviceType }}</td>
+                    <td>{{ cert.recording }}</td>
+                    <td><span class="tag" [class]="cert.status === 'Vollständig' ? 'green' : 'amber'">{{ cert.status }}</span></td>
+                    <td>
+                      @if (cert.status === 'Offen') {
+                        <button class="action-btn sm" (click)="alert('Digital erfassen')">✎ Digital erfassen</button>
+                        <button class="action-btn sm" (click)="alert('Hochladen')">📤 Hochladen</button>
+                      } @else {
+                        <button class="action-btn sm" (click)="print()">🖶 Drucken</button>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
         </div>
       </div>
     }
@@ -496,10 +527,46 @@
 
         <div class="banner">⚠ Eskalation: Wundrand zeigt beginnende Rötung – ärztliche Rückmeldung ausstehend.</div>
         <div class="card">
-          <div class="chat-msg"><div class="avatar">PM</div><div class="bubble"><div class="who">P. Meier · Wundexperte · heute, 08:12</div>Wundrand bei Frau Fischer seit gestern gerötet, Exsudat minimal zugenommen. Aktuelles Foto in der Wunddoku. Bitte um Einschätzung, ob Abstrich nötig ist.</div></div>
-          <div class="chat-msg"><div class="avatar">SR</div><div class="bubble"><div class="who">Dr. S. Roth · heute, 08:40</div>Bitte zunächst Wechselintervall verkürzen und in 2 Tagen erneut fotografieren. Bei weiterer Ausbreitung Abstrich veranlassen.</div></div>
-          <div class="field" style="margin-top:16px;"><textarea class="form-textarea" placeholder="Nachricht an das Behandlerteam schreiben …"></textarea></div>
-          <button class="btn accent sm">Senden</button>
+          @if (chatLoading && chatMessages.length === 0) {
+            <div class="kpi-sub" style="padding:12px 0;">Nachrichten werden geladen …</div>
+          }
+          @if (chatError) {
+            <div class="banner" style="background:var(--warn-bg);border-color:#f0c199;color:var(--warn);">{{ chatError }}</div>
+          }
+          @for (msg of chatMessages; track msg.id) {
+            <div class="chat-msg" [class.own]="msg.isOwn">
+              <div class="avatar">{{ msg.senderInitials }}</div>
+              <div class="bubble">
+                <div class="who">
+                  {{ msg.senderName }} · {{ msg.senderRole }}
+                  @if (msg.recipientName) {
+                    → an {{ msg.recipientName }}@if (msg.recipientRole) { ({{ msg.recipientRole }}) }
+                  }
+                  · {{ msg.createdAtLabel }}
+                </div>
+                {{ msg.content }}
+              </div>
+            </div>
+          }
+          @if (!chatLoading && chatMessages.length === 0 && !chatError) {
+            <div class="kpi-sub" style="padding:12px 0;">Noch keine Nachrichten. Starten Sie die Konversation mit dem Behandlerteam.</div>
+          }
+          <div class="field" style="margin-top:16px;">
+            <label style="font-size:12px;color:var(--gray-5);display:block;margin-bottom:4px;">An:</label>
+            <select class="form-input" name="chatRecipient" [(ngModel)]="selectedRecipientId" style="margin-bottom:8px;">
+              @for (r of chatRecipients; track r.id) {
+                <option [ngValue]="r.id">{{ r.fullName }} ({{ r.role }})</option>
+              }
+            </select>
+            <textarea
+              class="form-textarea"
+              name="chatMessage"
+              [(ngModel)]="newChatMessage"
+              placeholder="Nachricht schreiben …"
+              (keydown.enter)="sendChatMessage(); $event.preventDefault()"
+            ></textarea>
+          </div>
+          <button class="btn accent sm" (click)="sendChatMessage()" [disabled]="chatLoading || !newChatMessage.trim() || !selectedRecipientId">Senden</button>
         </div>
         <div class="footnote">Der Chat ist immer an die Versorgung dieser Patientin gebunden – alle Beteiligten (Arzt, Pflegedienst, Homecare) sehen denselben Verlauf im Patientenkontext statt in einem separaten, patientenlosen Postfach. Dieser Chat läuft zwischen dem Behandlerteam – eine Videosprechstunde mit der Patientin selbst planen Sie stattdessen im Tab „Termine“.</div>
       </div>

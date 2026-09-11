@@ -690,6 +690,20 @@
       margin-bottom: 0.35rem;
     }
   }
+
+  &.own {
+    flex-direction: row-reverse;
+
+    .avatar {
+      background: var(--accent-bg);
+      color: var(--accent-dark);
+    }
+
+    .bubble {
+      background: var(--accent-bg);
+      border-color: var(--accent);
+    }
+  }
 }
 
 .folder-grid {
