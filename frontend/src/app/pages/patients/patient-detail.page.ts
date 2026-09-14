@@ -578,4 +578,8 @@ export class PatientDetailPage implements OnInit {
   getRecentImagesForComparison(): WoundImage[] {
     return this.woundImages.slice(0, 2);
   }
+
+  isCurrentImage(image: WoundImage): boolean {
+    return image.id === this.woundImages[0]?.id;
+  }
 }

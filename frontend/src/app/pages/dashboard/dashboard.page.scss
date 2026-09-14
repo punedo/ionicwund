@@ -170,8 +170,8 @@
     color: var(--iw-content-text-muted);
 
     &:hover {
-      background: #f8fafc;
-      border-color: #cbd5e1;
+      background: var(--iw-content-hover-bg);
+      border-color: var(--iw-content-hover-border);
     }
 
     &.primary {
@@ -240,8 +240,8 @@
       transition: all 0.15s ease;
 
       &:hover {
-        border-color: #cbd5e1;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+        border-color: var(--iw-content-hover-border);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       }
     }
   }
@@ -289,8 +289,8 @@
     border-radius: 8px;
 
     &.item-highlight {
-      background-color: #f8fafc;
-      border: 1px solid #f1f5f9;
+      background-color: var(--iw-content-highlight-bg);
+      border: 1px solid var(--iw-content-highlight-border);
     }
 
     .activity-name {
@@ -394,8 +394,8 @@
     transition: all 0.15s ease;
 
     &:hover {
-      border-color: #cbd5e1;
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+      border-color: var(--iw-content-hover-border);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
     .card-title {

@@ -200,6 +200,29 @@
   tr:last-child td {
     border-bottom: none;
   }
+
+  tr.current-row td {
+    background: var(--accent-bg);
+  }
+
+  .wound-photo-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .wound-thumb {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    display: block;
+  }
+
+  .overlay-thumb {
+    border: 2px solid var(--accent);
+  }
 }
 
 .tag {
@@ -410,6 +433,39 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.75rem;
+
+  .photo-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 120px;
+    height: auto;
+    margin-bottom: 0;
+    padding: 0.4rem;
+    overflow: hidden;
+    box-sizing: border-box;
+
+    img {
+      display: block;
+      width: 100%;
+      max-height: 180px;
+      height: auto;
+      object-fit: contain;
+      border-radius: 0.5rem;
+    }
+
+    .kpi-sub {
+      margin-top: 0.5rem;
+      text-align: center;
+      width: 100%;
+    }
+
+    .chip-row {
+      justify-content: center;
+      margin-top: 0.35rem;
+    }
+  }
 
   .placeholder-img {
     background: var(--gray-2);
