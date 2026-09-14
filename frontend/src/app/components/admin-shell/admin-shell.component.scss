@@ -4,7 +4,7 @@
 }
 
 .admin-viewport {
-  --background: #f8fafc;
+  --background: var(--iw-content-bg);
   --padding-top: 0;
   --padding-bottom: 0;
   --padding-start: 0;
@@ -22,7 +22,7 @@
 .sidebar-container {
   width: 250px;
   min-width: 250px;
-  background-color: #141b27;
+  background-color: var(--iw-sidebar-bg);
   padding: 24px 14px;
   display: flex;
   flex-direction: column;
@@ -35,7 +35,7 @@
       display: block;
       font-size: 11px;
       font-weight: 700;
-      color: #64748b;
+      color: var(--iw-sidebar-title);
       letter-spacing: 0.8px;
       padding-left: 12px;
       margin-bottom: 8px;
@@ -48,7 +48,7 @@
       gap: 12px;
       padding: 10px 12px;
       border-radius: 8px;
-      color: #94a3b8;
+      color: var(--iw-sidebar-text);
       cursor: pointer;
       font-size: 13.5px;
       font-weight: 500;
@@ -57,27 +57,27 @@
       .nav-ic,
       .nav-icon {
         font-size: 16px;
-        color: #94a3b8;
+        color: var(--iw-sidebar-text);
       }
 
       &:hover {
-        background: rgba(255, 255, 255, 0.04);
-        color: #f1f5f9;
+        background: var(--iw-sidebar-hover-bg);
+        color: var(--iw-sidebar-text-hover);
 
         .nav-ic,
         .nav-icon {
-          color: #f1f5f9;
+          color: var(--iw-sidebar-text-hover);
         }
       }
 
       &.active {
-        background-color: #122830;
-        border: 1px solid #0d9488;
-        color: #ffffff;
+        background-color: var(--iw-sidebar-active-bg);
+        border: 1px solid var(--iw-sidebar-active-border);
+        color: var(--iw-sidebar-active-text);
 
         .nav-ic,
         .nav-icon {
-          color: #14b8a6;
+          color: var(--iw-sidebar-accent);
         }
       }
     }
@@ -85,8 +85,8 @@
     .nav-cat {
       .nav-cat-count {
         margin-left: auto;
-        background: #334155;
-        color: #f1f5f9;
+        background: var(--iw-sidebar-count-bg);
+        color: var(--iw-sidebar-text-hover);
         font-size: 11px;
         font-weight: 600;
         padding: 2px 8px;
@@ -96,7 +96,7 @@
       .chev {
         margin-left: 8px;
         font-size: 14px;
-        color: #94a3b8;
+        color: var(--iw-sidebar-text);
         transition: transform 0.2s ease;
         transform: rotate(0deg);
       }
@@ -106,12 +106,12 @@
       }
 
       &:hover .chev {
-        color: #f1f5f9;
+        color: var(--iw-sidebar-text-hover);
       }
 
       &.active .nav-cat-count {
-        background: #0d9488;
-        color: #ffffff;
+        background: var(--iw-sidebar-active-border);
+        color: var(--iw-sidebar-active-text);
       }
     }
 
@@ -122,15 +122,15 @@
 
       .nav-item {
         padding-left: 30px;
-        border-left: 1px solid #1e293b;
+        border-left: 1px solid var(--iw-sidebar-sub-border);
         border-radius: 0 8px 8px 0;
         margin-left: 8px;
 
         &.active {
-          background: rgba(13, 148, 136, 0.12);
-          border-left-color: #0d9488;
+          background: var(--iw-sidebar-active-sub-bg);
+          border-left-color: var(--iw-sidebar-active-border);
           border: none;
-          border-left: 3px solid #0d9488;
+          border-left: 3px solid var(--iw-sidebar-active-border);
         }
       }
     }
@@ -140,8 +140,81 @@
     margin-top: auto;
     margin-bottom: 0;
 
+    .theme-toggle-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: var(--iw-sidebar-text);
+      cursor: pointer;
+      font-size: 13.5px;
+      font-weight: 500;
+      transition: all 0.15s ease;
+
+      ion-icon {
+        font-size: 16px;
+        color: var(--iw-sidebar-text);
+      }
+
+      .nav-label {
+        flex: 1;
+      }
+
+      &:hover {
+        background: var(--iw-sidebar-hover-bg);
+        color: var(--iw-sidebar-text-hover);
+
+        ion-icon {
+          color: var(--iw-sidebar-text-hover);
+        }
+      }
+    }
+
+    .theme-switch {
+      position: relative;
+      width: 38px;
+      height: 22px;
+      flex-shrink: 0;
+
+      input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        inset: 0;
+        background: #334155;
+        border-radius: 22px;
+        transition: background 0.2s ease;
+        cursor: pointer;
+
+        &::before {
+          content: '';
+          position: absolute;
+          width: 16px;
+          height: 16px;
+          left: 3px;
+          top: 3px;
+          background: #f1f5f9;
+          border-radius: 50%;
+          transition: transform 0.2s ease;
+        }
+      }
+
+      input:checked + .slider {
+        background: var(--iw-sidebar-accent);
+
+        &::before {
+          transform: translateX(16px);
+        }
+      }
+    }
+
     .logout-item {
-      color: #94a3b8;
+      color: var(--iw-sidebar-text);
 
       &:hover {
         background: rgba(239, 68, 68, 0.1);
@@ -158,7 +231,7 @@
 /* MAIN CONTENT */
 .main-viewport {
   flex: 1;
-  background-color: #f8fafc;
+  background-color: var(--iw-content-bg);
   padding: 32px 48px;
   overflow-y: auto;
 }
@@ -177,13 +250,13 @@
   .page-title {
     font-size: 26px;
     font-weight: 800;
-    color: #0f172a;
+    color: var(--iw-content-text);
     margin: 0;
   }
 
   .role-badge {
-    background: #e2e8f0;
-    color: #475569;
+    background: var(--iw-content-badge-bg);
+    color: var(--iw-content-badge-text);
     padding: 4px 16px;
     border-radius: 20px;
     font-size: 12.5px;
@@ -193,11 +266,11 @@
 
 /* Patient / content placeholders */
 .placeholder-content {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--iw-content-card-bg);
+  border: 1px solid var(--iw-content-border);
   border-radius: 14px;
   padding: 32px;
-  color: #64748b;
+  color: var(--iw-content-text-muted);
   font-size: 14px;
   line-height: 1.5;
 }
@@ -220,7 +293,7 @@
     display: block;
 
     ion-toolbar {
-      --background: #141b27;
+      --background: var(--iw-sidebar-bg);
       --min-height: 64px;
     }
   }
@@ -239,7 +312,7 @@
     align-items: center;
     justify-content: center;
     gap: 3px;
-    color: #94a3b8;
+    color: var(--iw-sidebar-text);
     cursor: pointer;
     font-size: 10.5px;
     font-weight: 500;
@@ -254,11 +327,11 @@
     }
 
     &:active {
-      color: #f1f5f9;
+      color: var(--iw-sidebar-text-hover);
     }
 
     &.active {
-      color: #14b8a6;
+      color: var(--iw-sidebar-accent);
     }
   }
 }

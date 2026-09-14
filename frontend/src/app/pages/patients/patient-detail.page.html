@@ -96,12 +96,65 @@
 
           <div class="card">
             <h4>Aktuelle Wunde</h4>
-            <div class="placeholder-img photo-box">[Wundfoto – aktuell]</div>
-            <div class="chip-row">
-              <span class="tag">{{ patient.woundType ?? 'Diabet. Fußsyndrom' }}</span>
-              @if (patient.score) {
-                <span class="tag">{{ patient.score }}</span>
+
+            @if (woundPhotoPreview) {
+              <img [src]="woundPhotoPreview" class="photo-box" alt="Wundfoto Vorschau" />
+            } @else {
+              <div class="placeholder-img photo-box">[Wundfoto – aktuell]</div>
+            }
+
+            @if (prediction?.overlay) {
+              <img [src]="'data:image/png;base64,' + prediction!.overlay" class="photo-box" style="margin-top:8px;" alt="Wunde segmentiert" />
+            }
+
+            <div class="field" style="margin-top:10px;">
+              <input
+                type="file"
+                accept="image/*"
+                class="form-input"
+                (change)="onFileSelected($event)"
+              />
+            </div>
+
+            <button
+              class="btn primary"
+              style="margin-top:8px;"
+              [disabled]="!woundPhotoFile || predictionLoading"
+              (click)="analyzeWound()"
+            >
+              @if (predictionLoading) {
+                <span>Analyse läuft…</span>
               } @else {
+                <span>🩺 Wunde analysieren</span>
+              }
+            </button>
+
+            @if (predictionError) {
+              <div class="banner" style="margin-top:10px;">{{ predictionError }}</div>
+            }
+
+            <div class="chip-row" style="margin-top:12px; flex-wrap: wrap;">
+              <span class="tag">{{ patient.woundType ?? 'Diabet. Fußsyndrom' }}</span>
+              @if (prediction) {
+                <span class="tag" title="Klassifikation: {{ prediction.label }}">
+                  {{ prediction.label }} ({{ formatConfidence(prediction.confidence) }})
+                </span>
+                @if (prediction.route_label) {
+                  <span class="tag">{{ prediction.route_label }} ({{ formatConfidence(prediction.route_conf) }})</span>
+                }
+                @if (prediction.wagner_label) {
+                  <span class="tag">{{ prediction.wagner_label }} ({{ formatConfidence(prediction.wagner_conf) }})</span>
+                }
+                @if (getArmstrongGrade()) {
+                  <span class="tag">{{ getArmstrongGrade() }}</span>
+                }
+                @if (prediction.epuap_label) {
+                  <span class="tag">{{ prediction.epuap_label }} ({{ formatConfidence(prediction.epuap_conf) }})</span>
+                }
+                @if (prediction.ceap_label) {
+                  <span class="tag">{{ prediction.ceap_label }} ({{ formatConfidence(prediction.ceap_conf) }})</span>
+                }
+              } @else if (!predictionLoading) {
                 <span class="tag">Wagner 2</span>
                 <span class="tag">Armstrong B</span>
               }
@@ -196,25 +249,86 @@
           </div>
           <div class="card">
             <h4>Foto-Vergleich</h4>
-            <div class="compare-slider">
-              <div class="placeholder-img">[Foto 02.07.]</div>
-              <div class="placeholder-img">[Foto heute]</div>
-            </div>
+            @if (getRecentImagesForComparison().length === 0) {
+              <div class="compare-slider">
+                <div class="placeholder-img">[Foto früher]</div>
+                <div class="placeholder-img">[Foto heute]</div>
+              </div>
+            } @else {
+              <div class="compare-slider" style="gap: 12px;">
+                @for (img of getRecentImagesForComparison(); track img.id) {
+                  <div class="photo-box" style="flex:1;">
+                    @if (imageDataUrl(img)) {
+                      <img [src]="imageDataUrl(img)" style="width:100%;border-radius:8px;" [alt]="'Wundfoto ' + formatDateTime(img.createdAt)" />
+                    } @else {
+                      <div class="placeholder-img" style="width:100%;">[kein Foto]</div>
+                    }
+                    @if (overlayDataUrl(img)) {
+                      <img [src]="overlayDataUrl(img)" style="width:100%;border-radius:8px;margin-top:8px;" alt="Segmentiert" />
+                    }
+                    <div class="kpi-sub" style="margin-top:4px;">{{ formatDateTime(img.createdAt) }}</div>
+                    <div class="chip-row" style="flex-wrap: wrap; margin-top: 4px;">
+                      @if (img.wagnerLabel) {
+                        <span class="tag">{{ img.wagnerLabel }}</span>
+                      }
+                      @if (getArmstrongGradeForImage(img)) {
+                        <span class="tag">{{ getArmstrongGradeForImage(img) }}</span>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
           </div>
         </div>
 
         <div class="card" style="margin-top:16px;">
           <div class="card-head-row"><h4>Dokuverlauf</h4><button class="btn ghost sm" (click)="print()">🖶 Wundverlauf drucken</button></div>
-          <table class="data-table sort-table">
-            <thead>
-              <tr><th>Datum</th><th>Maße (L×B×T)</th><th>Score</th><th>Erfasst von</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Heute</td><td>3,2×2,1×0,4 cm</td><td>Wagner 2 / Armstrong B</td><td>P. Meier (Wundexperte)</td></tr>
-              <tr><td>vor 7 Tagen</td><td>3,6×2,3×0,5 cm</td><td>Wagner 2 / Armstrong B</td><td>P. Meier (Wundexperte)</td></tr>
-              <tr><td>vor 14 Tagen</td><td>4,0×2,6×0,6 cm</td><td>Wagner 2 / Armstrong C</td><td>Dr. Roth</td></tr>
-            </tbody>
-          </table>
+
+          @if (woundImagesLoading) {
+            <div class="kpi-sub">Wundverlauf wird geladen…</div>
+          } @else if (woundImages.length === 0) {
+            <div class="kpi-sub">Noch keine Wunddokumentation vorhanden.</div>
+          } @else {
+            <table class="data-table sort-table">
+              <thead>
+                <tr><th>Datum</th><th>Foto</th><th>Klassifikation</th><th>Score</th><th>Konfidenz</th></tr>
+              </thead>
+              <tbody>
+                @for (img of woundImages; track img.id) {
+                  <tr>
+                    <td>{{ formatDateTime(img.createdAt) }}</td>
+                    <td>
+                      @if (imageDataUrl(img)) {
+                        <img [src]="imageDataUrl(img)" style="width:80px;height:60px;object-fit:cover;border-radius:6px;" [alt]="img.originalFilename" />
+                      } @else {
+                        <div class="placeholder-img" style="width:80px;height:60px;">—</div>
+                      }
+                    </td>
+                    <td>{{ img.predictionLabel ?? '—' }}</td>
+                    <td>
+                      @if (img.wagnerLabel) {
+                        <span class="tag">{{ img.wagnerLabel }}</span>
+                      }
+                      @if (getArmstrongGradeForImage(img)) {
+                        <span class="tag">{{ getArmstrongGradeForImage(img) }}</span>
+                      }
+                      @if (img.routeLabel) {
+                        <span class="tag">{{ img.routeLabel }}</span>
+                      }
+                      @if (img.epuapLabel) {
+                        <span class="tag">{{ img.epuapLabel }}</span>
+                      }
+                      @if (img.ceapLabel) {
+                        <span class="tag">{{ img.ceapLabel }}</span>
+                      }
+                    </td>
+                    <td>{{ formatConfidence(img.confidence) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
           <div class="footnote">Die Verlaufserkennung vergleicht automatisch die beiden letzten Dokumentationen. Ab +15% Flächenzunahme wird ein Hinweis zur ärztlichen Rückmeldung angezeigt.</div>
         </div>
 

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -20,6 +20,11 @@ export class TwoFactorPage implements OnInit {
   errorMessage = '';
   resendDisabled = false;
   resendCountdown = 30;
+  showPasswordChange = false;
+  newPassword = '';
+  confirmPassword = '';
+  setupError = '';
+  setupLoading = false;
 
   ngOnInit(): void {
     this.loadingService.hide();
@@ -28,7 +33,8 @@ export class TwoFactorPage implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private cdr: ChangeDetectorRef
   ) {
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras?.state as {
@@ -57,8 +63,14 @@ export class TwoFactorPage implements OnInit {
     this.authService.verifyTwoFactor(this.challengeId, this.code).subscribe({
       next: (response) => {
         if (response.status === 'authenticated') {
-          this.loadingService.show('Dashboard wird geladen...');
-          this.router.navigate(['/dashboard']);
+          if (response.user?.mustChangePassword) {
+            this.loadingService.hide();
+            this.showPasswordChange = true;
+            this.cdr.detectChanges();
+          } else {
+            this.loadingService.show('Dashboard wird geladen...');
+            this.router.navigate(['/dashboard']);
+          }
         } else {
           this.loadingService.hide();
         }
@@ -87,6 +99,42 @@ export class TwoFactorPage implements OnInit {
       error: (error) => {
         this.loadingService.hide();
         this.errorMessage = error.error?.message || 'Could not resend code.';
+      },
+    });
+  }
+
+  onSetupPassword(): void {
+    this.setupError = '';
+
+    if (this.newPassword.length < 8) {
+      this.setupError = 'Das Passwort muss mindestens 8 Zeichen lang sein.';
+      return;
+    }
+
+    if (this.newPassword !== this.confirmPassword) {
+      this.setupError = 'Die Passwörter stimmen nicht überein.';
+      return;
+    }
+
+    this.setupLoading = true;
+    this.authService.setupPassword(this.newPassword).subscribe({
+      next: (response) => {
+        this.setupLoading = false;
+        if (response.status === 'success') {
+          this.showPasswordChange = false;
+          this.loadingService.show('Dashboard wird geladen...');
+          this.router.navigate(['/dashboard']).then(() => {
+            this.loadingService.hide();
+          }).catch(() => {
+            this.loadingService.hide();
+          });
+        } else {
+          this.setupError = 'Passwort konnte nicht gespeichert werden.';
+        }
+      },
+      error: (error) => {
+        this.setupLoading = false;
+        this.setupError = error.error?.message || 'Fehler beim Speichern des Passworts.';
       },
     });
   }

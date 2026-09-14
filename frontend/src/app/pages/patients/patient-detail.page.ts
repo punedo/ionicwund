@@ -12,6 +12,10 @@ import { AuthService } from '../../services/auth.service';
 import { ChatService } from '../../services/chat.service';
 import { ChatMessage, ChatRecipient } from '../../models/chat-message.model';
 import { AppointmentService, Appointment, Certificate } from '../../services/appointment.service';
+import { PredictionService } from '../../services/prediction.service';
+import { WoundImageService } from '../../services/wound-image.service';
+import { WoundPrediction } from '../../models/wound-prediction.model';
+import { WoundImage } from '../../models/wound-image.model';
 
 type DetailTab = 'overview' | 'wound' | 'medication' | 'supplies' | 'tasks' | 'appointments' | 'chat' | 'documents';
 
@@ -45,6 +49,15 @@ export class PatientDetailPage implements OnInit {
   certificates: Certificate[] = [];
   appointmentsLoading = false;
 
+  prediction: WoundPrediction | null = null;
+  predictionLoading = false;
+  predictionError: string | null = null;
+  woundPhotoPreview: string | null = null;
+  woundPhotoFile: File | null = null;
+
+  woundImages: WoundImage[] = [];
+  woundImagesLoading = false;
+
   tabs: { id: DetailTab; label: string; badge?: number }[] = [
     { id: 'overview', label: 'Übersicht' },
     { id: 'wound', label: 'Wundverlauf' },
@@ -64,6 +77,8 @@ export class PatientDetailPage implements OnInit {
     private authService: AuthService,
     private chatService: ChatService,
     private appointmentService: AppointmentService,
+    private predictionService: PredictionService,
+    private woundImageService: WoundImageService,
     private cdr: ChangeDetectorRef,
     private appRef: ApplicationRef
   ) {}
@@ -81,6 +96,7 @@ export class PatientDetailPage implements OnInit {
     }
 
     this.loadPatient(id);
+    this.loadWoundHistory(id);
   }
 
   loadPatient(id: number): void {
@@ -107,6 +123,18 @@ export class PatientDetailPage implements OnInit {
         this.notFound = true;
         this.loadError = 'Patient konnte nicht geladen werden (Timeout oder Fehler).';
       }
+      this.cdr.detectChanges();
+      this.appRef.tick();
+    });
+  }
+
+  loadWoundHistory(patientId: number): void {
+    this.woundImagesLoading = true;
+    this.woundImageService.getWoundImages(patientId).subscribe((images) => {
+      this.woundImages = images.sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      this.woundImagesLoading = false;
       this.cdr.detectChanges();
       this.appRef.tick();
     });
@@ -420,5 +448,134 @@ export class PatientDetailPage implements OnInit {
     }
     const parts = dob.split('-');
     return parts.length >= 3 ? `(*${parts[2]}.${parts[1]}.${parts[0]})` : `(*${dob})`;
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+    if (!file) {
+      return;
+    }
+    this.woundPhotoFile = file;
+    this.predictionError = null;
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.woundPhotoPreview = reader.result as string;
+      this.cdr.detectChanges();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  analyzeWound(): void {
+    if (!this.woundPhotoFile || !this.patient) {
+      this.predictionError = 'Bitte zuerst ein Wundfoto auswählen.';
+      return;
+    }
+
+    this.predictionLoading = true;
+    this.predictionError = null;
+    this.prediction = null;
+    this.loadingService.show('Wunde wird analysiert…');
+
+    this.predictionService.analyzeImage(this.woundPhotoFile).subscribe((result) => {
+      this.predictionLoading = false;
+      this.loadingService.hide();
+      if (!result) {
+        this.predictionError = 'Analyse fehlgeschlagen. Ist der Prediction-Service erreichbar?';
+      } else {
+        this.prediction = result;
+        this.saveWoundImage(result);
+      }
+      this.cdr.detectChanges();
+      this.appRef.tick();
+    });
+  }
+
+  private saveWoundImage(prediction: WoundPrediction): void {
+    if (!this.woundPhotoFile || !this.patient) {
+      return;
+    }
+    this.woundImageService
+      .saveWoundImage(this.patient.id, this.woundPhotoFile, prediction)
+      .subscribe((saved) => {
+        if (saved) {
+          this.woundImages = [saved, ...this.woundImages];
+          this.cdr.detectChanges();
+          this.appRef.tick();
+        }
+      });
+  }
+
+  getArmstrongGrade(): string | null {
+    const wagner = this.prediction?.wagner_label ?? '';
+    // Wagner 0-1 -> kein Ischemiezeichen, 2 -> ischemia/infektion, 3-4 -> Gangrän/Infektion
+    if (wagner.startsWith('Wagner 0') || wagner.startsWith('Wagner 1')) {
+      return 'Armstrong A';
+    }
+    if (wagner.startsWith('Wagner 2')) {
+      return 'Armstrong B';
+    }
+    if (wagner.startsWith('Wagner 3')) {
+      return 'Armstrong C';
+    }
+    if (wagner.startsWith('Wagner 4') || wagner.startsWith('Wagner 5')) {
+      return 'Armstrong D';
+    }
+    return null;
+  }
+
+  formatConfidence(value: number | null): string {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    return `${(value * 100).toFixed(1)}%`;
+  }
+
+  imageDataUrl(image: WoundImage): string | null {
+    if (!image.imageData) {
+      return null;
+    }
+    const ext = (image.originalFilename.split('.').pop() || 'jpg').toLowerCase();
+    const mime = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : ext === 'bmp' ? 'image/bmp' : 'image/jpeg';
+    return `data:${mime};base64,${image.imageData}`;
+  }
+
+  overlayDataUrl(image: WoundImage): string | null {
+    if (!image.overlayData) {
+      return null;
+    }
+    return `data:image/png;base64,${image.overlayData}`;
+  }
+
+  getArmstrongGradeForImage(image: WoundImage): string | null {
+    const wagner = image.wagnerLabel ?? '';
+    if (wagner.startsWith('Wagner 0') || wagner.startsWith('Wagner 1')) {
+      return 'Armstrong A';
+    }
+    if (wagner.startsWith('Wagner 2')) {
+      return 'Armstrong B';
+    }
+    if (wagner.startsWith('Wagner 3')) {
+      return 'Armstrong C';
+    }
+    if (wagner.startsWith('Wagner 4') || wagner.startsWith('Wagner 5')) {
+      return 'Armstrong D';
+    }
+    return null;
+  }
+
+  formatDateTime(iso: string): string {
+    const date = new Date(iso);
+    return date.toLocaleString('de-DE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
+  getRecentImagesForComparison(): WoundImage[] {
+    return this.woundImages.slice(0, 2);
   }
 }

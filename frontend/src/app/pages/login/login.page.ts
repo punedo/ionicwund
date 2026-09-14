@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -38,7 +38,8 @@ export class LoginPage implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   onLogin(): void {
@@ -79,6 +80,7 @@ export class LoginPage implements OnInit {
           if (response.user?.mustChangePassword) {
             this.loadingService.hide();
             this.showPasswordChange = true;
+            this.cdr.detectChanges();
           } else {
             this.loadingService.show('Dashboard wird geladen...');
             this.router.navigate(['/dashboard']).then(() => {

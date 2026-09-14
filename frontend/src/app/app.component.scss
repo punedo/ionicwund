@@ -3,7 +3,7 @@
   align-items: center;
   gap: 12px;
   padding: 20px 16px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid var(--iw-page-border);
 
   .menu-avatar {
     width: 40px;
@@ -32,7 +32,7 @@
   .menu-user-name {
     font-weight: 600;
     font-size: 0.95rem;
-    color: #2c3e50;
+    color: var(--iw-page-text);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -54,5 +54,5 @@
 
 .menu-footer {
   margin-top: 20px;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  border-top: 1px solid var(--iw-page-border);
 }

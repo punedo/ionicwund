@@ -26,9 +26,14 @@ services:
     container_name: ionicwund_backend_php
     restart: unless-stopped
     working_dir: /var/www/backend
+    command: >
+      sh -c "mkdir -p /var/www/backend/var/wound_images &&
+             chmod -R 777 /var/www/backend/var/wound_images &&
+             php-fpm"
     volumes:
       - ./backend:/var/www/backend
       - backend_vendor:/var/www/backend/vendor
+      - wound_images:/var/www/backend/var/wound_images
     environment:
       APP_ENV: dev
       DATABASE_URL: mysql://ionicwund_user:ionicwund_pass@mysql:3306/ionicwund?serverVersion=8.0
@@ -113,6 +118,18 @@ services:
     depends_on:
       - mysql
 
+  # Wound Detection & Classification API
+  wound-api:
+    build:
+      context: ./Prediction Model
+      dockerfile: Dockerfile
+    container_name: ionicwund_wound_api
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    networks:
+      - ionicwund_network
+
   # Mailpit (Local SMTP testing)
   mailpit:
     image: axllent/mailpit:latest
@@ -132,3 +149,4 @@ volumes:
   mysql_data:
   backend_vendor:
   frontend_node_modules:
+  wound_images:

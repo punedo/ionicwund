@@ -4,7 +4,9 @@ import { finalize, timeout } from 'rxjs/operators';
 import { IonApp, IonRouterOutlet } from '@ionic/angular';
 import { AuthService } from './services/auth.service';
 import { LoadingService } from './services/loading.service';
+import { ThemeService } from './services/theme.service';
 import { LoadingOverlayComponent } from './components/loading-overlay/loading-overlay.component';
+import { ThemeToggleComponent } from './components/theme-toggle/theme-toggle.component';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +16,7 @@ import { LoadingOverlayComponent } from './components/loading-overlay/loading-ov
     IonApp,
     IonRouterOutlet,
     LoadingOverlayComponent,
+    ThemeToggleComponent,
   ],
   styleUrls: ['app.component.scss'],
 })
@@ -26,7 +29,8 @@ export class AppComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private themeService: ThemeService
   ) {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {

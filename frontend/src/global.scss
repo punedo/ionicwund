@@ -33,5 +33,101 @@
  */
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.system.css';
+@import '@ionic/angular/css/palettes/dark.class.css';
+/* @import "@ionic/angular/css/palettes/dark.system.css"; */
+
+/* Admin Shell Theme Variables */
+:root {
+  --iw-sidebar-bg: #141b27;
+  --iw-sidebar-text: #94a3b8;
+  --iw-sidebar-text-hover: #f1f5f9;
+  --iw-sidebar-title: #64748b;
+  --iw-sidebar-active-bg: #122830;
+  --iw-sidebar-active-border: #0d9488;
+  --iw-sidebar-active-text: #ffffff;
+  --iw-sidebar-accent: #14b8a6;
+  --iw-sidebar-count-bg: #334155;
+  --iw-sidebar-sub-border: #1e293b;
+  --iw-sidebar-hover-bg: rgba(255, 255, 255, 0.04);
+  --iw-sidebar-active-sub-bg: rgba(13, 148, 136, 0.12);
+
+  --iw-content-bg: #f8fafc;
+  --iw-content-card-bg: #ffffff;
+  --iw-content-border: #e2e8f0;
+  --iw-content-text: #0f172a;
+  --iw-content-text-muted: #64748b;
+  --iw-content-badge-bg: #e2e8f0;
+  --iw-content-badge-text: #475569;
+}
+
+.ion-palette-dark {
+  --iw-sidebar-bg: #0f172a;
+  --iw-sidebar-text: #94a3b8;
+  --iw-sidebar-text-hover: #f1f5f9;
+  --iw-sidebar-title: #475569;
+  --iw-sidebar-active-bg: #122830;
+  --iw-sidebar-active-border: #0d9488;
+  --iw-sidebar-active-text: #ffffff;
+  --iw-sidebar-accent: #14b8a6;
+  --iw-sidebar-count-bg: #334155;
+  --iw-sidebar-sub-border: #1e293b;
+  --iw-sidebar-hover-bg: rgba(255, 255, 255, 0.06);
+  --iw-sidebar-active-sub-bg: rgba(13, 148, 136, 0.15);
+
+  --iw-content-bg: #0f172a;
+  --iw-content-card-bg: #1e293b;
+  --iw-content-border: #334155;
+  --iw-content-text: #f1f5f9;
+  --iw-content-text-muted: #94a3b8;
+  --iw-content-badge-bg: #334155;
+  --iw-content-badge-text: #cbd5e1;
+
+  --iw-page-bg: #0f172a;
+  --iw-page-card-bg: #1e293b;
+  --iw-page-text: #f1f5f9;
+  --iw-page-text-secondary: #94a3b8;
+  --iw-page-border: #334155;
+  --iw-page-input-bg: #1e293b;
+
+  --iw-fab-bg: #1e293b;
+  --iw-fab-text: #f1f5f9;
+  --iw-fab-border: rgba(255, 255, 255, 0.1);
+}
+
+:root {
+  --iw-page-bg: #f5f5f5;
+  --iw-page-card-bg: #ffffff;
+  --iw-page-text: #2c3e50;
+  --iw-page-text-secondary: #666666;
+  --iw-page-border: #e2e8f0;
+  --iw-page-input-bg: #ffffff;
+
+  --iw-fab-bg: #ffffff;
+  --iw-fab-text: #475569;
+  --iw-fab-border: rgba(0, 0, 0, 0.1);
+}
+
+/* Global dark mode fallback for all pages */
+.ion-palette-dark ion-content {
+  --background: var(--iw-page-bg);
+  --color: var(--iw-page-text);
+}
+
+.ion-palette-dark ion-item {
+  --background: var(--iw-page-card-bg);
+  --color: var(--iw-page-text);
+}
+
+.ion-palette-dark ion-card {
+  --background: var(--iw-page-card-bg);
+  --color: var(--iw-page-text);
+}
+
+.ion-palette-dark ion-toolbar {
+  --background: var(--iw-page-card-bg);
+  --color: var(--iw-page-text);
+}
+
+.ion-palette-dark ion-list {
+  --background: var(--iw-page-card-bg);
+}

@@ -1,5 +1,5 @@
 .login-content {
-  --background: #f5f5f5;
+  --background: var(--iw-page-bg);
 }
 
 .login-container {
@@ -18,7 +18,7 @@
 
   h1 {
     font-size: 2rem;
-    color: #2c3e50;
+    color: var(--iw-page-text);
     font-weight: 700;
   }
 }
@@ -46,12 +46,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 10000;
   padding: 20px;
 }
 
 .password-change-card {
-  background: #ffffff;
+  background: var(--iw-page-card-bg);
   border-radius: 12px;
   padding: 32px 24px;
   width: 100%;
@@ -60,12 +60,12 @@
 
   h2 {
     margin: 0 0 8px;
-    color: #2c3e50;
+    color: var(--iw-page-text);
   }
 
   p {
     margin: 0 0 20px;
-    color: #666;
+    color: var(--iw-page-text-secondary);
   }
 }
 

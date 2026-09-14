@@ -1,10 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { IonContent, IonFooter, IonIcon, IonToolbar } from '@ionic/angular';
 import { AuthService } from '../../services/auth.service';
 import { LoadingService } from '../../services/loading.service';
+import { ThemeService } from '../../services/theme.service';
 import { MenuItem } from '../../models/auth.models';
 
 @Component({
@@ -27,7 +28,8 @@ export class AdminShellComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private loadingService: LoadingService,
-    private router: Router
+    private router: Router,
+    private themeService: ThemeService
   ) {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
@@ -91,6 +93,14 @@ export class AdminShellComponent implements OnInit {
       return;
     }
     this.router.navigateByUrl(route);
+  }
+
+  isDark(): boolean {
+    return this.themeService.isDark();
+  }
+
+  toggleDarkMode(): void {
+    this.themeService.toggle();
   }
 
   logout(): void {

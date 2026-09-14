@@ -24,7 +24,11 @@ import {
   chevronDownOutline, 
   chevronUpOutline,
   logOutOutline,
-  chatboxEllipsesOutline
+  chatboxEllipsesOutline,
+  moonOutline,
+  sunnyOutline,
+  moon,
+  sunny
 } from 'ionicons/icons';
 import { authInterceptor } from './app/interceptors/auth.interceptor';
 
@@ -53,6 +57,10 @@ addIcons({
   'chevron-up-outline': chevronUpOutline,
   'log-out-outline': logOutOutline,
   'chatbox-ellipses-outline': chatboxEllipsesOutline,
+  'moon-outline': moonOutline,
+  'sunny-outline': sunnyOutline,
+  'moon': moon,
+  'sunny': sunny,
 });
 
 bootstrapApplication(AppComponent, {

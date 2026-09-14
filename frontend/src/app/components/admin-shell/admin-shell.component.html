@@ -46,6 +46,14 @@
       </div>
 
       <div class="nav-section nav-section-footer">
+        <div class="theme-toggle-item" (click)="toggleDarkMode()">
+          <ion-icon [name]="isDark() ? 'moon-outline' : 'sunny-outline'"></ion-icon>
+          <span class="nav-label">Dark Mode</span>
+          <label class="theme-switch" (click)="$event.stopPropagation()">
+            <input type="checkbox" [checked]="isDark()" (change)="toggleDarkMode()" />
+            <span class="slider"></span>
+          </label>
+        </div>
         <div class="nav-item logout-item" (click)="logout()">
           <ion-icon name="log-out-outline" class="nav-icon"></ion-icon>
           <span class="nav-label">Logout</span>
