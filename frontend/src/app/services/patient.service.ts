@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, from, firstValueFrom } from 'rxjs';
-import { map, catchError, switchMap } from 'rxjs/operators';
+import { map, catchError, switchMap, tap } from 'rxjs/operators';
 import { Network } from '@capacitor/network';
 import { environment } from '../../environments/environment';
 import { Patient, PatientCreateRequest } from '../models/patient.model';
@@ -29,24 +29,26 @@ export class PatientService {
   ) {}
 
   getPatients(): Observable<Patient[]> {
-    const local$ = from(this.loadLocalPatients());
-
-    return local$.pipe(
-      switchMap((patients) =>
-        from(Network.getStatus()).pipe(
-          switchMap((status) => {
-            if (!status.connected) {
-              return of(patients);
-            }
-
-            return this.http.get<{ patients: Patient[] }>(this.apiUrl).pipe(
-              switchMap((res) => from(this.upsertServerPatients(res.patients ?? []))),
-              switchMap(() => from(this.loadLocalPatients())),
-              catchError(() => of(patients))
-            );
-          })
-        )
-      )
+    console.log('[PatientService] getPatients called, apiUrl:', this.apiUrl);
+    
+    // Directly fetch from API in browser development
+    console.log('[PatientService] Fetching from API:', this.apiUrl);
+    return this.http.get<{ patients: Patient[] }>(this.apiUrl).pipe(
+      tap((res) => {
+        console.log('[PatientService] Raw HTTP response:', res);
+      }),
+      map((res) => {
+        console.log('[PatientService] API response patients:', res.patients?.length);
+        console.log('[PatientService] API response data:', res);
+        const patients = res.patients ?? [];
+        console.log('[PatientService] Returning patients:', patients);
+        return patients;
+      }),
+      catchError((err) => {
+        console.error('[PatientService] API fetch error:', err);
+        // Fallback to local data on error
+        return from(this.loadLocalPatients());
+      })
     );
   }
 
@@ -76,15 +78,33 @@ export class PatientService {
   }
 
   createPatient(request: PatientCreateRequest): Observable<Patient> {
-    return from(this.createLocalPatient(request));
+    // Directly call API in browser development
+    return this.http.post<Patient>(this.apiUrl, request).pipe(
+      catchError((err) => {
+        console.error('[PatientService] Failed to create patient:', err);
+        throw err;
+      })
+    );
   }
 
   updatePatient(id: number | string, request: Partial<Patient>): Observable<Patient> {
-    return from(this.updateLocalPatient(id, request));
+    // Directly call API in browser development
+    return this.http.put<Patient>(`${this.apiUrl}/${id}`, request).pipe(
+      catchError((err) => {
+        console.error('[PatientService] Failed to update patient:', err);
+        throw err;
+      })
+    );
   }
 
   deletePatient(id: number | string): Observable<void> {
-    return from(this.deleteLocalPatient(id));
+    // Directly call API in browser development
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      catchError((err) => {
+        console.error('[PatientService] Failed to delete patient:', err);
+        throw err;
+      })
+    );
   }
 
   getDoctors(): Observable<string[]> {
@@ -102,28 +122,16 @@ export class PatientService {
   }
 
   getWoundExperts(): Observable<string[]> {
-    const cacheKey = 'iw_wound_experts';
-    const local$ = from(this.getCachedStringList(cacheKey));
-
-    return local$.pipe(
-      switchMap((cached) =>
-        from(Network.getStatus()).pipe(
-          switchMap((status) => {
-            if (!status.connected) {
-              return of(cached ?? []);
-            }
-
-            return this.http
-              .get<{ users: { fullName: string }[] }>(`${environment.apiUrl}/users?role=ROLE_PFLEGE`)
-              .pipe(
-                map((res) => (res.users ?? []).map((u) => u.fullName)),
-                switchMap((names) => from(this.setCachedStringList(cacheKey, names)).pipe(map(() => names))),
-                catchError(() => of(cached ?? []))
-              );
-          })
-        )
-      )
-    );
+    // Directly fetch from API in browser development
+    return this.http
+      .get<{ users: { fullName: string }[] }>(`${environment.apiUrl}/users?role=ROLE_PFLEGE`)
+      .pipe(
+        map((res) => (res.users ?? []).map((u) => u.fullName)),
+        catchError((err) => {
+          console.error('[PatientService] Failed to load wound experts:', err);
+          return of([]);
+        })
+      );
   }
 
   getFacilities(): Observable<string[]> {
@@ -137,31 +145,19 @@ export class PatientService {
   }
 
   getInsuranceCompanies(type?: string): Observable<string[]> {
-    const cacheKey = `iw_insurance_companies_${type || 'all'}`;
+    // Directly fetch from API in browser development
     const url = type
       ? `${environment.apiUrl}/insurance-companies?type=${type}`
       : `${environment.apiUrl}/insurance-companies`;
-    const local$ = from(this.getCachedStringList(cacheKey));
-
-    return local$.pipe(
-      switchMap((cached) =>
-        from(Network.getStatus()).pipe(
-          switchMap((status) => {
-            if (!status.connected) {
-              return of(cached ?? []);
-            }
-
-            return this.http
-              .get<{ companies: { name: string }[] }>(url)
-              .pipe(
-                map((res) => (res.companies ?? []).map((c) => c.name)),
-                switchMap((names) => from(this.setCachedStringList(cacheKey, names)).pipe(map(() => names))),
-                catchError(() => of(cached ?? []))
-              );
-          })
-        )
-      )
-    );
+    return this.http
+      .get<{ companies: { name: string }[] }>(url)
+      .pipe(
+        map((res) => (res.companies ?? []).map((c) => c.name)),
+        catchError((err) => {
+          console.error('[PatientService] Failed to load insurance companies:', err);
+          return of([]);
+        })
+      );
   }
 
   getInsuranceClasses(): Observable<string[]> {
@@ -185,28 +181,16 @@ export class PatientService {
   }
 
   private getReferenceDataValues(category: string): Observable<string[]> {
-    const cacheKey = `iw_refdata_${category}`;
-    const local$ = from(this.getCachedStringList(cacheKey));
-
-    return local$.pipe(
-      switchMap((cached) =>
-        from(Network.getStatus()).pipe(
-          switchMap((status) => {
-            if (!status.connected) {
-              return of(cached ?? []);
-            }
-
-            return this.http
-              .get<{ values: string[] }>(`${environment.apiUrl}/reference-data/values?category=${category}`)
-              .pipe(
-                map((res) => res.values ?? []),
-                switchMap((values) => from(this.setCachedStringList(cacheKey, values)).pipe(map(() => values))),
-                catchError(() => of(cached ?? []))
-              );
-          })
-        )
-      )
-    );
+    // Directly fetch from API in browser development
+    return this.http
+      .get<{ values: string[] }>(`${environment.apiUrl}/reference-data/values?category=${category}`)
+      .pipe(
+        map((res) => res.values ?? []),
+        catchError((err) => {
+          console.error(`[PatientService] Failed to load reference data for ${category}:`, err);
+          return of([]);
+        })
+      );
   }
 
   private async getCachedStringList(key: string): Promise<string[] | null> {

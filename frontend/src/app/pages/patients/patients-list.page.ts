@@ -61,11 +61,10 @@ export class PatientsListPage implements ViewWillEnter {
       value: 'all',
       options: [
         { value: 'all', label: 'Wundtyp: Alle' },
-        { value: 'Diabetisches Fußsyndrom', label: 'Diabetisches Fußsyndrom' },
-        { value: 'Ulcus cruris varicosum', label: 'Ulcus cruris varicosum' },
-        { value: 'Dekubital-Sakral', label: 'Dekubital-Sakral' },
-        { value: 'Dekubital-Trochanter', label: 'Dekubital-Trochanter' },
-        { value: 'Postoperativ', label: 'Postoperativ' },
+        { value: 'Dekubitus Grad 2', label: 'Dekubitus Grad 2' },
+        { value: 'Ulcus cruris', label: 'Ulcus cruris' },
+        { value: 'Traumatische Wunde', label: 'Traumatische Wunde' },
+        { value: 'Postoperative Wunde', label: 'Postoperative Wunde' },
       ],
     },
   ];

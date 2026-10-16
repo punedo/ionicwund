@@ -52,7 +52,13 @@ export class OrderService {
   }
 
   createOrder(request: OrderCreateRequest): Observable<Order> {
-    return from(this.createLocalOrder(request));
+    // Directly call API in browser development
+    return this.http.post<Order>(this.apiUrl, request).pipe(
+      catchError((err) => {
+        console.error('[OrderService] Failed to create order:', err);
+        throw err;
+      })
+    );
   }
 
   getFacilities(): Observable<string[]> {

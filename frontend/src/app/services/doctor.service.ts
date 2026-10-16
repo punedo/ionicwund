@@ -23,26 +23,13 @@ export class DoctorService {
   ) {}
 
   getDoctors(): Observable<Doctor[]> {
-    const local$ = from(this.loadLocalDoctors());
-
-    return local$.pipe(
-      switchMap((doctors) =>
-        from(Network.getStatus()).pipe(
-          switchMap((status) => {
-            if (!status.connected) {
-              return of(doctors);
-            }
-
-            return this.http.get<any>(this.apiUrl).pipe(
-              switchMap((res) =>
-                from(this.upsertServerDoctors(Array.isArray(res) ? res : (res.doctors ?? [])))
-              ),
-              switchMap(() => from(this.loadLocalDoctors())),
-              catchError(() => of(doctors))
-            );
-          })
-        )
-      )
+    // Directly fetch from API in browser development
+    return this.http.get<any>(this.apiUrl).pipe(
+      map((res) => Array.isArray(res) ? res : (res.doctors ?? [])),
+      catchError((err) => {
+        console.error('[DoctorService] Failed to load doctors:', err);
+        return of([]);
+      })
     );
   }
 
@@ -51,15 +38,33 @@ export class DoctorService {
   }
 
   createDoctor(request: DoctorCreateRequest): Observable<Doctor> {
-    return from(this.createLocalDoctor(request));
+    // Directly call API in browser development
+    return this.http.post<Doctor>(this.apiUrl, request).pipe(
+      catchError((err) => {
+        console.error('[DoctorService] Failed to create doctor:', err);
+        throw err;
+      })
+    );
   }
 
   updateDoctor(id: number | string, request: DoctorCreateRequest): Observable<Doctor> {
-    return from(this.updateLocalDoctor(id, request));
+    // Directly call API in browser development
+    return this.http.put<Doctor>(`${this.apiUrl}/${id}`, request).pipe(
+      catchError((err) => {
+        console.error('[DoctorService] Failed to update doctor:', err);
+        throw err;
+      })
+    );
   }
 
   deleteDoctor(id: number | string): Observable<void> {
-    return from(this.deleteLocalDoctor(id));
+    // Directly call API in browser development
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      catchError((err) => {
+        console.error('[DoctorService] Failed to delete doctor:', err);
+        throw err;
+      })
+    );
   }
 
   private async loadLocalDoctors(): Promise<Doctor[]> {

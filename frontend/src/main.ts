@@ -4,31 +4,38 @@ import { RouteReuseStrategy, provideRouter, withComponentInputBinding } from '@a
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { addIcons } from 'ionicons';
-import { 
-  homeOutline, 
-  peopleOutline, 
-  listOutline, 
-  addCircleOutline, 
-  medkitOutline, 
-  bandageOutline, 
-  thermometerOutline, 
-  calendarOutline, 
-  documentTextOutline, 
-  cartOutline, 
-  cubeOutline, 
-  personOutline, 
-  settingsOutline, 
-  shieldOutline, 
-  keyOutline, 
-  cogOutline, 
-  chevronDownOutline, 
+import {
+  homeOutline,
+  peopleOutline,
+  listOutline,
+  addCircleOutline,
+  medkitOutline,
+  bandageOutline,
+  thermometerOutline,
+  calendarOutline,
+  documentTextOutline,
+  cartOutline,
+  cubeOutline,
+  personOutline,
+  settingsOutline,
+  shieldOutline,
+  keyOutline,
+  cogOutline,
+  chevronDownOutline,
   chevronUpOutline,
   logOutOutline,
   chatboxEllipsesOutline,
   moonOutline,
   sunnyOutline,
   moon,
-  sunny
+  sunny,
+  cashOutline,
+  searchOutline,
+  swapVerticalOutline,
+  idCardOutline,
+  warningOutline,
+  downloadOutline,
+  addOutline
 } from 'ionicons/icons';
 import { authInterceptor } from './app/interceptors/auth.interceptor';
 
@@ -61,6 +68,13 @@ addIcons({
   'sunny-outline': sunnyOutline,
   'moon': moon,
   'sunny': sunny,
+  'cash-outline': cashOutline,
+  'search-outline': searchOutline,
+  'swap-vertical-outline': swapVerticalOutline,
+  'id-card-outline': idCardOutline,
+  'warning-outline': warningOutline,
+  'download-outline': downloadOutline,
+  'add-outline': addOutline,
 });
 
 bootstrapApplication(AppComponent, {

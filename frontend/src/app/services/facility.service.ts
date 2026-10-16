@@ -23,26 +23,13 @@ export class FacilityService {
   ) {}
 
   getFacilities(): Observable<Facility[]> {
-    const local$ = from(this.loadLocalFacilities());
-
-    return local$.pipe(
-      switchMap((facilities) =>
-        from(Network.getStatus()).pipe(
-          switchMap((status) => {
-            if (!status.connected) {
-              return of(facilities);
-            }
-
-            return this.http.get<any>(this.apiUrl).pipe(
-              switchMap((res) =>
-                from(this.upsertServerFacilities(Array.isArray(res) ? res : (res.facilities ?? [])))
-              ),
-              switchMap(() => from(this.loadLocalFacilities())),
-              catchError(() => of(facilities))
-            );
-          })
-        )
-      )
+    // Directly fetch from API in browser development
+    return this.http.get<any>(this.apiUrl).pipe(
+      map((res) => Array.isArray(res) ? res : (res.facilities ?? [])),
+      catchError((err) => {
+        console.error('[FacilityService] Failed to load facilities:', err);
+        return of([]);
+      })
     );
   }
 
@@ -51,15 +38,33 @@ export class FacilityService {
   }
 
   createFacility(request: FacilityCreateRequest): Observable<Facility> {
-    return from(this.createLocalFacility(request));
+    // Directly call API in browser development
+    return this.http.post<Facility>(this.apiUrl, request).pipe(
+      catchError((err) => {
+        console.error('[FacilityService] Failed to create facility:', err);
+        throw err;
+      })
+    );
   }
 
   updateFacility(id: number | string, request: FacilityCreateRequest): Observable<Facility> {
-    return from(this.updateLocalFacility(id, request));
+    // Directly call API in browser development
+    return this.http.put<Facility>(`${this.apiUrl}/${id}`, request).pipe(
+      catchError((err) => {
+        console.error('[FacilityService] Failed to update facility:', err);
+        throw err;
+      })
+    );
   }
 
   deleteFacility(id: number | string): Observable<void> {
-    return from(this.deleteLocalFacility(id));
+    // Directly call API in browser development
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      catchError((err) => {
+        console.error('[FacilityService] Failed to delete facility:', err);
+        throw err;
+      })
+    );
   }
 
   private async loadLocalFacilities(): Promise<Facility[]> {

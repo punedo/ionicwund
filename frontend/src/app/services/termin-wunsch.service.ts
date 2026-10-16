@@ -70,7 +70,13 @@ export class TerminWunschService {
   }
 
   createTerminWunsch(request: TerminWunschRequest): Observable<TerminWunsch> {
-    return from(this.createLocalWunsch(request));
+    // Directly call API in browser development
+    return this.http.post<TerminWunsch>(this.apiUrl, request).pipe(
+      catchError((err) => {
+        console.error('[TerminWunschService] Failed to create termin wunsch:', err);
+        throw err;
+      })
+    );
   }
 
   acceptTerminWunsch(id: number | string): Observable<TerminWunsch> {

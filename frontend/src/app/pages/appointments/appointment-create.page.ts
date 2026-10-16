@@ -113,7 +113,19 @@ export class AppointmentCreatePage implements OnInit {
       return;
     }
 
-    if (this.appointment.patientId <= 0 && !this.appointment.patientLocalId) {
+    // Ensure patient is selected and appointment.patientId is set
+    if (!this.selectedPatientId || this.selectedPatientId === 0) {
+      this.errorMessage = 'Bitte wählen Sie einen Patienten aus.';
+      return;
+    }
+
+    // Update appointment.patientId from selectedPatientId
+    const patient = this.patients.find((p) => (p.clientUuid ?? p.id) === this.selectedPatientId);
+    if (patient) {
+      this.appointment.patientId = patient.id;
+      this.appointment.patientLocalId = patient.clientUuid;
+      this.appointment.patientName = `${patient.lastName}, ${patient.firstName}`;
+    } else {
       this.errorMessage = 'Bitte wählen Sie einen Patienten aus.';
       return;
     }

@@ -62,25 +62,14 @@ export class AppointmentService {
   ) {}
 
   getAppointments(weekStart?: string): Observable<Appointment[]> {
-    const local$ = from(this.loadLocalAppointments(weekStart));
-
-    return local$.pipe(
-      switchMap((appointments) =>
-        from(Network.getStatus()).pipe(
-          switchMap((status) => {
-            if (!status.connected) {
-              return of(appointments);
-            }
-
-            const url = weekStart ? `${this.apiUrl}?weekStart=${weekStart}` : this.apiUrl;
-            return this.http.get<any>(url).pipe(
-              switchMap((res) => from(this.upsertServerAppointments(Array.isArray(res) ? res : (res.appointments ?? [])))),
-              switchMap(() => from(this.loadLocalAppointments(weekStart))),
-              catchError(() => of(appointments))
-            );
-          })
-        )
-      )
+    // Directly fetch from API in browser development
+    const url = weekStart ? `${this.apiUrl}?weekStart=${weekStart}` : this.apiUrl;
+    return this.http.get<any>(url).pipe(
+      map((res) => Array.isArray(res) ? res : (res.appointments ?? [])),
+      catchError((err) => {
+        console.error('[AppointmentService] Failed to load appointments:', err);
+        return of([]);
+      })
     );
   }
 
@@ -89,15 +78,33 @@ export class AppointmentService {
   }
 
   createAppointment(request: AppointmentCreateRequest): Observable<Appointment> {
-    return from(this.createLocalAppointment(request));
+    // Directly call API in browser development
+    return this.http.post<Appointment>(this.apiUrl, request).pipe(
+      catchError((err) => {
+        console.error('[AppointmentService] Failed to create appointment:', err);
+        throw err;
+      })
+    );
   }
 
   updateAppointment(id: number | string, request: Partial<AppointmentCreateRequest>): Observable<Appointment> {
-    return from(this.updateLocalAppointment(id, request));
+    // Directly call API in browser development
+    return this.http.put<Appointment>(`${this.apiUrl}/${id}`, request).pipe(
+      catchError((err) => {
+        console.error('[AppointmentService] Failed to update appointment:', err);
+        throw err;
+      })
+    );
   }
 
   deleteAppointment(id: number | string): Observable<void> {
-    return from(this.deleteLocalAppointment(id));
+    // Directly call API in browser development
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      catchError((err) => {
+        console.error('[AppointmentService] Failed to delete appointment:', err);
+        throw err;
+      })
+    );
   }
 
   recordTime(id: number | string): Observable<Appointment> {
