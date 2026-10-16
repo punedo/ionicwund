@@ -1,0 +1,16 @@
+# Wound detection API (wound_api.py)
+flask>=3.0
+flask-cors>=4.0
+
+# Model dependencies (wound_image_classification.py)
+torch
+torchvision
+transformers
+opencv-python
+numpy
+pillow
+matplotlib
+timm
+
+# MobileSAM — install from GitHub:
+#   pip install git+https://github.com/ChaoningZhang/MobileSAM.git
