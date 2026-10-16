@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { catchError, delay, map } from 'rxjs/operators';
+import { Network } from '@capacitor/network';
+import { Observable, of, from } from 'rxjs';
+import { catchError, delay, map, switchMap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { DbService } from '../data/services/db.service';
 
 export interface Escalation {
   id: number;
@@ -20,16 +22,31 @@ export interface Escalation {
 export class EscalationService {
   private readonly apiUrl = `${environment.apiUrl}/escalations`;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private db: DbService
+  ) {}
 
   getEscalations(): Observable<Escalation[]> {
-    return this.http.get<{ escalations: Escalation[] }>(this.apiUrl).pipe(
-      map((res) => res.escalations ?? []),
-      catchError((err) => {
-        console.error('[EscalationService] getEscalations error:', err);
-        // Fallback to prototype mock data if backend endpoint is not available yet
-        return of(this.getMockEscalations()).pipe(delay(200));
-      })
+    const cacheKey = 'iw_escalations';
+    const local$ = from(this.db.getCacheItem<Escalation[]>(cacheKey));
+
+    return local$.pipe(
+      switchMap((cached) =>
+        from(Network.getStatus()).pipe(
+          switchMap((status) => {
+            if (!status.connected) {
+              return of(cached ?? this.getMockEscalations());
+            }
+
+            return this.http.get<{ escalations: Escalation[] }>(this.apiUrl).pipe(
+              map((res) => res.escalations ?? []),
+              switchMap((escalations) => from(this.db.setCacheItem(cacheKey, escalations)).pipe(map(() => escalations))),
+              catchError(() => (cached ? of(cached) : of(this.getMockEscalations()).pipe(delay(200))))
+            );
+          })
+        )
+      )
     );
   }
 

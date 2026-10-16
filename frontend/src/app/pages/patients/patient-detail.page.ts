@@ -84,8 +84,10 @@ export class PatientDetailPage implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    if (!id) {
+    const param = this.route.snapshot.paramMap.get('id') ?? '';
+    const isLocalUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(param);
+    const id: number | string = isLocalUuid ? param : Number(param);
+    if (!param || (typeof id === 'number' && isNaN(id))) {
       this.router.navigate(['/woundcare']);
       return;
     }
@@ -99,7 +101,7 @@ export class PatientDetailPage implements OnInit {
     this.loadWoundHistory(id);
   }
 
-  loadPatient(id: number): void {
+  loadPatient(id: number | string): void {
     this.loading = true;
     this.notFound = false;
     this.loadError = null;
@@ -128,7 +130,7 @@ export class PatientDetailPage implements OnInit {
     });
   }
 
-  loadWoundHistory(patientId: number): void {
+  loadWoundHistory(patientId: number | string): void {
     this.woundImagesLoading = true;
     this.woundImageService.getWoundImages(patientId).subscribe((images) => {
       this.woundImages = images.sort(
@@ -290,7 +292,7 @@ export class PatientDetailPage implements OnInit {
     }
 
     this.appointmentsLoading = true;
-    this.appointmentService.getAppointmentsByPatient(this.patient.id).subscribe((appointments) => {
+    this.appointmentService.getAppointmentsByPatient(this.patient.clientUuid ?? this.patient.id).subscribe((appointments) => {
       this.appointments = appointments;
       this.certificates = appointments
         .filter((a) => a.recordedAt || a.status === 'durchgeführt')
@@ -430,7 +432,12 @@ export class PatientDetailPage implements OnInit {
 
   deletePatient(): void {
     if (this.patient && confirm(`${this.displayName()} wirklich unwiderruflich löschen? Alle Daten gehen verloren.`)) {
-      console.log('Delete patient', this.patient.id);
+      this.patientService
+        .deletePatient(this.patient.clientUuid ?? this.patient.id)
+        .subscribe({
+          next: () => this.router.navigate(['/patients']),
+          error: () => alert('Fehler beim Löschen des Patienten.'),
+        });
     }
   }
 
@@ -496,7 +503,7 @@ export class PatientDetailPage implements OnInit {
       return;
     }
     this.woundImageService
-      .saveWoundImage(this.patient.id, this.woundPhotoFile, prediction)
+      .saveWoundImage(this.patient.clientUuid ?? this.patient.id, this.woundPhotoFile, prediction)
       .subscribe((saved) => {
         if (saved) {
           this.woundImages = [saved, ...this.woundImages];

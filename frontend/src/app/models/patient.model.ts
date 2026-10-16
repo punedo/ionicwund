@@ -4,6 +4,7 @@ export type Gender = string;
 
 export interface Patient {
   id: number;
+  clientUuid?: string;
   firstName: string;
   lastName: string;
   dateOfBirth?: string;
@@ -28,6 +29,7 @@ export interface Patient {
   lastDocumentedAt?: string;
   status?: PatientStatus;
   createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface PatientCreateRequest {

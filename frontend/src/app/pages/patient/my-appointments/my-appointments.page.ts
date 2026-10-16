@@ -27,13 +27,6 @@ interface CertificateRecord {
   status: 'Bestätigt' | 'Offen';
 }
 
-interface TerminWunsch {
-  patientId: number;
-  preferredDate: string;
-  preferredTime: string;
-  notes: string;
-}
-
 @Component({
   selector: 'app-my-appointments',
   standalone: true,
@@ -47,8 +40,9 @@ export class MyAppointmentsPage implements OnInit {
   activeTab: 'termine' | 'nachweise' = 'termine';
   showTerminWunschModal = false;
   patients: Patient[] = [];
+  selectedPatientId: number | string = 0;
 
-  terminWunsch: TerminWunsch = {
+  terminWunsch: TerminWunschRequest = {
     patientId: 0,
     preferredDate: '',
     preferredTime: '',
@@ -126,8 +120,9 @@ export class MyAppointmentsPage implements OnInit {
     this.patientService.getPatients().subscribe({
       next: (patients) => {
         this.patients = patients;
-        if (patients.length > 0) {
-          this.terminWunsch.patientId = patients[0].id;
+        if (patients.length > 0 && !this.selectedPatientId) {
+          this.selectedPatientId = patients[0].clientUuid ?? patients[0].id;
+          this.onPatientChange();
         }
       },
     });
@@ -143,7 +138,33 @@ export class MyAppointmentsPage implements OnInit {
 
   closeTerminWunschModal(): void {
     this.showTerminWunschModal = false;
-    this.terminWunsch = { patientId: this.patients.length > 0 ? this.patients[0].id : 0, preferredDate: '', preferredTime: '', notes: '' };
+    this.terminWunsch = {
+      patientId: 0,
+      patientLocalId: undefined,
+      patientName: undefined,
+      preferredDate: '',
+      preferredTime: '',
+      notes: '',
+    };
+    if (this.patients.length > 0) {
+      this.selectedPatientId = this.patients[0].clientUuid ?? this.patients[0].id;
+      this.onPatientChange();
+    } else {
+      this.selectedPatientId = 0;
+    }
+  }
+
+  onPatientChange(): void {
+    const patient = this.patients.find((p) => (p.clientUuid ?? p.id) === this.selectedPatientId);
+    if (patient) {
+      this.terminWunsch.patientId = patient.id;
+      this.terminWunsch.patientLocalId = patient.clientUuid;
+      this.terminWunsch.patientName = `${patient.lastName}, ${patient.firstName}`;
+    } else {
+      this.terminWunsch.patientId = 0;
+      this.terminWunsch.patientLocalId = undefined;
+      this.terminWunsch.patientName = undefined;
+    }
   }
 
   sendTerminWunsch(): void {
@@ -156,6 +177,8 @@ export class MyAppointmentsPage implements OnInit {
 
     const request: TerminWunschRequest = {
       patientId: this.terminWunsch.patientId,
+      patientLocalId: this.terminWunsch.patientLocalId,
+      patientName: this.terminWunsch.patientName,
       preferredDate: this.terminWunsch.preferredDate,
       preferredTime: this.terminWunsch.preferredTime,
       notes: this.terminWunsch.notes,

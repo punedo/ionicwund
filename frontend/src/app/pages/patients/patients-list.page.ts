@@ -332,6 +332,7 @@ export class PatientsListPage implements ViewWillEnter {
       error: (err) => {
         console.error('[PatientsListPage] loadPatients error:', err);
         this.loading = false;
+
       },
     });
   }

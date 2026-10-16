@@ -31,7 +31,7 @@
               <div class="day-card">
                 <div class="day-header">{{ day.label }}</div>
                 <div class="day-appointments">
-                  @for (appointment of day.appointments; track appointment.id) {
+                  @for (appointment of day.appointments; track appointment.clientUuid ?? appointment.id) {
                     @if (!appointment.recordedAt && appointment.status !== 'durchgeführt') {
                       <div class="appointment-row">
                         <div class="appointment-meta">
@@ -75,7 +75,7 @@
               <div class="day-card">
                 <div class="day-header">{{ day.label }}</div>
                 <div class="day-appointments">
-                  @for (appointment of day.appointments; track appointment.id) {
+                  @for (appointment of day.appointments; track appointment.clientUuid ?? appointment.id) {
                     <div class="appointment-row">
                       <div class="appointment-meta">
                         <span class="appointment-time">{{ appointment.startTime }} – {{ appointment.endTime }}</span>

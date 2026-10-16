@@ -27,6 +27,7 @@ export class AppointmentCreatePage implements OnInit {
     repetition: 'Einmalig',
   };
 
+  selectedPatientId: number | string = 0;
   patients: Patient[] = [];
   serviceTypes: string[] = ['Verbandwechsel', 'Wunddokumentation', 'Erstbesuch', 'Videosprechstunde'];
   tours: string[] = ['Tour 1', 'Tour 2', 'Tour 3', 'Tour 4', 'Tour 5'];
@@ -52,9 +53,9 @@ export class AppointmentCreatePage implements OnInit {
     this.patientService.getPatients().subscribe({
       next: (data) => {
         this.patients = data;
-        if (this.patients.length > 0 && this.appointment.patientId === 0) {
-          this.appointment.patientId = this.patients[0].id;
-          this.updateAddress();
+        if (this.patients.length > 0 && !this.selectedPatientId) {
+          this.selectedPatientId = this.patients[0].clientUuid ?? this.patients[0].id;
+          this.onPatientChange();
         }
       },
       error: () => {
@@ -75,13 +76,24 @@ export class AppointmentCreatePage implements OnInit {
   }
 
   onPatientChange(): void {
-    this.updateAddress();
+    const patient = this.patients.find((p) => (p.clientUuid ?? p.id) === this.selectedPatientId);
+    if (patient) {
+      this.appointment.patientId = patient.id;
+      this.appointment.patientLocalId = patient.clientUuid;
+      this.appointment.patientName = `${patient.lastName}, ${patient.firstName}`;
+      this.updateAddress(patient);
+    } else {
+      this.appointment.patientId = 0;
+      this.appointment.patientLocalId = undefined;
+      this.appointment.patientName = undefined;
+      this.appointment.address = '';
+    }
   }
 
-  updateAddress(): void {
-    const patient = this.patients.find((p) => p.id === this.appointment.patientId);
-    if (patient) {
-      const parts = [patient.street, patient.houseNumber, patient.zip, patient.city].filter(Boolean);
+  updateAddress(patient?: Patient): void {
+    const selected = patient ?? this.patients.find((p) => (p.clientUuid ?? p.id) === this.selectedPatientId);
+    if (selected) {
+      const parts = [selected.street, selected.houseNumber, selected.zip, selected.city].filter(Boolean);
       this.appointment.address = parts.join(', ');
     } else {
       this.appointment.address = '';
@@ -101,7 +113,7 @@ export class AppointmentCreatePage implements OnInit {
       return;
     }
 
-    if (this.appointment.patientId <= 0) {
+    if (this.appointment.patientId <= 0 && !this.appointment.patientLocalId) {
       this.errorMessage = 'Bitte wählen Sie einen Patienten aus.';
       return;
     }

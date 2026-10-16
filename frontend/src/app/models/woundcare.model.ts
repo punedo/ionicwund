@@ -1,7 +1,7 @@
 import { Patient } from './patient.model';
 
 export interface CarePlanRow {
-  patientId: number;
+  patientId: number | string;
   patientName: string;
   category: string;
   orderNumber: string;

@@ -96,9 +96,9 @@
         <div class="modal-body">
           <div class="form-group">
             <label for="patientId">Patient</label>
-            <select id="patientId" [(ngModel)]="terminWunsch.patientId" class="form-input">
-              @for (patient of patients; track patient.id) {
-                <option [value]="patient.id">{{ patient.firstName }} {{ patient.lastName }}</option>
+            <select id="patientId" [(ngModel)]="selectedPatientId" (ngModelChange)="onPatientChange()" class="form-input">
+              @for (patient of patients; track patient.clientUuid ?? patient.id) {
+                <option [value]="patient.clientUuid ?? patient.id">{{ patient.firstName }} {{ patient.lastName }}</option>
               }
             </select>
           </div>

@@ -175,7 +175,7 @@ export class AppointmentsPage implements OnInit {
   }
 
   onEdit(appointment: Appointment): void {
-    this.router.navigate(['/appointments/edit', appointment.id]);
+    this.router.navigate(['/appointments/edit', appointment.clientUuid ?? appointment.id]);
   }
 
   onDelete(appointment: Appointment): void {
@@ -183,7 +183,7 @@ export class AppointmentsPage implements OnInit {
       return;
     }
     this.loadingService.show('Termin wird gelöscht...');
-    this.appointmentService.deleteAppointment(appointment.id).subscribe({
+    this.appointmentService.deleteAppointment(appointment.clientUuid ?? appointment.id).subscribe({
       next: () => {
         this.loadingService.hide();
         this.loadData();
@@ -197,7 +197,7 @@ export class AppointmentsPage implements OnInit {
 
   onRecord(appointment: Appointment): void {
     this.loadingService.show('Zeit wird erfasst...');
-    this.appointmentService.recordTime(appointment.id).subscribe({
+    this.appointmentService.recordTime(appointment.clientUuid ?? appointment.id).subscribe({
       next: () => {
         this.loadingService.hide();
         this.loadData();
@@ -225,7 +225,9 @@ export class AppointmentsPage implements OnInit {
   }
 
   getPatientAddress(appointment: Appointment): string {
-    const patient = this.patients.find((p) => p.id === appointment.patientId);
+    const patient = this.patients.find((p) =>
+      (appointment.patientLocalId ? p.clientUuid === appointment.patientLocalId : p.id === appointment.patientId)
+    );
     if (!patient) {
       return appointment.address || '—';
     }

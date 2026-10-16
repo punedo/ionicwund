@@ -10,14 +10,18 @@ import {
   TwoFactorRequiredResponse,
   SetupPasswordResponse,
 } from '../models/auth.models';
+import { SecureTokenService } from './secure-token.service';
+import { DbService } from '../data/services/db.service';
+
+const USER_KEY = 'iw_user';
+const PERMISSIONS_KEY = 'iw_permissions';
+const MENU_KEY = 'iw_menu';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private readonly apiUrl = environment.apiUrl;
-  private readonly tokenKey = 'iw_access_token';
-  private readonly refreshTokenKey = 'iw_refresh_token';
 
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   private permissionsSubject = new BehaviorSubject<string[]>([]);
@@ -27,7 +31,11 @@ export class AuthService {
   readonly permissions$ = this.permissionsSubject.asObservable();
   readonly menu$ = this.menuSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private secureToken: SecureTokenService,
+    private db: DbService
+  ) {}
 
   login(email: string, password: string): Observable<AuthResponse> {
     return this.http
@@ -36,9 +44,7 @@ export class AuthService {
         tap((response) => {
           if (response.status === 'authenticated' && response.accessToken) {
             this.setTokens(response.accessToken, response.refreshToken || '');
-            this.setUser(response.user!);
-            this.setPermissions(response.permissions || []);
-            this.setMenu(response.menu || []);
+            this.setAndPersistSession(response.user!, response.permissions || [], response.menu || []);
           }
         })
       );
@@ -51,9 +57,7 @@ export class AuthService {
         tap((response) => {
           if (response.status === 'authenticated' && response.accessToken) {
             this.setTokens(response.accessToken, response.refreshToken || '');
-            this.setUser(response.user!);
-            this.setPermissions(response.permissions || []);
-            this.setMenu(response.menu || []);
+            this.setAndPersistSession(response.user!, response.permissions || [], response.menu || []);
           }
         })
       );
@@ -74,9 +78,7 @@ export class AuthService {
         tap((response) => {
           if (response.status === 'authenticated' && response.accessToken) {
             this.setTokens(response.accessToken, response.refreshToken || '');
-            this.setUser(response.user!);
-            this.setPermissions(response.permissions || []);
-            this.setMenu(response.menu || []);
+            this.setAndPersistSession(response.user!, response.permissions || [], response.menu || []);
           }
         })
       );
@@ -100,9 +102,7 @@ export class AuthService {
       .get<MeResponse>(`${this.apiUrl}/auth/me`)
       .pipe(
         tap((response) => {
-          this.setUser(response.user);
-          this.setPermissions(response.permissions);
-          this.setMenu(response.menu);
+          this.setAndPersistSession(response.user, response.permissions, response.menu);
         })
       );
   }
@@ -115,7 +115,7 @@ export class AuthService {
       .pipe(
         tap((response) => {
           if (response.status === 'success' && response.user) {
-            this.setUser(response.user);
+            this.setAndPersistSession(response.user, this.getPermissions(), this.getMenu());
           }
         })
       );
@@ -126,10 +126,15 @@ export class AuthService {
     lastName?: string | null;
     email: string;
   }): Observable<{ status: string; user: User }> {
-    return this.http.put<{ status: string; user: User }>(
-      `${this.apiUrl}/auth/me`,
-      payload
-    );
+    return this.http
+      .put<{ status: string; user: User }>(`${this.apiUrl}/auth/me`, payload)
+      .pipe(
+        tap((response) => {
+          if (response.user) {
+            this.setAndPersistSession(response.user, this.getPermissions(), this.getMenu());
+          }
+        })
+      );
   }
 
   changePassword(currentPassword: string, newPassword: string): Observable<{ status: string; user: User }> {
@@ -144,11 +149,11 @@ export class AuthService {
   }
 
   getAccessToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    return this.secureToken.getAccessToken();
   }
 
   getRefreshToken(): string | null {
-    return localStorage.getItem(this.refreshTokenKey);
+    return this.secureToken.getRefreshToken();
   }
 
   getCurrentUser(): User | null {
@@ -164,8 +169,7 @@ export class AuthService {
   }
 
   private setTokens(accessToken: string, refreshToken: string): void {
-    localStorage.setItem(this.tokenKey, accessToken);
-    localStorage.setItem(this.refreshTokenKey, refreshToken);
+    this.secureToken.setTokens(accessToken, refreshToken).catch((e) => console.error('[AuthService] setTokens error', e));
   }
 
   private setUser(user: User): void {
@@ -181,10 +185,75 @@ export class AuthService {
   }
 
   clearAuth(): void {
-    localStorage.removeItem(this.tokenKey);
-    localStorage.removeItem(this.refreshTokenKey);
+    this.secureToken.clear().catch((e) => console.error('[AuthService] clearAuth error', e));
+    this.clearStoredSession().catch((e) => console.error('[AuthService] clearStoredSession error', e));
     this.currentUserSubject.next(null);
     this.permissionsSubject.next([]);
     this.menuSubject.next([]);
+  }
+
+  async loadStoredSession(): Promise<void> {
+    await this.db.init();
+    const user = await this.getStoredItem<User>(USER_KEY);
+    const permissions = await this.getStoredItem<string[]>(PERMISSIONS_KEY);
+    const menu = await this.getStoredItem<MenuItem[]>(MENU_KEY);
+
+    if (user) {
+      this.setUser(user);
+    }
+    if (permissions) {
+      this.setPermissions(permissions);
+    }
+    if (menu) {
+      this.setMenu(menu);
+    }
+  }
+
+  private setAndPersistSession(user: User, permissions: string[], menu: MenuItem[]): void {
+    this.setUser(user);
+    this.setPermissions(permissions);
+    this.setMenu(menu);
+    this.storeSessionData(user, permissions, menu).catch((e) =>
+      console.error('[AuthService] storeSessionData error', e)
+    );
+  }
+
+  private async storeSessionData(user: User, permissions: string[], menu: MenuItem[]): Promise<void> {
+    const now = new Date().toISOString();
+    const records = [
+      { key: USER_KEY, value: JSON.stringify(user) },
+      { key: PERMISSIONS_KEY, value: JSON.stringify(permissions) },
+      { key: MENU_KEY, value: JSON.stringify(menu) },
+    ];
+
+    for (const record of records) {
+      await this.db.run(
+        'INSERT OR REPLACE INTO secureStore (key, value, updatedAt) VALUES (?, ?, ?)',
+        [record.key, record.value, now],
+        true
+      );
+    }
+  }
+
+  private async clearStoredSession(): Promise<void> {
+    await this.db.run(
+      'DELETE FROM secureStore WHERE key IN (?, ?, ?)',
+      [USER_KEY, PERMISSIONS_KEY, MENU_KEY],
+      true
+    );
+  }
+
+  private async getStoredItem<T>(key: string): Promise<T | null> {
+    const rows = await this.db.query<{ value: string }>('SELECT value FROM secureStore WHERE key = ?', [key]);
+    const value = rows[0]?.value;
+    if (!value) {
+      return null;
+    }
+    try {
+      return JSON.parse(value) as T;
+    } catch (e) {
+      console.error(`[AuthService] Failed to parse stored ${key}`, e);
+      return null;
+    }
   }
 }

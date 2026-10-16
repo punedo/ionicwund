@@ -32,7 +32,7 @@ export class TerminWuenschePage implements OnInit {
     this.loading = true;
     this.terminWunschService.getTerminWuensche().subscribe({
       next: (data) => {
-        this.terminWuensche = data.wuensche;
+        this.terminWuensche = data;
         this.loading = false;
       },
       error: () => {

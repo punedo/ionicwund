@@ -37,8 +37,8 @@ export class PatientDashboardService {
           catchError(() => of([])),
           switchMap((appointments) =>
             this.terminWunschService.getTerminWuensche().pipe(
-              catchError(() => of({ wuensche: [] })),
-              map((terminData) => this.buildDashboard(patient, appointments, terminData.wuensche))
+              catchError(() => of([])),
+              map((terminData) => this.buildDashboard(patient, appointments, terminData))
             )
           )
         )

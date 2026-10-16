@@ -15,14 +15,14 @@
           <select
             id="patientId"
             name="patientId"
-            [(ngModel)]="appointment.patientId"
+            [(ngModel)]="selectedPatientId"
             (ngModelChange)="onPatientChange()"
             required
             class="form-control"
           >
-            <option value="0" disabled>Patient auswählen</option>
-            @for (p of patients; track p.id) {
-              <option [value]="p.id">{{ p.lastName }}, {{ p.firstName }}</option>
+            <option [value]="0" disabled>Patient auswählen</option>
+            @for (p of patients; track p.clientUuid ?? p.id) {
+              <option [value]="p.clientUuid ?? p.id">{{ p.lastName }}, {{ p.firstName }}</option>
             }
           </select>
         </div>

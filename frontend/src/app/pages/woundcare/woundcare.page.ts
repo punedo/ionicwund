@@ -107,7 +107,7 @@ export class WoundcarePage implements OnInit {
           : o.type ?? 'Wundversorgung';
 
         return {
-          patientId: patient?.id ?? 0,
+          patientId: patient?.clientUuid ?? patient?.id ?? 0,
           patientName: o.patient ?? 'Unbekannt',
           category,
           orderNumber: o.orderNumber ?? '',
@@ -125,7 +125,7 @@ export class WoundcarePage implements OnInit {
 
   openPatient(row: CarePlanRow): void {
     if (row.patientId) {
-      this.router.navigate(['/patients', row.patientId], {
+      this.router.navigate(['/patients', row.patientId ?? row.patient?.id], {
         state: { patient: row.patient },
       });
     }

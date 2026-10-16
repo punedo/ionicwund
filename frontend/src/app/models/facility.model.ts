@@ -1,5 +1,6 @@
 export interface Facility {
   id: number;
+  clientUuid?: string;
   name: string;
   type?: string;
   city?: string;

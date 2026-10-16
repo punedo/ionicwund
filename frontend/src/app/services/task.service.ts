@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { catchError, delay, map } from 'rxjs/operators';
+import { Network } from '@capacitor/network';
+import { Observable, of, from } from 'rxjs';
+import { catchError, delay, map, switchMap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { DbService } from '../data/services/db.service';
 
 export interface Task {
   id: number;
@@ -34,15 +36,31 @@ export interface CreateTaskPayload {
 export class TaskService {
   private readonly apiUrl = `${environment.apiUrl}/tasks`;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private db: DbService
+  ) {}
 
   getTasks(): Observable<Task[]> {
-    return this.http.get<{ tasks: Task[] }>(this.apiUrl).pipe(
-      map((res) => res.tasks ?? []),
-      catchError((err) => {
-        console.error('[TaskService] getTasks error:', err);
-        return of(this.getMockTasks()).pipe(delay(200));
-      })
+    const cacheKey = 'iw_tasks';
+    const local$ = from(this.db.getCacheItem<Task[]>(cacheKey));
+
+    return local$.pipe(
+      switchMap((cached) =>
+        from(Network.getStatus()).pipe(
+          switchMap((status) => {
+            if (!status.connected) {
+              return of(cached ?? this.getMockTasks());
+            }
+
+            return this.http.get<{ tasks: Task[] }>(this.apiUrl).pipe(
+              map((res) => res.tasks ?? []),
+              switchMap((tasks) => from(this.db.setCacheItem(cacheKey, tasks)).pipe(map(() => tasks))),
+              catchError(() => (cached ? of(cached) : of(this.getMockTasks()).pipe(delay(200))))
+            );
+          })
+        )
+      )
     );
   }
 
